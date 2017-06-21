@@ -29,25 +29,44 @@ import sys
 import math
 import linecache
 import re
-
-
+import platform
 try:
     import wx
 except:
     print("")
     print("******************************************************************")
-    print("* CaPP failed to import wxPython - is it correctly installed...? *")
+    print(" CaPP failed to import wxPython - is it correctly installed...?   ")
     print("******************************************************************")
     print("")
     sys.exit(1)
 
-if os.path.exists("capp_mac"):
+if platform.system() == "Darwin":
+    capp_version = "capp_mac"
+elif platform.system() == "Windows":
+    capp_version = "capp_windows"
+else:
+    capp_version = "capp"
+
+if os.path.exists(capp_version):
     print("CaPP initiated correctly")
+elif capp_version == "capp":
+    print("")
+    print("****************************************************************************************")
+    print(" Cannot find the executable: %s. It should be in the same folder as CaPP.py " % capp_version)
+    print(" If you are not running Mac or Windows OS, then:")
+    print("  1) compile the source code Mainfunction.c with output called capp")
+    print("     e.g. gcc Mainfunction.c -o capp")
+    print("  2) plase the executable, capp, in the same folder as CaPP.py")
+    print("  3) re-run CaPP with: python CaPP.py")
+    print("****************************************************************************************")
+    print("")
+    sys.exit(1)
+
 else:
     print("")
-    print("*******************************************************************************")
-    print("* Cannot find the executable capp. It should be in the same folder as CaPP.py *")
-    print("*******************************************************************************")
+    print("****************************************************************************************")
+    print(" Cannot find the executable: %s. It should be in the same folder as CaPP.py " % capp_version)
+    print("****************************************************************************************")
     print("")
     sys.exit(1)
 
@@ -423,7 +442,7 @@ class MainCls(wx.Frame):
     
     def RgFnc(self, event):
         print(os.getcwd())
-        Output_Rg = "./capp_mac -g %s" % self.PDBPathStr
+        Output_Rg = "./%s -g %s" % capp_version % self.PDBPathStr
         os.system(Output_Rg)
         Message = 'See the Rg of the protein in the terminal window'
         wx.MessageBox(Message, "Radius of gyration", wx.OK | wx.ICON_INFORMATION)

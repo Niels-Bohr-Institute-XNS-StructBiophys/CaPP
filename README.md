@@ -21,4 +21,12 @@ CaPP, github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP
 # Running the program
 to start the GUI, type in the terminal:  
 python CaPP_1.0.py  
-the GUI is self-explaining
+the GUI is self-explaining  
+
+# Different platforms
+executable are made for MacOS and Windows  
+Users of other OS should:  
+1) compile Mainfunction.c with the output "capp", e.g.  
+        gcc Mainfunction.c -o capp
+2) place the executable, capp, in the same folder as CaPP.py  
+3) re-run CaPP: python CaPP.py  
