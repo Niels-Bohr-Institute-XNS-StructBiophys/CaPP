@@ -20,4 +20,5 @@ CaPP, github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP
 
 # Running the program
 to start the GUI, type in the terminal:  
-python CaPP_1.0.py
+python CaPP_1.0.py  
+the GUI is self-explaining
