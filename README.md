@@ -19,14 +19,15 @@ CaPP, github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP
 - to recompile the source code c-compiler is needed, e.g. gcc  
 
 # Running the program
-to start the GUI, type in the terminal:  
-python CaPP_1.0.py  
+To start the GUI, type in the terminal:  
+        >> python CaPP_1.0.py  
 the GUI is self-explaining  
 
 # Different platforms
-executable are made for MacOS and Windows  
+Executables are made for MacOS and Windows  
 Users of other OS should:  
-1) compile Mainfunction.c with the output "capp", e.g.  
-        gcc Mainfunction.c -o capp
+1) compile Mainfunction.c and call the executable "capp" 
+        >> gcc Mainfunction.c -o capp
 2) place the executable, capp, in the same folder as CaPP.py  
-3) re-run CaPP: python CaPP.py  
+3) Run CaPP  
+        >> python CaPP.py  
