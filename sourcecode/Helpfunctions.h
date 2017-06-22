@@ -2,23 +2,11 @@
 ///  Copyright 2015,          ///
 ///  University of Copenhagen ///
 ///                           ///
+///  Søren Kynde              ///
 ///  Andreas N Larsen         ///
-///  based on                 ///
-///  Søren Kynde's program    ///
 ///                           ///
 ///  anlarsen@nbi.ku.dk       ///
 ///                           ///
-
-//Compile:
-//gcc pr_implicit_HD.c -o pr
-
-
-#define TRUE 1
-#define FALSE 0
-#define NC 2 /* Number of components */
-#define PRO 0 /* Each components ID number*/
-#define WAT 1
-#define END (1.0/0.0)
 
 struct Atom {
     // Coordinates
@@ -208,7 +196,7 @@ typedef struct comp COMP;
 
 struct agg
 {
-    COMP C[NC];
+    COMP C[2];
     array  *Sx;
     array  *Sn;
     int sizeSx;
@@ -220,13 +208,12 @@ int length(array *A)
 {
     int s=0;
     do{
-    }while(A[++s]!=END);
+    }while(A[++s] != (1.0/0.0) );
     return s;
 }
 
 void Component(COMP *comp,int id,int size)
 {
-    int i,j;
     comp->N=size;
     comp->ID=id;
     comp->B=calloc((size_t) size,sizeof(BEAD));
@@ -267,7 +254,6 @@ int CheckNumberOfResidues(char filename[])
     FILE *fil;
     int R,Rprev,ii=0;
     char buffer[180];
-    char url[200];
     double dumx,dumy,dumz;
     
     if( (fil = fopen(filename,"r"))==0){
@@ -655,8 +641,7 @@ void ReadAminoPDB(char filename[],COMP *co)
     FILE *fil;
     char buffer[180];
     int i=0,Rprev=0,R=0;
-    double weight=0,delta,W=0,Aweight,A=0,angle;
-    double dx,dy,dz;
+    double weight=0,delta,W=0,Aweight;
     double CA[3]={0,0,0};
     double COS[3]={0,0,0};
     double X=0,Y=0,Z=0,x,y,z,XA=0,YA=0,ZA=0;
@@ -691,8 +676,8 @@ void ReadAminoPDB(char filename[],COMP *co)
         }
         sscanf(buffer,"ATOM%*9cCA%*2c%*s%*10c%lf%lf%lf",&agg[i].xa,&agg[i].ya,&agg[i].za);
         sscanf(buffer,"ATOM%*13c%s",agg[i].amin);
-        if(sscanf(buffer,"ATOM%*9c%c%c%c",&aname,&anum,&abranch))
-            W=We(agg[i].amin,aname,anum,abranch);
+        if(sscanf(buffer,"ATOM%*9c%c%c%c",&aname,&anum,&abranch)){
+            W=We(agg[i].amin,aname,anum,abranch);}
         weight+=W;
         X+=W*x;
         Y+=W*y;
@@ -705,7 +690,6 @@ int CheckNumberOfAtoms(char filename[])
 {
     FILE *fil;
     char buffer[180];
-    double q,S,err;
     int dum,ii=0;
     
     if( (fil = fopen(filename,"r"))==0){
@@ -738,7 +722,7 @@ void WritePDB_Water(char filename[], double HalfBilayerThickness, COMP *comp)
     int i, N=comp->N;
     BEAD *B=comp->B;
     fil=fopen(filename,"w");
-    int j=1;
+    int j = 1;
     
     for(i=0;i<N;i++)
     {
@@ -810,15 +794,14 @@ void WritePDB_ProteinAndWater(char inputfilename[], int Nato, double HalfBilayer
 int PlaceWater(AGG *akk, int SIZE, array *S)
 {
     int i,j,n;
-    BEAD* mol=akk->C[PRO].B;
-    BEAD* wat=akk->C[WAT].B;
-    int nwat=akk->C[WAT].N;
-    int nmol=akk->C[PRO].N;
+    BEAD* mol=akk->C[0].B;
+    BEAD* wat=akk->C[1].B;
+    int nwat=akk->C[1].N;
+    int nmol=akk->C[0].N;
     int N,s=0;
     double dx=0,dy=0,dz=0,D;
     double sumW;
     double shellvolume;
-    double A,AA;
     if(nwat<2)
         return 1;
     for(n=0;n<nmol;n++){
@@ -869,7 +852,7 @@ int PlaceWater(AGG *akk, int SIZE, array *S)
 
 double char2double(char *C)
 {
-    double temp = strtod(C,NULL);
+    strtod(C,NULL);
     float D = atof(C);
     return D;
 }

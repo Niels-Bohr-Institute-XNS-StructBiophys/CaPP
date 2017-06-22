@@ -23,11 +23,11 @@ char * AddWaterLayerToPDB(char *inputPDB, double HalfBilayerThickness)
     char *inputPDB1 = ExtractString(inputPDB, '.'); //extracts 1HEJ from 1HEJ.pdb
 
     char *outputfilename = strcat(inputPDB1, "_w.pdb"); // adds w.pdb to 1HEJ
-    WritePDB_ProteinAndWater(inputPDB, Natoms, HalfBilayerThickness, outputfilename, &agg.C[WAT]);
+    WritePDB_ProteinAndWater(inputPDB, Natoms, HalfBilayerThickness, outputfilename, &agg.C[1]);
 
     char *inputPDB2 = ExtractString(inputPDB, '.'); //extracts 1HEJ from 1HEJ.pdb again
     char *waterfilename = strcat(inputPDB2, "_w_only.pdb");
-    WritePDB_Water(waterfilename, HalfBilayerThickness, &agg.C[WAT]);
+    WritePDB_Water(waterfilename, HalfBilayerThickness, &agg.C[1]);
     
     return outputfilename;
 }
