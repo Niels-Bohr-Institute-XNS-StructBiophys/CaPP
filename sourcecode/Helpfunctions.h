@@ -794,12 +794,12 @@ void WritePDB_ProteinAndWater(char inputfilename[], int Nato, double HalfBilayer
     int j = 1;
     int i;
     int N = comp->N;
-    fprint("Here 1");
+    printf("Here 1");
     BEAD * B = comp->B;
-    fprint("Here 2");
+    print("Here 2");
     for(i=0;i<N;i++)
     {
-        fprint("Here 3");
+        printf("Here 3");
         if (fabs(B[i].z) > HalfBilayerThickness){
             fprintf(outfil,"ATOM  %5d  Q   WAT W%4d    %8.3lf%8.3lf%8.3lf  1.00 10.00           Q\n",j+Nato,j,B[i].x, B[i].y,B[i].z);
             j++;}
