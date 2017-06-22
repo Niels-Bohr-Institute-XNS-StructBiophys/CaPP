@@ -85,6 +85,13 @@ int CheckNumberOfAtomsInPDBFile(char *filename)
     return NumberOfAtoms;
 }
 
+char *strdup (const char *s) {
+    char *d = malloc (strlen (s) + 1);   // Space for length plus nul
+    if (d == NULL) return NULL;          // No memory
+    strcpy (d,s);                        // Copy the characters
+    return d;                            // Return the new string
+}
+
 char *ExtractString(char *str, char delim)
 {
     size_t len;

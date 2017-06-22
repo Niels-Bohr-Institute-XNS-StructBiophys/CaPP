@@ -43,7 +43,7 @@ except:
 if platform.system() == "Darwin":
     capp_version = "capp_mac"
 elif platform.system() == "Windows":
-    capp_version = "capp_windows"
+    capp_version = "capp_windows.exe"
 else:
     capp_version = "capp"
 
@@ -442,7 +442,12 @@ class MainCls(wx.Frame):
     
     def RgFnc(self, event):
         print(os.getcwd())
-        Output_Rg = "./%s -g %s" % capp_version % self.PDBPathStr
+
+        if capp_version == "capp_windows.exe":
+            Output_Rg = "%s -g %s" % (capp_version, self.PDBPathStr)
+        else:
+            Output_Rg = "./%s -g %s" % (capp_version, self.PDBPathStr)
+        
         os.system(Output_Rg)
         Message = 'See the Rg of the protein in the terminal window'
         wx.MessageBox(Message, "Radius of gyration", wx.OK | wx.ICON_INFORMATION)
@@ -494,7 +499,10 @@ class MainCls(wx.Frame):
             wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
 
         # assemble options into a command line
-        Output = "./capp_mac %s %s %s %s %s %s %s %s %s" % (XN_choice, solvent, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
+        if capp_version == "capp_windows.exe":
+            Output = "%s %s %s %s %s %s %s %s %s %s" % (capp_version, XN_choice, solvent, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
+        else:
+            Output = "./%s %s %s %s %s %s %s %s %s %s" % (capp_version, XN_choice, solvent, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
     
         # run command line
         os.system(Output)

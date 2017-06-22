@@ -15,8 +15,12 @@ CaPP, github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP
 
 # Dependencies
 - python 2.7  
-- wxpython  
-- to recompile the source code c-compiler is needed, e.g. gcc  
+- wxpython
+- matplotlib
+python packages can easily be managed by e.g. Enthought Canopy
+
+# For developers and users of 
+- To recompile the source code c-compiler is needed, e.g. gcc  
 
 # Running the program
 To start the GUI, type in the terminal:  
@@ -30,9 +34,10 @@ Users of other OS should:
         >> gcc Mainfunction.c -o capp
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
-        >> python CaPP.py 
+        >> python CaPP.py  
+!) CaPP has only been tested on MacOS and Windows
 
-# On the calculations
+# About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
 X-ray scattering length are simply calculated as the number of electrons times the electron scattering length.  
 The atomic form factor of each atom is approximated by the carbon atomic formfactor.  
