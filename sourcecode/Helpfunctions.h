@@ -770,7 +770,7 @@ int CopyFile(const char *copyFrom, const char *copyTo)
         printf("\nError reading file\n");
         exit(0);}
     
-    //Step 2: Get text from original file
+    //Step 2: Get text from original file. Stop before "END"
     while(fgets(content, sizeof(content), fp1) !=NULL)
     {
         sscanf(content,"%s",&stringtestforEND);
@@ -789,14 +789,17 @@ void WritePDB_ProteinAndWater(char inputfilename[], int Nato, double HalfBilayer
     
     //open files
     FILE *outfil;
-    outfil=fopen(outputfilename, "a");
+    outfil = fopen(outputfilename, "a");
     
     int j = 1;
     int i;
-    int N=comp->N;
-    BEAD *B=comp->B;
+    int N = comp->N;
+    fprint("Here 1");
+    BEAD * B = comp->B;
+    fprint("Here 2");
     for(i=0;i<N;i++)
     {
+        fprint("Here 3");
         if (fabs(B[i].z) > HalfBilayerThickness){
             fprintf(outfil,"ATOM  %5d  Q   WAT W%4d    %8.3lf%8.3lf%8.3lf  1.00 10.00           Q\n",j+Nato,j,B[i].x, B[i].y,B[i].z);
             j++;}

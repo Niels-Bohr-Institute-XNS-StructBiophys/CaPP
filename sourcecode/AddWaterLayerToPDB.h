@@ -2,9 +2,8 @@ char * AddWaterLayerToPDB(char *inputPDB, double HalfBilayerThickness)
 {
     int SIZE = 100;
   
-    int Nres, Nato;
-    Nres = CheckNumberOfResidues(inputPDB);
-    Nato = CheckNumberOfAtoms(inputPDB);
+    int Nres = CheckNumberOfResidues(inputPDB);
+    int Natoms = CheckNumberOfAtoms(inputPDB);
 
     /*********Allocate memory***********/
     AGG  agg;
@@ -24,7 +23,7 @@ char * AddWaterLayerToPDB(char *inputPDB, double HalfBilayerThickness)
     char *inputPDB1 = ExtractString(inputPDB, '.'); //extracts 1HEJ from 1HEJ.pdb
 
     char *outputfilename = strcat(inputPDB1, "_w.pdb"); // adds w.pdb to 1HEJ
-    WritePDB_ProteinAndWater(inputPDB, Nato, HalfBilayerThickness, outputfilename, &agg.C[WAT]);
+    WritePDB_ProteinAndWater(inputPDB, Natoms, HalfBilayerThickness, outputfilename, &agg.C[WAT]);
 
     char *inputPDB2 = ExtractString(inputPDB, '.'); //extracts 1HEJ from 1HEJ.pdb again
     char *waterfilename = strcat(inputPDB2, "_w_only.pdb");
