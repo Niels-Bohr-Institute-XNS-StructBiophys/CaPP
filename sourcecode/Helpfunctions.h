@@ -85,28 +85,17 @@ int CheckNumberOfAtomsInPDBFile(char *filename)
     return NumberOfAtoms;
 }
 
-char *strdup (const char *s) {
-    char *d = malloc (strlen (s) + 1);   // Space for length plus nul
-    if (d == NULL) return NULL;          // No memory
-    strcpy (d,s);                        // Copy the characters
-    return d;                            // Return the new string
-}
-
 char *ExtractString(char *str, char delim)
 {
     size_t len;
     char *new_str;
     char *delim_pos = strchr(str, delim);
     
-    /* new string is the length from the start of the old string to the
-     * delimiter, or if it doesn't exist, a copy of the whole string */
-    if (delim_pos == NULL)
-        return strdup(str);
-    
+    // new string is the length from the start of the old string to the delimiter
     len = delim_pos - str;
     new_str = malloc(len + 1);
     memcpy(new_str, str, len);
-    new_str[len] = '\0'; /* NUL terminate the new string */
+    new_str[len] = '\0'; // NULL terminates the new string
     
     return new_str;
 }
