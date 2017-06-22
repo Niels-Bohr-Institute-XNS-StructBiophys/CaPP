@@ -75,7 +75,7 @@ int CheckNumberOfAtomsInPDBFile(char *filename)
     }
 
     while(fgets(buffer, sizeof(buffer), PointerToFile) != NULL) {
-        if(sscanf(buffer, "ATOM%*18c%d%*4c", &DummyID) == 1 ||
+        if(sscanf(buffer, "ATOM%*18c%d*4c", &DummyID) == 1 ||
            sscanf(buffer, "HETATM%*16c%d%*4c", &DummyID) == 1){
             ++NumberOfAtoms;
         }
@@ -93,7 +93,7 @@ char *ExtractString(char *str, char delim)
     
     // new string is the length from the start of the old string to the delimiter
     len = delim_pos - str;
-    new_str = malloc(len + 1);
+    new_str = malloc(len + 100);
     memcpy(new_str, str, len);
     new_str[len] = '\0'; // NULL terminates the new string
     
@@ -750,7 +750,7 @@ void WritePDB_Water(char filename[], double HalfBilayerThickness, COMP *comp)
     fclose(fil);
 }
 
-int CopyFile(const char *copyFrom, const char *copyTo)
+void CopyFile(const char *copyFrom, const char *copyTo)
 {
     /*
      This function copies content of copyFrom to copyTo (except the line END\n)
@@ -759,7 +759,7 @@ int CopyFile(const char *copyFrom, const char *copyTo)
      */
     
     char content[80];
-    char stringtestforEND;
+    char *new_str;
     
     //Step 1: Open text files and check that they open
     FILE *fp1, *fp2;
@@ -773,33 +773,32 @@ int CopyFile(const char *copyFrom, const char *copyTo)
     //Step 2: Get text from original file. Stop before "END"
     while(fgets(content, sizeof(content), fp1) !=NULL)
     {
-        sscanf(content,"%s",&stringtestforEND);
-        if(strcmp(&stringtestforEND,"END") != 0) {fprintf(fp2, "%s", content);}
+        new_str = malloc(80);
+        memcpy(new_str, &content,3);
+        new_str[3] = '\0'; // NULL terminates the nwe string
+        if(strcmp(new_str,"END") != 0) {fprintf(fp2, "%s", content);}
     }
     
     //Step 3: Close both files and end program
     fclose(fp1);
     fclose(fp2);
-    return 0;
 }
 
 void WritePDB_ProteinAndWater(char inputfilename[], int Nato, double HalfBilayerThickness, char outputfilename[],COMP *comp)
 {
     CopyFile(inputfilename, outputfilename);
     
-    //open files
+    //open file
     FILE *outfil;
     outfil = fopen(outputfilename, "a");
     
+    //write to file
     int j = 1;
     int i;
     int N = comp->N;
-    printf("Here 1");
     BEAD * B = comp->B;
-    print("Here 2");
     for(i=0;i<N;i++)
     {
-        printf("Here 3");
         if (fabs(B[i].z) > HalfBilayerThickness){
             fprintf(outfil,"ATOM  %5d  Q   WAT W%4d    %8.3lf%8.3lf%8.3lf  1.00 10.00           Q\n",j+Nato,j,B[i].x, B[i].y,B[i].z);
             j++;}

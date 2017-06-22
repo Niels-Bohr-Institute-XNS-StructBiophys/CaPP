@@ -230,8 +230,9 @@ int main(int argc, char **argv)
         printf("\n            Water has been added with contrast = %2.1f\n", WaterLayerContrast);
         printf("\n            PDB with protein and water generated: %s \n", filename);
         int PDBFilenameLength = strlen(filename) - 4; // length of first part of pdb filename, e.g. 6 for 1x2y_w.pdb
-        char WaterOnlyFileName[300];
-        strncpy(WaterOnlyFileName, filename, PDBFilenameLength);
+        char WaterOnlyFileName[PDBFilenameLength];
+        memcpy(WaterOnlyFileName, filename, PDBFilenameLength);
+        WaterOnlyFileName[PDBFilenameLength] = '\0'; // NULL terminates the new string
         printf("\n            PDB with water only generated: %s_only.pdb \n", WaterOnlyFileName);
         printf("\n            ********************************************\n");
     }
@@ -284,7 +285,6 @@ int main(int argc, char **argv)
     double rhoSolvent = ScatteringLengthSolvent/VolumeSolvent;
     
     double Sum_dB = 0.0, SumAtomWeight=0.0;
-    double X=0,Y=0,Z=0;
     int R,i=0,j,u=0;
     char buffer[256];
 
@@ -871,10 +871,6 @@ int main(int argc, char **argv)
     printf("# Progression [prc]:\n# ");
     
     int progression = 0;
-    
-    double I0 = 0.0;
-    double I0self = 0.0;
-    double I0cross = 0.0;
 
     for(i=0;i<NumberOfAtomsRead;i++){
         Gofr[0] += Ba[i] * Ba[i];
