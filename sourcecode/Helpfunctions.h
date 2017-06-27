@@ -641,7 +641,7 @@ void ReadAminoPDB(char filename[],COMP *co)
     FILE *fil;
     char buffer[180];
     int i=0,Rprev=0,R=0;
-    double weight=0,delta,W=0,Aweight;
+    double weight=0,W=0,Aweight;
     double CA[3]={0,0,0};
     double COS[3]={0,0,0};
     double X=0,Y=0,Z=0,x,y,z,XA=0,YA=0,ZA=0;
@@ -662,10 +662,7 @@ void ReadAminoPDB(char filename[],COMP *co)
                 if(Rprev!=0){
                     COS[0]=X/weight  ,COS[1]=Y/weight  ,COS[2]=Z/weight  ;
                     CA[0] =agg[i].xa ,CA[1] =agg[i].ya ,CA[2] =agg[i].za ;
-                    
-                    if(strcmp("pdb","CA")==0){ agg[i].x=CA[0]; agg[i].y=CA[1]; agg[i].z=CA[2];}
-                    else{ agg[i].x=COS[0]; agg[i].y=COS[1]; agg[i].z=COS[2];}
-                    
+                    agg[i].x=COS[0]; agg[i].y=COS[1]; agg[i].z=COS[2];
                     agg[i].delta=sqrt(pow(COS[0]-CA[0],2)+pow(COS[1]-CA[1],2)+pow(COS[2]-CA[2],2));
                     X=0;Y=0;Z=0;weight=0;XA=0;YA=0;ZA=0;Aweight=0;
                     i++;
@@ -793,7 +790,7 @@ void WritePDB_ProteinAndWater(char inputfilename[], int Nato, double HalfBilayer
 
 int PlaceWater(AGG *akk, int SIZE, array *S)
 {
-    int i,j,n;
+    int i,n;
     BEAD* mol=akk->C[0].B;
     BEAD* wat=akk->C[1].B;
     int nwat=akk->C[1].N;

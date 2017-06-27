@@ -35,7 +35,7 @@ Users of other OS should:
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
         >> python CaPP.py  
-!) CaPP has only been tested on MacOS and Windows
+!) CaPP has been tested on MacOS and Windows
 
 # About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
