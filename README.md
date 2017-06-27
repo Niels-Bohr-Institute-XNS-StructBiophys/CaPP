@@ -7,30 +7,31 @@ A water layer can be added as an option.
 # License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          
                                                                      
-CaPP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).                        
+CaPP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).  
                                                                      
-# Citing the program
-If you use the CaPP software in your work, please cite:                                         
-CaPP, github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
+# Citing the program  
+If you use the CaPP software in your work, please cite the Github download address:                                    
+CaPP, available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
 
-# Dependencies for the GUI
+# Dependencies for the GUI  
 - python 2.7  
-- wxpython
+- wxpython  
 - matplotlib  
-python packages can easily be managed by e.g. Enthought Canopy
+python packages can easily be managed by e.g. Enthought Canopy  
 
 # Dependencies for developers and users of Linux
-- To recompile the source code, a c-compiler is needed, e.g. gcc (Linux/MacOS) or Pelles C (Windows).
+- To recompile the source code, a c-compiler is needed, e.g. gcc (Linux/MacOS) or Pelles C (Windows).  
 
-# Different platforms
+# Different platforms  
 Executables are made for MacOS and Windows  
 Users of other OS should:  
 1) compile Mainfunction.c and call the executable "capp"  
-        >> gcc Mainfunction.c -o capp
+        >> gcc Mainfunction.c -o capp  
 2) place the executable, capp, in the same folder as CaPP.py  
-3) Run CaPP  
->> python CaPP.py  
-CaPP has been tested on MacOS and Windows
+3) Run CaPP 
+        >> python CaPP.py  
+
+CaPP has been tested on MacOS 10.12 (Sierra) and Windows Vista  
 
 # Running the program, GUI mode
 To start the GUI, type in the terminal:  
@@ -39,6 +40,7 @@ To start the GUI, type in the terminal:
 # Running the program, batch mode
 Type in the terminal:  
         >> capp [options] PDBFILE.pdb  
+  
 Options:  
   
 - c [input: Contrast of water layer]  
