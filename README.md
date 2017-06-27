@@ -29,7 +29,7 @@ Users of other OS should:
         >> gcc Mainfunction.c -o capp  
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
-        >> python CaPP.py  
+        >> python CaPP_1.0.py  
 
 CaPP has been tested on MacOS 10.12 (Sierra) and Windows Vista  
 
