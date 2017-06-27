@@ -13,29 +13,53 @@ CaPP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 If you use the CaPP software in your work, please cite:                                         
 CaPP, github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
 
-# Dependencies
+# Dependencies for the GUI
 - python 2.7  
 - wxpython
-- matplotlib
+- matplotlib  
 python packages can easily be managed by e.g. Enthought Canopy
 
-# For developers and users of 
-- To recompile the source code c-compiler is needed, e.g. gcc  
-
-# Running the program
-To start the GUI, type in the terminal:  
-        >> python CaPP_1.0.py  
-the GUI is self-explaining  
+# Dependencies for developers and users of Linux
+- To recompile the source code, a c-compiler is needed, e.g. gcc (Linux/MacOS) or Pelles C (Windows).
 
 # Different platforms
 Executables are made for MacOS and Windows  
 Users of other OS should:  
 1) compile Mainfunction.c and call the executable "capp"  
-        >> gcc Mainfunction.c -o capp
+>> gcc Mainfunction.c -o capp
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
-        >> python CaPP.py  
+>> python CaPP.py  
 !) CaPP has been tested on MacOS and Windows
+
+# Running the program, GUI mode
+To start the GUI, type in the terminal:  
+        >> python CaPP_1.0.py  
+
+# Running the program, batch mode
+Type in the terminal:  
+        >> capp [options] PDBFILE.pdb  
+Options:  
+-c [input: Contrast of water layer]  
+Add a water layer with (c)ontrast between 0 and 2 times the solvent scattering length.  
+Typically 0.1.  
+Default: No water layer.  
+-d [no input]  
+Only relevant for membrane proteins.  
+Removes water layer from the bilayer region.  
+Choose -d if the pdb is from the OPM (d)atabase, that provides the bilayer thickness.  
+-m [input: Bilayer Thickness]  
+Only relevant for membrane proteins.  
+Removes water layer from the bilayer region.  
+Choose -m to (m)anually provide the bilayer thickness in Aangstrom.  
+Typically 30 Aangstrom.  
+NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!  
+-s [input: prc D20 in the solvent]  
+Choose SANS contrast and enter the D2O-content (between 0 and 1) of the (s)olvent.  
+SAXS contrast asssumed if option is not chosen.  
+-r [input: Resolution of p(r) function]  
+Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.  
+Default: 3.0 Aangstrom.  
 
 # About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
