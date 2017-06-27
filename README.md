@@ -28,7 +28,7 @@ Users of other OS should:
 1) compile Mainfunction.c and call the executable "capp"  
         >> gcc Mainfunction.c -o capp  
 2) place the executable, capp, in the same folder as CaPP.py  
-3) Run CaPP 
+3) Run CaPP  
         >> python CaPP.py  
 
 CaPP has been tested on MacOS 10.12 (Sierra) and Windows Vista  
