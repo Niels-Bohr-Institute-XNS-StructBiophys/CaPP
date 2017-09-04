@@ -144,7 +144,7 @@ array * Array(int N)
 {
     array *px;
     px=calloc((size_t)(N+1),sizeof(double));
-    px[N]= 1.0/0.0;
+    px[N]= 123456789.123456789;
     return px;
 }
 
@@ -208,7 +208,7 @@ int length(array *A)
 {
     int s=0;
     do{
-    }while(A[++s] != (1.0/0.0) );
+    }while(A[++s] != 123456789.123456789 );
     return s;
 }
 
@@ -252,7 +252,7 @@ double CheckHalfBilayerThickness(char filename[])
 int CheckNumberOfResidues(char filename[])
 {
     FILE *fil;
-    int R,Rprev,ii=0;
+    int R = 0,Rprev = 0,ii = 0;
     char buffer[180];
     double dumx,dumy,dumz;
     
@@ -267,9 +267,9 @@ int CheckNumberOfResidues(char filename[])
     while(fgets(buffer,sizeof(buffer),fil)!=NULL){
         R=0;
         if(sscanf(buffer,"ATOM%*18c%d%*4c%lf%lf%lf",&R,&dumx,&dumy,&dumz)==4){
-            if(R!=Rprev && R!=0)
+            if(R != Rprev && R != 0)
                 ii++;
-            Rprev=R;;
+            Rprev = R;
         }
     }
     fclose(fil);
@@ -277,8 +277,9 @@ int CheckNumberOfResidues(char filename[])
 }
 
 double We(char * amin, char aname, char anum, char abranch){
-    double WH=-0.720,WC=0.509,WN=6.168,WO=4.951,WS=9.367,WP=13.03;
-    double W=1e-5;
+    double WH = -0.720,WC = 0.509,WN = 6.168, WO = 4.951, WS = 9.367;
+    //double WP = 13.03;
+    double W = 1e-5;
     switch(aname){
         case 'O':
             W=WO;
@@ -645,7 +646,7 @@ void ReadAminoPDB(char filename[],COMP *co)
     double CA[3]={0,0,0};
     double COS[3]={0,0,0};
     double X=0,Y=0,Z=0,x,y,z,XA=0,YA=0,ZA=0;
-    double WH=-0.720,WC=0.509,WN=6.168,WO=4.951,WS=9.367,WP=13.03;
+    //double WH=-0.720,WC=0.509,WN=6.168,WO=4.951,WS=9.367,WP=13.03;
     char anum,aname,abranch;
     char atom;
     char* scanline="hej";
@@ -664,7 +665,7 @@ void ReadAminoPDB(char filename[],COMP *co)
                     CA[0] =agg[i].xa ,CA[1] =agg[i].ya ,CA[2] =agg[i].za ;
                     agg[i].x=COS[0]; agg[i].y=COS[1]; agg[i].z=COS[2];
                     agg[i].delta=sqrt(pow(COS[0]-CA[0],2)+pow(COS[1]-CA[1],2)+pow(COS[2]-CA[2],2));
-                    X=0;Y=0;Z=0;weight=0;XA=0;YA=0;ZA=0;Aweight=0;
+                    X=0; Y=0; Z=0; weight=0; XA=0; YA=0; ZA=0; Aweight=0;
                     i++;
                     if(i<nagg) {agg[i].amin=(char *) calloc(3,sizeof(char));}
                 }
@@ -748,7 +749,7 @@ void CopyFile(const char *copyFrom, const char *copyTo)
     fp2 = fopen(copyTo,"w");
     
     if(fp1 == NULL || fp2 == NULL){
-        printf("\nError reading file\n");
+        printf("\nError reading file, in function CopyFile()\n");
         exit(0);}
     
     //Step 2: Get text from original file. Stop before "END"
@@ -756,7 +757,7 @@ void CopyFile(const char *copyFrom, const char *copyTo)
     {
         new_str = malloc(80);
         memcpy(new_str, &content,3);
-        new_str[3] = '\0'; // NULL terminates the nwe string
+        new_str[3] = '\0'; // NULL terminates the new string
         if(strcmp(new_str,"END") != 0) {fprintf(fp2, "%s", content);}
     }
     

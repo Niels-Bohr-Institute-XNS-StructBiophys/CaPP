@@ -23,7 +23,7 @@ python packages can easily be managed by e.g. Enthought Canopy
 - To recompile the source code, a c-compiler is needed, e.g. gcc (Linux/MacOS) or Pelles C (Windows).  
 
 # Different platforms  
-Executables are made for MacOS and Windows  
+Executables have been made for MacOS and Windows  
 Users of other OS should:  
 1) compile Mainfunction.c and call the executable "capp"  
         >> gcc Mainfunction.c -o capp  

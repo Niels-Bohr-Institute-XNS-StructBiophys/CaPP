@@ -361,20 +361,20 @@ int main(int argc, char **argv)
             if (sscanf(buffer,"ATOM%*13c%s", &AminoName) == 1)
             {
                 if (strcmp(&AminoName,"ALA")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 3;}
                 }
                 else if (strcmp(&AminoName,"ASN")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"ND2")==0) {n_D = 2;}
                 }
                 else if (strcmp(&AminoName,"ARG")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -385,21 +385,21 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"NH2")==0) {n_D = 2; Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength - 2.82e-13; } // kation
                 }
                 else if (strcmp(&AminoName,"ASP")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"OD2")==0) {Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength + 2.82e-13; } // anion
                 }
                 else if (strcmp(&AminoName,"CYS")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"SG")==0) {n_D = 1;}
                 }
                 else if (strcmp(&AminoName,"GLN")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -407,7 +407,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"NE2")==0) {n_D = 2;}
                 }
                 else if (strcmp(&AminoName,"GLU")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -415,12 +415,12 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"OE2")==0) {Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength + 2.82e-13; } // anion}
                 }
                 else if (strcmp(&AminoName,"GLY")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 2;}
                 }
                 else if (strcmp(&AminoName,"HIS")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -429,7 +429,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"NE2")==0) {n_D = 1;}
                 }
                 else if (strcmp(&AminoName,"ILE")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 1;}
@@ -438,7 +438,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"CD1")==0) {n_H = 3;}
                 }
                 else if (strcmp(&AminoName,"LEU")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -447,7 +447,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"CD2")==0) {n_H = 3;}
                 }
                 else if (strcmp(&AminoName,"LYS")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -457,7 +457,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"NZ")==0) {n_D = 3; Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength - 2.82e-13;} // kation
                 }
                 else if (strcmp(&AminoName,"MET")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -465,7 +465,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"CE")==0) {n_H = 3;}
                 }
                 else if (strcmp(&AminoName,"PHE")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -476,7 +476,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"CZ")==0) {n_H = 1;}
                 }
                 else if (strcmp(&AminoName,"PRO")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {} // proline is the only aa without an amide NH group
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -484,14 +484,14 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"CD")==0) {n_H = 2;}
                 }
                 else if (strcmp(&AminoName,"SER")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"OG")==0) {n_D = 1;}
                 }
                 else if (strcmp(&AminoName,"THR")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 1;}
@@ -499,7 +499,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"OG1")==0) {n_D = 1;}
                 }
                 else if (strcmp(&AminoName,"TRP")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -511,7 +511,7 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"NE1")==0) {n_D = 1;}
                 }
                 else if (strcmp(&AminoName,"TYR")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
@@ -522,7 +522,9 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"OH")==0) {n_D = 1;}
                 }
                 else if (strcmp(&AminoName,"VAL")==0) {
-                    sscanf(buffer,"ATOM%*9c%s", &LongAtomName);
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    //printf("\n\nLongAtomName = %3c\n\n",LongAtomName);
+                    //puts(&LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 1;}
@@ -929,5 +931,6 @@ int main(int argc, char **argv)
     printf("# Done\n# time: %lf sec\n\n",(double) clock()/CLOCKS_PER_SEC); /* print execution time  */
     printf("# MeanVolume %8.2lf\n", MeanVolume);
     printf("# SumOfVolume %8.2lf\n", SumOfVolume);
-
+    
+    return 0;
 }
