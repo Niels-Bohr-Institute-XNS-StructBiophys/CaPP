@@ -775,6 +775,17 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"O2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
                 }
+                else if (strcmp(&AminoName,"CRS")==0) {
+                    sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 0;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 0;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C7")==0) {n_H = 3;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                }
             }
             // Update volume and scattering length with implicit H and D
             Atoms[i].Volume += (n_D + n_H) * 5.15;
