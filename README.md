@@ -31,7 +31,9 @@ Users of other OS should:
 3) Run CaPP  
         >> python CaPP_1.0.py  
 
-CaPP has been tested on MacOS 10.12 (Sierra) and Windows Vista  
+CaPP has been tested on 
+        >> MacOS 10.12, compiled with gcc  
+        >> Windows Vista, compiled with Pelles C  
 
 # Running the program, GUI mode
 To start the GUI, type in the terminal:  
