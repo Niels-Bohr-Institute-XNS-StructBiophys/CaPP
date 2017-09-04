@@ -83,8 +83,8 @@ import numpy as np
 ## Define main class and text
 class MainCls(wx.Frame):
     def __init__(self, parent, id):
-    
-    
+
+
         ### Overall frame for widgets
         width = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)
         height = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
@@ -95,58 +95,58 @@ class MainCls(wx.Frame):
         self.Panel.SetupScrolling(False, True)
         # for closing correctly (pylab has to be closed explicitely)
         self.Bind(wx.EVT_CLOSE, self.CloseWindowFnc)
-    
-    
-    
-    
+
+
+
+
         ### Widgets for PDB-file import
         BoxSizer.AddSpacer(10) #vertical spacing
-        
+
         PDBTextSizer = wx.BoxSizer(wx.HORIZONTAL)
         PDBTextSizer.AddSpacer(10)
-        
+
         PDBText = wx.StaticText(self.Panel, -1, 'Location of PDB file:', size = (330, -1))
         PDBTextSizer.Add(PDBText)
-        
+
         BoxSizer.Add(PDBTextSizer, 0, wx.EXPAND|wx.HORIZONTAL)
         BoxSizer.AddSpacer(10)
-        
+
         PDBPathSizer = wx.BoxSizer(wx.HORIZONTAL)
         PDBPathSizer.AddSpacer(10)
-        
+
         self.PDBPathTxt = wx.StaticText(self.Panel, -1, '')
         self.PDBPathStr = 'N/A'
         PDBPathSizer.Add(self.PDBPathTxt)
-        
+
         BoxSizer.Add(PDBPathSizer, 0, wx.EXPAND|wx.HORIZONTAL)
         BoxSizer.AddSpacer(10)
-        
+
         PDBBtnSizer = wx.BoxSizer(wx.HORIZONTAL)
         PDBBtnSizer.AddSpacer(10)
-        
+
         BrowsePDBBtn = wx.Button(self.Panel, label = 'Browse')
         self.Bind(wx.EVT_BUTTON, self.BrowsePDBFnc, BrowsePDBBtn)
         PDBBtnSizer.Add(BrowsePDBBtn, 1, wx.EXPAND)
         PDBBtnSizer.AddSpacer(10)
-        
+
         BoxSizer.Add(PDBBtnSizer, 0, wx.EXPAND|wx.HORIZONTAL)
         BoxSizer.AddSpacer(10)
-        
+
         LinePDB = wx.StaticLine(self.Panel, -1)
         BoxSizer.Add(LinePDB, 0, wx.EXPAND|wx.HORIZONTAL)
-        
-        
-        
+
+
+
         ### Widgets used to choose between SAXS and SANS
         BoxSizer.AddSpacer(10)
-        
+
         SAXS_button = wx.BoxSizer(wx.HORIZONTAL) # prepare for SAXS button
         SAXS_button.AddSpacer(10) # vertical spacing
         self.SAXS_button = wx.RadioButton(self.Panel, -1, 'SAXS',style=wx.RB_GROUP) # make SAXS button
         SAXS_button.Add(self.SAXS_button)
         BoxSizer.Add(SAXS_button, 0, wx.EXPAND|wx.HORIZONTAL) # position SAXS button
         self.Bind(wx.EVT_RADIOBUTTON, self.DisableSANSFnc, self.SAXS_button)
-        
+
         BoxSizer.AddSpacer(10) # vertical spacing
 
         SANS_button = wx.BoxSizer(wx.HORIZONTAL) # prepare for SANS button
@@ -157,10 +157,10 @@ class MainCls(wx.Frame):
         self.Bind(wx.EVT_RADIOBUTTON, self.EnableSANSFnc, self.SANS_button)
 
         BoxSizer.AddSpacer(10) # vertical spacing
-        
+
         SANS_solvent_box = wx.BoxSizer(wx.HORIZONTAL) # prepare for SANS solvent box
         SANS_solvent_box.AddSpacer(40)
-        
+
         self.left_SANS = wx.StaticText(self.Panel, -1, "D2O content =")
         SANS_solvent_box.Add(self.left_SANS)
         self.left_SANS.Disable()
@@ -170,22 +170,22 @@ class MainCls(wx.Frame):
         SANS_solvent_box.Add(self.SANS_solvent_box) # ?
         BoxSizer.Add(SANS_solvent_box) # position SANS solvent box
         self.SANS_solvent_box.Disable()
-        
+
         self.right_SANS = wx.StaticText(self.Panel, -1, "%")
         SANS_solvent_box.Add(self.right_SANS)
         self.right_SANS.Disable()
-        
+
         BoxSizer.AddSpacer(10)
-  
+
         Line_after_contrast_widget = wx.StaticLine(self.Panel, -1) # make line after widget
         BoxSizer.Add(Line_after_contrast_widget, 0, wx.EXPAND|wx.HORIZONTAL)
-        
-        
-        
-        
+
+
+
+
         ### Widgets used to add Water Layer
         BoxSizer.AddSpacer(10)
-        
+
         Water_layer_button = wx.BoxSizer(wx.HORIZONTAL)
         Water_layer_button.AddSpacer(10)
         self.Water_layer_button = wx.CheckBox(self.Panel, -1, 'Add Water Layer (WL):', size = (350, -1))
@@ -194,28 +194,28 @@ class MainCls(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.EnableWLButtonsFnc, self.Water_layer_button)
 
         BoxSizer.AddSpacer(10)
-        
+
         Water_layer_contrast_box = wx.BoxSizer(wx.HORIZONTAL)
         Water_layer_contrast_box.AddSpacer(40)
-        
+
         self.left_WL = wx.StaticText(self.Panel, -1, "WL Contrast =")
         Water_layer_contrast_box.Add(self.left_WL)
         self.left_WL.Disable()
-        
+
 
         self.Water_layer_contrast_box = wx.TextCtrl(self.Panel, -1, '', size = (40, -1))
         self.Water_layer_contrast_box.SetValue('10')
         Water_layer_contrast_box.Add(self.Water_layer_contrast_box)
         BoxSizer.Add(Water_layer_contrast_box)
         self.Water_layer_contrast_box.Disable()
-        
+
         self.right_WL = wx.StaticText(self.Panel, -1, "% of solvent scattering")
         Water_layer_contrast_box.Add(self.right_WL)
         self.right_WL.Disable()
-        
- 
- 
- 
+
+
+
+
         ### Widgets to exclude water layer from TMD
         BoxSizer.AddSpacer(10)
 
@@ -227,7 +227,7 @@ class MainCls(wx.Frame):
         self.WLText.Disable()
 
         BoxSizer.AddSpacer(10)
-    
+
         No_Exclude_water_layer_button = wx.BoxSizer(wx.HORIZONTAL)
         No_Exclude_water_layer_button.AddSpacer(10)
         self.No_Exclude_water_layer_button = wx.RadioButton(self.Panel, -1, 'Do not exclude the WL from the TMD', style=wx.RB_GROUP)
@@ -235,9 +235,9 @@ class MainCls(wx.Frame):
         BoxSizer.Add(No_Exclude_water_layer_button, 0, wx.EXPAND|wx.HORIZONTAL)
         self.No_Exclude_water_layer_button.Disable()
         self.Bind(wx.EVT_RADIOBUTTON, self.DisableBilayerThicknessFnc, self.No_Exclude_water_layer_button)
-        
+
         BoxSizer.AddSpacer(10)
-        
+
         Exclude_water_layer_OPM_button = wx.BoxSizer(wx.HORIZONTAL)
         Exclude_water_layer_OPM_button.AddSpacer(10)
         self.Exclude_water_layer_OPM_button = wx.RadioButton(self.Panel, -1, 'Exclude the WL from the TMD, using OPM(*)')
@@ -245,9 +245,9 @@ class MainCls(wx.Frame):
         BoxSizer.Add(Exclude_water_layer_OPM_button, 0, wx.EXPAND|wx.HORIZONTAL)
         self.Exclude_water_layer_OPM_button.Disable()
         self.Bind(wx.EVT_RADIOBUTTON, self.DisableBilayerThicknessFnc, self.Exclude_water_layer_OPM_button)
-        
+
         BoxSizer.AddSpacer(10)
-        
+
         Exclude_water_layer_M_button = wx.BoxSizer(wx.HORIZONTAL)
         Exclude_water_layer_M_button.AddSpacer(10)
         self.Exclude_water_layer_M_button = wx.RadioButton(self.Panel, -1, 'Exclude WL from TMD, manually:')
@@ -256,39 +256,39 @@ class MainCls(wx.Frame):
         self.Exclude_water_layer_M_button.Disable()
         self.Bind(wx.EVT_RADIOBUTTON, self.EnableBilayerThicknessFnc, self.Exclude_water_layer_M_button)
         BoxSizer.AddSpacer(10)
-        
+
         Bilayer_thickness_box = wx.BoxSizer(wx.HORIZONTAL)
         Bilayer_thickness_box.AddSpacer(40)
-        
+
         self.left_thick = wx.StaticText(self.Panel, -1, "Bilayer Thickness =")
         Bilayer_thickness_box.Add(self.left_thick)
         self.left_thick.Disable()
-        
+
         self.Bilayer_thickness_box = wx.TextCtrl(self.Panel, -1, '', size = (40, -1))
         self.Bilayer_thickness_box.SetValue('30.0')
         Bilayer_thickness_box.Add(self.Bilayer_thickness_box)
         BoxSizer.Add(Bilayer_thickness_box, 0)
         self.Bilayer_thickness_box.Disable()
-        
+
         self.right_thick = wx.StaticText(self.Panel, -1, "Angstrom")
         Bilayer_thickness_box.Add(self.right_thick)
         self.right_thick.Disable()
-        
+
         OPMText = wx.BoxSizer(wx.HORIZONTAL)
         OPMText.AddSpacer(10)
         self.OPMText = wx.StaticText(self.Panel, -1, '(*) The Orientation of Proteins in Membranes (OPM) Database', size = (330, -1))
         OPMText.Add(self.OPMText)
         BoxSizer.Add(OPMText, 0, wx.EXPAND|wx.HORIZONTAL)
         self.OPMText.Disable()
-        
+
         BoxSizer.AddSpacer(10)
-        
+
         Line_after_exclude_WL_widget = wx.StaticLine(self.Panel, -1) # make line after widget
         BoxSizer.Add(Line_after_exclude_WL_widget, 0, wx.EXPAND|wx.HORIZONTAL)
-        
-        
-        
-        
+
+
+
+
         ### Widgets to change resolution
         BoxSizer.AddSpacer(10)
 
@@ -301,11 +301,11 @@ class MainCls(wx.Frame):
 
         Resolution_box = wx.BoxSizer(wx.HORIZONTAL)
         Resolution_box.AddSpacer(40)
-        
+
         self.left_res = wx.StaticText(self.Panel, -1, "Binsize =")
         Resolution_box.Add(self.left_res)
         self.left_res.Disable()
-        
+
         self.Resolution_box = wx.TextCtrl(self.Panel, -1, '', size = (40, -1))
         self.Resolution_box.SetValue('2.0')
         Resolution_box.Add(self.Resolution_box)
@@ -315,9 +315,9 @@ class MainCls(wx.Frame):
         self.right_res = wx.StaticText(self.Panel, -1, "Angstrom")
         Resolution_box.Add(self.right_res)
         self.right_res.Disable()
-        
+
         BoxSizer.AddSpacer(10)
-        
+
         Line_after_resolution_widget = wx.StaticLine(self.Panel, -1) # make line after widget
         BoxSizer.Add(Line_after_resolution_widget, 0, wx.EXPAND|wx.HORIZONTAL)
 
@@ -326,7 +326,7 @@ class MainCls(wx.Frame):
 
         ### Widgets for calculation buttons
         BoxSizer.AddSpacer(10)
-        
+
         CalculateRgButtonSpace = wx.BoxSizer(wx.HORIZONTAL)
         CalculateRgButtonSpace.AddSpacer(10)
         self.CalculateRgButton = wx.Button(self.Panel, label = 'Calculate Rg')
@@ -347,7 +347,7 @@ class MainCls(wx.Frame):
         BoxSizer.Add(CalculateButtonSpace, 0, wx.EXPAND|wx.HORIZONTAL)
 
         BoxSizer.AddSpacer(1)
-        
+
         CalcPqButtonSpace = wx.BoxSizer(wx.HORIZONTAL)
         CalcPqButtonSpace.AddSpacer(10)
         self.CalcPqButton = wx.Button(self.Panel, label = 'Calculate P(q) from p(r)')
@@ -356,7 +356,7 @@ class MainCls(wx.Frame):
         CalcPqButtonSpace.AddSpacer(10)
         BoxSizer.Add(CalcPqButtonSpace, 0, wx.EXPAND|wx.HORIZONTAL)
         self.CalcPqButton.Disable()
-        
+
         BoxSizer.AddSpacer(10)
 
 
@@ -434,12 +434,12 @@ class MainCls(wx.Frame):
         self.left_SANS.Enable()
         self.SANS_solvent_box.Enable()
         self.right_SANS.Enable()
-    
+
     def DisableSANSFnc(self, event):
         self.left_SANS.Disable()
         self.SANS_solvent_box.Disable()
         self.right_SANS.Disable()
-    
+
     def RgFnc(self, event):
         print(os.getcwd())
 
@@ -447,7 +447,7 @@ class MainCls(wx.Frame):
             Output_Rg = "%s -g %s" % (capp_version, self.PDBPathStr)
         else:
             Output_Rg = "./%s -g %s" % (capp_version, self.PDBPathStr)
-        
+
         os.system(Output_Rg)
         Message = 'See the Rg of the protein in the terminal window'
         wx.MessageBox(Message, "Radius of gyration", wx.OK | wx.ICON_INFORMATION)
@@ -455,14 +455,14 @@ class MainCls(wx.Frame):
 
     ### Define CaPP function
     def cappFnc(self, event):
-                
+
         # open pop-up window
         width = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)
         height = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
         position = (width/3.0, height/3.0)
         self.second_window = wx.Frame(None, title="Calculating p(r) - see Progression in the Terminal window...", size=(450,50), pos = position)
         self.second_window.Show()
-        
+
         # import options from GUI
         XN_choice           = ""
         solvent             = ""
@@ -472,22 +472,22 @@ class MainCls(wx.Frame):
         Bilayer_thickness   = ""
         Resolution_choice   = ""
         Resolution          = ""
-        
+
         if self.Water_layer_button.GetValue():
             WL_choice               = "-c"
             WL_contrast_tmp         = float(self.Water_layer_contrast_box.GetValue())/100
             WL_contrast             = "%1.2f" % WL_contrast_tmp
-        
+
         if self.Exclude_water_layer_OPM_button.GetValue():
             Exclude_WL_choice       = "-d"
         if self.Exclude_water_layer_M_button.GetValue():
             Exclude_WL_choice       = "-m"
             Bilayer_thickness       = self.Bilayer_thickness_box.GetValue()
-    
+
         if self.Change_resolution_button.GetValue():
                 Resolution_choice   = "-r"
                 Resolution          = self.Resolution_box.GetValue()
-        
+
         if self.SAXS_button.GetValue():
             dummy = 1 # do nothing
         elif self.SANS_button.GetValue():
@@ -503,23 +503,25 @@ class MainCls(wx.Frame):
             Output = "%s %s %s %s %s %s %s %s %s %s" % (capp_version, XN_choice, solvent, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
         else:
             Output = "./%s %s %s %s %s %s %s %s %s %s" % (capp_version, XN_choice, solvent, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
-    
+
         # run command line
         os.system(Output)
-        
+
         # close pop-up window
         self.second_window.Destroy()
-        
+
         # print command line to terminal window
-        print("Command generated by the GUI and send to terminal:")
+        print("Command generated by the GUI and sent to terminal:")
         print(Output)
         print("")
 
         # import p(r)
         if self.Water_layer_button.GetValue():
-            pr_filename = self.PDBPathStr[:-4] + "_w_pr.dat"
+            filename, extension = os.path.splitext(self.PDBPathStr)
+            pr_filename = filename + "_w_pr.dat"
         else:
-            pr_filename = self.PDBPathStr[:-4] + "_pr.dat"
+            filename, extension = os.path.splitext(self.PDBPathStr)
+            pr_filename = filename + "_pr.dat"
         r,pr = np.loadtxt(pr_filename, skiprows=10,usecols=[0,1],unpack=True)
         pr = pr / max(pr)
 
@@ -545,23 +547,25 @@ class MainCls(wx.Frame):
 
         # enable P(q) calculation button
         self.CalcPqButton.Enable()
-            
-        
+
+
     ### Define function for calculating form factor P(q)
     def CalcPqFnc(self, event):
-    
+
         # import p(r) from file
         if self.Water_layer_button.GetValue():
-            pr_filename = self.PDBPathStr[:-4] + "_w_pr.dat"
+            filename, extension = os.path.splitext(self.PDBPathStr)
+            pr_filename = filename + "_w_pr.dat"
         else:
-            pr_filename = self.PDBPathStr[:-4] + "_pr.dat"
+            filename, extension = os.path.splitext(self.PDBPathStr)
+            pr_filename = filename + "_pr.dat"
         r,pr,gr,hr,jr,kr = np.loadtxt(pr_filename, skiprows=10,usecols=[0,1,2,3,4,5],unpack=True)
         pr = pr / max(pr)
-        
+
         # import mean volume
         v_mean_line = linecache.getline(pr_filename,8)
         v_mean = float(v_mean_line[16:])
-        
+
         # create q-vector
         dr = r[5] - r[4];
         PointsInr = len(r)
@@ -576,7 +580,7 @@ class MainCls(wx.Frame):
         a = [2.31,1.02,1.5886,0.865] # parameters in carbon form factor amplitude
         b = [20.8439,10.2075,0.5687,51.6512] # parameters in carbon form factor amplitude
         c = 0.2156 # parameters in carbon form factor amplitude
-        
+
         # calculate for each q:
         #      carbon atomic form factor amplitude = psi_c
         #      mean Gassian sphere for excluded volume = Gauss_sphere_mean
@@ -627,7 +631,7 @@ class MainCls(wx.Frame):
         Subplot2.set_ylabel('P(q)',fontsize=14)
         pylab.suptitle('Form Factor for the structure(s)',fontsize=14)
         pylab.show()
-        
+
         # export P(q)
         Pq_filename = pr_filename[:-6] + "Pq.dat"
         Pq_fid = open(Pq_filename, "w")
@@ -638,26 +642,26 @@ class MainCls(wx.Frame):
 
         # disable P(q) calculation button
         self.CalcPqButton.Disable()
-            
+
     ### Define function for filebrowsing for data
     def BrowsePDBFnc(self, event):
         FileDialogWindow = wx.FileDialog(None, 'Please select PDB-file...', os.getcwd(), defaultFile = '')
-        
+
         if FileDialogWindow.ShowModal() == wx.ID_OK:
             self.PDBPathStr = FileDialogWindow.GetPath()
             PDBPathDisplayStr = str(self.PDBPathStr)
-            
+
             while len(PDBPathDisplayStr) > 49:
                 PDBPathDisplayStr = PDBPathDisplayStr[1:]
-            
+
             if len(self.PDBPathStr) > 49:
                 PDBPathDisplayStr = '...' + PDBPathDisplayStr
-            
+
             self.PDBPathTxt.SetLabel(PDBPathDisplayStr)
-            
+
             self.CalculateButton.Enable()
             self.CalculateRgButton.Enable()
-    
+
         FileDialogWindow.Destroy()
 
     ### Define exit function
@@ -666,7 +670,7 @@ class MainCls(wx.Frame):
             pylab.close()
         except:
             pass
-        
+
         sys.exit(0)
 
 ### Boilerplate code linking program and widgets
