@@ -72,9 +72,9 @@ Default: 3.0 Aangstrom.
 
 # About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
-X-ray scattering length are simply calculated as the number of electrons times the electron scattering length.  
+X-ray scattering length are calculated as the number of electrons times the electron scattering length.  
 The atomic form factor of each atom is approximated by the carbon atomic formfactor.  
-The form factor of the excluded solvent is given as a Gaussian sphere with volume equal to the atomic volume. The Van der Waals radii are used for most atoms, except the volumes for H,C,D,N, and O, which are found for proteins experimentally by Fraser et al. (J Appl Cryst(1978), 11, p693).  
+The form factor of the excluded solvent is given as a Gaussian sphere with volume equal to the atomic volume. The Van der Waals radii are used for most atoms, except the volumes for H,C,D,N, and O, which are found experimentally for proteins by Fraser et al. (J Appl Cryst(1978), 11, p693).  
 Neutron scattering length are imported from the ILL neutron data booklet, and the nucleai are assumed to be point-like, i.e. with form factor of unity.  
-The hydrogens and deuteriums are included implicitely.  
-Water layer is added explicitely and included in the PDDF and thus in the calculated scattering intensity.  
+The hydrogens and deuteriums are included implicitely. This is done for the 20 natural amino acids and the hetero atoms that are currently included in the HETATM library. If a hetero atom in the PDB does not exist in the library, no H's or D's will be added. The H's and D's are added according to the Protein Data Base (www4.rcsb.org/ligand/).   
+If chosen, a water layer is added explicitely and included in the PDDF and thus in the calculated scattering intensity.   
