@@ -1,12 +1,12 @@
-##        CaPP 1.0        ##
-##                        ##
-##    Copyright 2017,     ##
-##    Andreas Larsen      ##
-##    anlarsen@nbi.dk     ##
+##        CaPP 1.0              ##
+##                              ##
+##    Copyright 2017,           ##
+##    Andreas Larsen            ##
+##    andreas.larsen@nbi.dk     ##
 
 ## This file is part of CaPP.                                           ##
 ##                                                                      ##
-## CaPP is free software: you can redistribute it and/or modify         ##
+## CaPP is free a software: you can redistribute it and/or modify       ##
 ## it under the terms of the GNU General Public License as published by ##
 ## the Free Software Foundation, either version 3 of the License, or    ##
 ## (at your option) any later version.                                  ##
@@ -19,8 +19,8 @@
 ##                                                                      ##
 
 ## If you use this software in                                          ##
-## your work, please cite:                                              ##
-## No publication yet                                                   ##
+## your work, please write:                                             ##
+## CaPP, source code freely available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP ##
 
 ## Libraries
 import re
@@ -515,35 +515,39 @@ class MainCls(wx.Frame):
         print(Output)
         print("")
 
-        # import p(r)
-        if self.Water_layer_button.GetValue():
-            filename, extension = os.path.splitext(self.PDBPathStr)
-            pr_filename = filename + "_w_pr.dat"
+        if capp_version == "capp_windows.exe":
+            print("No printing available on Windows") # then it crashes
+            Message = 'p(r) succesfully calculated - see folder with pdb file'
         else:
-            filename, extension = os.path.splitext(self.PDBPathStr)
-            pr_filename = filename + "_pr.dat"
-        r,pr = np.loadtxt(pr_filename, skiprows=10,usecols=[0,1],unpack=True)
-        pr = pr / max(pr)
+            # import p(r)
+            if self.Water_layer_button.GetValue():
+                filename, extension = os.path.splitext(self.PDBPathStr)
+                pr_filename = filename + "_w_pr.dat"
+            else:
+                filename, extension = os.path.splitext(self.PDBPathStr)
+                pr_filename = filename + "_pr.dat"
+            r,pr = np.loadtxt(pr_filename, skiprows=10,usecols=[0,1],unpack=True)
+            pr = pr / max(pr)
 
-        # plot p(r)
-        self.Figure1 = pylab.figure(1)
-        Subplot = pylab.subplot(111)
-        length_of_name = len(pr_filename)
-        if self.Water_layer_button.GetValue():
-            structure_name = "'..." + pr_filename[length_of_name-4-9:-9] + "'" + " + WL " + self.Water_layer_contrast_box.GetValue()  + "%"
-        else:
-            structure_name = "'..." + pr_filename[length_of_name-4-7:-7] + "'"
+            # plot p(r)
+            self.Figure1 = pylab.figure(1)
+            Subplot = pylab.subplot(111)
+            length_of_name = len(pr_filename)
+            if self.Water_layer_button.GetValue():
+                structure_name = "'..." + pr_filename[length_of_name-4-9:-9] + "'" + " + WL " + self.Water_layer_contrast_box.GetValue()  + "%"
+            else:
+                structure_name = "'..." + pr_filename[length_of_name-4-7:-7] + "'"
 
-        if self.SANS_button.GetValue():
-            structure_name = structure_name + ", SANS " + self.SANS_solvent_box.GetValue() + "% D2O"
-        else:
-            structure_name = structure_name + ", SAXS "
-        Subplot.plot(r, pr, label=structure_name)
-        Subplot.legend(fontsize=11)
-        Subplot.set_xlabel('r [$\AA$]',fontsize=14)
-        Subplot.set_ylabel('p(r)',fontsize=14)
-        pylab.suptitle('Pair Distance Distribution for the structure(s)',fontsize=14)
-        pylab.show()
+            if self.SANS_button.GetValue():
+                structure_name = structure_name + ", SANS " + self.SANS_solvent_box.GetValue() + "% D2O"
+            else:
+                structure_name = structure_name + ", SAXS "
+            Subplot.plot(r, pr, label=structure_name)
+            Subplot.legend(fontsize=11)
+            Subplot.set_xlabel('r [$\AA$]',fontsize=14)
+            Subplot.set_ylabel('p(r)',fontsize=14)
+            pylab.suptitle('Pair Distance Distribution for the structure(s)',fontsize=14)
+            pylab.show()
 
         # enable P(q) calculation button
         self.CalcPqButton.Enable()
@@ -611,26 +615,29 @@ class MainCls(wx.Frame):
         Pq = Pq / Pq[0] # Normalize P(q) such that P(0) = 1
 
         # plot P(q)
-        self.Figure2 = pylab.figure(2)
-        Subplot2 = pylab.subplot(111)
+        if capp_version == "capp_windows.exe":
+            print("No printing available on Windows") # then it crashes
+        else:
+            self.Figure2 = pylab.figure(2)
+            Subplot2 = pylab.subplot(111)
 
-        length_of_name = len(pr_filename)
-        if self.Water_layer_button.GetValue():
-            structure_name = "'..." + pr_filename[length_of_name-4-9:-9] + "'" + " + WL " + self.Water_layer_contrast_box.GetValue()  + "%"
-        else:
-            structure_name = "'..." + pr_filename[length_of_name-4-7:-7] + "'"
-        if self.SANS_button.GetValue():
-            structure_name = structure_name + ", SANS " + self.SANS_solvent_box.GetValue() + "% D2O"
-        else:
-            structure_name = structure_name + ", SAXS "
-        Subplot2.plot(q, Pq, label=structure_name)
-        Subplot2.set_xscale('log', nonposx = 'clip')
-        Subplot2.set_yscale('log', nonposy = 'clip')
-        Subplot2.legend(loc=3,fontsize=11)
-        Subplot2.set_xlabel('q [$1/\AA$]',fontsize=14)
-        Subplot2.set_ylabel('P(q)',fontsize=14)
-        pylab.suptitle('Form Factor for the structure(s)',fontsize=14)
-        pylab.show()
+            length_of_name = len(pr_filename)
+            if self.Water_layer_button.GetValue():
+                structure_name = "'..." + pr_filename[length_of_name-4-9:-9] + "'" + " + WL " + self.Water_layer_contrast_box.GetValue()  + "%"
+            else:
+                structure_name = "'..." + pr_filename[length_of_name-4-7:-7] + "'"
+            if self.SANS_button.GetValue():
+                structure_name = structure_name + ", SANS " + self.SANS_solvent_box.GetValue() + "% D2O"
+            else:
+                structure_name = structure_name + ", SAXS "
+            Subplot2.plot(q, Pq, label=structure_name)
+            Subplot2.set_xscale('log', nonposx = 'clip')
+            Subplot2.set_yscale('log', nonposy = 'clip')
+            Subplot2.legend(loc=3,fontsize=11)
+            Subplot2.set_xlabel('q [$1/\AA$]',fontsize=14)
+            Subplot2.set_ylabel('P(q)',fontsize=14)
+            pylab.suptitle('Form Factor for the structure(s)',fontsize=14)
+            pylab.show()
 
         # export P(q)
         Pq_filename = pr_filename[:-6] + "Pq.dat"

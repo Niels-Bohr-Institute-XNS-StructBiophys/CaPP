@@ -1,5 +1,5 @@
 # CaPP 1.0
-Calculating Pair distance distribution functions for Proteins.  
+Calculating Pair distance distribution functions (PDDF) for Proteins.  
 The program calculates the PDDF from a high-resolution protein structure in PDB format,  
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
 A water layer can be added as an option. 
@@ -11,25 +11,24 @@ CaPP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
                                                                      
 # Citing the program  
 If you use the CaPP software in your work, please cite write:                                    
-CaPP, sourcecode freely available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
+CaPP, source code freely available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
 
 # Dependencies for the GUI  
 - python 2.7  
 - wxpython 2.9
 - matplotlib  
 tested on MacOS 10.12 under Enthought Canopy 2.7 (64-bit)   
-and with python under cygwin on windows 7  
-in cygwin terminal:  
+and with python under cygwin on windows 7 (no build-in plotting available)  
+in cygwin terminal, type:  
 $ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
 $ python ez_setup.py  
 $ easy_install pip  
 $ pip.exe install wxpython  
-$ pip.exe install matplotlib
+$ pip.exe install matplotlib  
 
-$ 
-# Dependencies only for developers and users of Linux
+# Dependencies for developers and users of Linux
 - To recompile the source code, a c-compiler is needed.   
-The current executable has been compiled with gcc (Linux/MacOS) and Pelles C (Windows).  
+The current executables have been compiled with gcc (Linux/MacOS) and Pelles C (Windows).  
 
 # Different platforms  
 Executables have been made for MacOS and Windows  
