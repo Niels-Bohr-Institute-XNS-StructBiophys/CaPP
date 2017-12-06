@@ -104,3 +104,10 @@ Base (www4.rcsb.org/ligand/).
 
 If chosen, a water layer is added explicitely and included in the PDDF and thus in the calculated scattering  
 intensity.  
+
+# Acknowledgements
+Søren Kynde made most of the c subroutines that were edited and gathered to form the program.  
+Thanks to Lasse Dreier Cristensen, and to Martin Schmiele for valuable contributions:  
+debugging, testing, writing smarter subfunctions etc.  
+to CoNeXT and University of Copenhagen for co-funding the project.   
+To my supervisor, Lise Arleth, for supporting the project.  
