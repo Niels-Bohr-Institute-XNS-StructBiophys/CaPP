@@ -17,8 +17,16 @@ CaPP, sourcecode freely available at github.com/Niels-Bohr-Institute-XNS-StructB
 - python 2.7  
 - wxpython 2.9
 - matplotlib  
-tested with python installed through Enthought Canopy 2-7 (64-bit) with Windows and MacOS
+tested on MacOS 10.12 under Enthought Canopy 2.7 (64-bit)   
+and with python under cygwin on windows 7  
+in cygwin terminal:  
+$ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
+$ python ez_setup.py  
+$ easy_install pip  
+$ pip.exe install wxpython  
+$ pip.exe install matplotlib
 
+$ 
 # Dependencies only for developers and users of Linux
 - To recompile the source code, a c-compiler is needed.   
 The current executable has been compiled with gcc (Linux/MacOS) and Pelles C (Windows).  
