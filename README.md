@@ -104,12 +104,12 @@ A pdb file with the water bead lines only (for visualization, e.g. in PyMOL)
 
 ##### ABC_pr.dat/ABC_w_pr.dat
 A data files with the PDDF for the pdb file without/with water layer, columns:  
-    1. r     = pair distance  
-    2. P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
-    3. G(r)  = sum ( Ba(i) * Ba(j) )  
-    4. H(r)  = sum ( Ba(i) * Ba(j) )  
-    5. J(r)  = sum ( Ba(i) * Ba(j) )  
-    6. K(r)  = sum ( Ba(i) * Ba(j) )  
+1. r     = pair distance  
+2. P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
+3. G(r)  = sum ( Ba(i) * Ba(j) )  
+4. H(r)  = sum ( Ba(i) * Ba(j) )  
+5. J(r)  = sum ( Ba(i) * Ba(j) )  
+6. K(r)  = sum ( Ba(i) * Ba(j) )  
 Ba[i]: scattering length of atom i  
 Bs[i]: scattering length of solvent, excluded by atom i  
 dB[i]: excess scattering length of atom i  
