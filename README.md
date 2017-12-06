@@ -10,17 +10,18 @@ CaPP is free software: you can redistribute it and/or modify it under the terms 
 CaPP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).  
                                                                      
 # Citing the program  
-If you use the CaPP software in your work, please cite the Github download address:                                    
-CaPP, available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
+If you use the CaPP software in your work, please cite write:                                    
+CaPP, sourcecode freely available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
 
 # Dependencies for the GUI  
 - python 2.7  
-- wxpython  
+- wxpython 2.9
 - matplotlib  
-python packages can easily be managed by e.g. Enthought Canopy  
+tested with python installed through Enthought Canopy 2-7 (64-bit) with Windows and MacOS
 
-# Dependencies for developers and users of Linux
-- To recompile the source code, a c-compiler is needed, e.g. gcc (Linux/MacOS) or Pelles C (Windows).  
+# Dependencies only for developers and users of Linux
+- To recompile the source code, a c-compiler is needed.   
+The current executable has been compiled with gcc (Linux/MacOS) and Pelles C (Windows).  
 
 # Different platforms  
 Executables have been made for MacOS and Windows  
@@ -31,9 +32,7 @@ Users of other OS should:
 3) Run CaPP  
         >> python CaPP_1.0.py  
 
-CaPP has been tested on 
-        >> MacOS 10.12, compiled with gcc  
-        >> Windows Vista, compiled with Pelles C  
+CaPP has been tested on MacOS 10.12 (Sierra), Windows Vista and Windows 7  
 
 # Running the program, GUI mode
 To start the GUI, type in the terminal:  
@@ -68,13 +67,17 @@ SAXS contrast asssumed if option is not chosen.
   
 - r [input: Resolution of p(r) function]  
 Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.  
-Default: 3.0 Aangstrom.  
+Default: 3.0 Aangstrom. 
+
+Example:  
+
+        >> capp -c 0.1 -m 30 -s 0.4 -r 2.0 4u2p.pdb  
 
 # About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
-X-ray scattering length are calculated as the number of electrons times the electron scattering length.  
+X-ray scattering length are simply calculated as the number of electrons times the electron scattering length.  
 The atomic form factor of each atom is approximated by the carbon atomic formfactor.  
-The form factor of the excluded solvent is given as a Gaussian sphere with volume equal to the atomic volume. The Van der Waals radii are used for most atoms, except the volumes for H,C,D,N, and O, which are found experimentally for proteins by Fraser et al. (J Appl Cryst(1978), 11, p693).  
+The form factor of the excluded solvent is given as a Gaussian sphere with volume equal to the atomic volume. The Van der Waals radii are used for most atoms, except the volumes for H,C,D,N, and O, which are found for proteins experimentally by Fraser et al. (J. Appl. Cryst.(1978), 11, 693).  
 Neutron scattering length are imported from the ILL neutron data booklet, and the nucleai are assumed to be point-like, i.e. with form factor of unity.  
-The hydrogens and deuteriums are included implicitely. This is done for the 20 natural amino acids and the hetero atoms that are currently included in the HETATM library. If a hetero atom in the PDB does not exist in the library, no H's or D's will be added. The H's and D's are added according to the Protein Data Base (www4.rcsb.org/ligand/).   
-If chosen, a water layer is added explicitely and included in the PDDF and thus in the calculated scattering intensity.   
+The hydrogens and deuteriums are included implicitely.  
+Water layer is added explicitely and included in the PDDF and thus in the calculated scattering intensity.  

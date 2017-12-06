@@ -670,7 +670,6 @@ class MainCls(wx.Frame):
             pylab.close()
         except:
             pass
-
         sys.exit(0)
 
 ### Boilerplate code linking program and widgets
