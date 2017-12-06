@@ -22,11 +22,12 @@ CaPP, source code freely available at github.com/Niels-Bohr-Institute-XNS-Struct
 tested on MacOS 10.12 under Enthought Canopy 2.7 (64-bit)   
 and with python under cygwin on windows 7 (no build-in plotting available)  
 in cygwin terminal, type:  
-$ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
-$ python ez_setup.py  
-$ easy_install pip  
-$ pip.exe install wxpython  
-$ pip.exe install matplotlib  
+
+    $ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
+    $ python ez_setup.py  
+    $ easy_install pip  
+    $ pip.exe install wxpython  
+    $ pip.exe install matplotlib  
 
 ### Dependencies for developers and users of Linux
 - To recompile the source code, a c-compiler is needed,  
@@ -102,12 +103,12 @@ assuming ABC.pdb as input pdb file
 
 ##### ABC_pr.dat/ABC_w_pr.dat
     PDDF for the pdb file without/with water layer, columns:  
-        - 1: r     = pair distance  
-        - 2: P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
-        - 3: G(r)  = sum ( Ba(i) * Ba(j) )  
-        - 4: H(r)  = sum ( Ba(i) * Ba(j) )  
-        - 5: J(r)  = sum ( Ba(i) * Ba(j) )  
-        - 6: K(r)  = sum ( Ba(i) * Ba(j) )  
+        1. r     = pair distance  
+        2. P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
+        3. G(r)  = sum ( Ba(i) * Ba(j) )  
+        4. H(r)  = sum ( Ba(i) * Ba(j) )  
+        5. J(r)  = sum ( Ba(i) * Ba(j) )  
+        6. K(r)  = sum ( Ba(i) * Ba(j) )  
     Ba[i]: scattering length of atom i  
     Bs[i]: scattering length of solvent, excluded by atom i  
     dB[i]: excess scattering length of atom i  
