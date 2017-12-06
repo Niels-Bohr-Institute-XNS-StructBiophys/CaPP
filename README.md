@@ -110,6 +110,8 @@ A data files with the PDDF for the pdb file without/with water layer, columns:
 4. H(r)  = sum ( Ba(i) * Ba(j) )  
 5. J(r)  = sum ( Ba(i) * Ba(j) )  
 6. K(r)  = sum ( Ba(i) * Ba(j) )  
+
+where  
 Ba[i]: scattering length of atom i  
 Bs[i]: scattering length of solvent, excluded by atom i  
 dB[i]: excess scattering length of atom i  
