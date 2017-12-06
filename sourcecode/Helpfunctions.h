@@ -73,11 +73,12 @@ int CheckNumberOfAtomsInPDBFile(char *filename)
     return NumberOfAtoms;
 }
 
-char *ExtractString(char *str, char delim)
+
+char *GetCStringBeforeLastDelimiter(char *str, char delim)
 {
     size_t len;
     char *new_str;
-    char *delim_pos = strchr(str, delim);
+    char *delim_pos = strrchr(str, delim);
     
     // new string is the length from the start of the old string to the delimiter
     len = delim_pos - str;

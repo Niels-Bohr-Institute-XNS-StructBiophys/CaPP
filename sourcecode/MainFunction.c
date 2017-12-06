@@ -826,7 +826,7 @@ int main(int argc, char **argv)
             // CREATE FILE FOR p(r) FUNCTION
     
     FILE *outputFile;
-    char *inputPDB = ExtractString(filename, '.'); //extracts 1HEJ from 1HEJ.pdb
+    char *inputPDB = GetCStringBeforeLastDelimiter(filename, '.'); //extracts 1HEJ from 1HEJ.pdb
     char *outputfilename = strcat(inputPDB, "_pr.dat"); // adds pr.dat to 1HEJ
     outputFile = fopen(outputfilename,"w");
     

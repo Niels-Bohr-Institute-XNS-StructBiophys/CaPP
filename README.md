@@ -36,8 +36,10 @@ e.g. gcc (Linux/MacOS) and Pelles C (Windows).
 ### Different platforms  
 Executables have been made for MacOS and Windows  
 Users of other OS should:  
-1) compile MainFunction.c and call the executable "capp"  
+1) compile MainFunction.c (flag -lm) and name the executable "capp"  
+
         >> gcc MainFunction.c -o capp  -lm
+
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
 
