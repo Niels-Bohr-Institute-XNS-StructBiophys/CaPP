@@ -21,8 +21,8 @@ CaPP, source code freely available at github.com/Niels-Bohr-Institute-XNS-Struct
 - matplotlib  
 tested on MacOS 10.12 under Enthought Canopy 2.7 (64-bit)   
 and with python under cygwin on windows 7 (no build-in plotting available)  
-in cygwin terminal, type:  
 
+##### Windows: in cygwin terminal, type:  
     $ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
     $ python ez_setup.py  
     $ easy_install pip  
@@ -95,28 +95,29 @@ Default: 3.0 Aangstrom.
 assuming ABC.pdb as input pdb file  
 
 ##### ABC_w.pdb  
-    water beads added to ABC.pdb (after CONNECT, before END), e.g.  
+A new pdb with water beads added as lines to ABC.pdb (after CONNECT, before END), e.g. 
+
     ATOM  26485  Q   WAT W1497     -24.394   2.153 -28.888  1.00 10.00           Q  
     
 ##### ABC_w_only.pdb  
-    a pdb file only with the water bead lines (for visualization, e.g. in PyMOL)  
+A pdb file with the water bead lines only (for visualization, e.g. in PyMOL)  
 
 ##### ABC_pr.dat/ABC_w_pr.dat
-    PDDF for the pdb file without/with water layer, columns:  
-        1. r     = pair distance  
-        2. P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
-        3. G(r)  = sum ( Ba(i) * Ba(j) )  
-        4. H(r)  = sum ( Ba(i) * Ba(j) )  
-        5. J(r)  = sum ( Ba(i) * Ba(j) )  
-        6. K(r)  = sum ( Ba(i) * Ba(j) )  
-    Ba[i]: scattering length of atom i  
-    Bs[i]: scattering length of solvent, excluded by atom i  
-    dB[i]: excess scattering length of atom i  
-    columns 3-6 used only to calculate th form factor P(q)  
-    (optional, see CaPP_A.B.py for details)    
+A data files with the PDDF for the pdb file without/with water layer, columns:  
+    1. r     = pair distance  
+    2. P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
+    3. G(r)  = sum ( Ba(i) * Ba(j) )  
+    4. H(r)  = sum ( Ba(i) * Ba(j) )  
+    5. J(r)  = sum ( Ba(i) * Ba(j) )  
+    6. K(r)  = sum ( Ba(i) * Ba(j) )  
+Ba[i]: scattering length of atom i  
+Bs[i]: scattering length of solvent, excluded by atom i  
+dB[i]: excess scattering length of atom i  
+columns 3-6 used only to calculate th form factor P(q)  
+(optional, see CaPP_A.B.py for details)    
 
 ##### ABC_Pq  
-    Formfactor for the protein  
+A datafile with the form factor for the protein  
 
 ## About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
