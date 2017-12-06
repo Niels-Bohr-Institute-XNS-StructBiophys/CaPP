@@ -27,19 +27,22 @@ $ pip.exe install wxpython
 $ pip.exe install matplotlib  
 
 # Dependencies for developers and users of Linux
-- To recompile the source code, a c-compiler is needed.   
-The current executables have been compiled with gcc (Linux/MacOS) and Pelles C (Windows).  
+- To recompile the source code, a c-compiler is needed,  
+e.g. gcc (Linux/MacOS) and Pelles C (Windows).  
 
 # Different platforms  
 Executables have been made for MacOS and Windows  
 Users of other OS should:  
-1) compile Mainfunction.c and call the executable "capp"  
-        >> gcc Mainfunction.c -o capp  
+1) compile MainFunction.c and call the executable "capp"  
+        >> gcc MainFunction.c -o capp  -lm
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
         >> python CaPP_1.0.py  
 
-CaPP has been tested on MacOS 10.12 (Sierra), Windows Vista and Windows 7  
+CaPP has been tested on  
+- MacOS 10.12 (Sierra), compiled with gcc
+- Windows Vista and Windows 7, compiled with Pelles C  
+- Ubuntu 16.04 LTS, compiled with gcc  
 
 # Running the program, GUI mode
 To start the GUI, type in the terminal:  
@@ -82,9 +85,22 @@ Example:
 
 # About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
-X-ray scattering length are simply calculated as the number of electrons times the electron scattering length.  
-The atomic form factor of each atom is approximated by the carbon atomic formfactor.  
-The form factor of the excluded solvent is given as a Gaussian sphere with volume equal to the atomic volume. The Van der Waals radii are used for most atoms, except the volumes for H,C,D,N, and O, which are found for proteins experimentally by Fraser et al. (J. Appl. Cryst.(1978), 11, 693).  
-Neutron scattering length are imported from the ILL neutron data booklet, and the nucleai are assumed to be point-like, i.e. with form factor of unity.  
-The hydrogens and deuteriums are included implicitely.  
-Water layer is added explicitely and included in the PDDF and thus in the calculated scattering intensity.  
+
+X-ray scattering length are calculated as the number of electrons times the electron scattering length. 
+
+The atomic form factor of each atom is approximated by the carbon atomic formfactor. 
+
+The form factor of the excluded solvent is given as a Gaussian sphere with volume equal to the atomic volume.  
+The Van der Waals radii are used for most atoms, except the volumes for H,C,D,N, and O, which are found  
+experimentally for proteins by Fraser et al. (J. Appl. Cryst.(1978), 11, 693).  
+
+Neutron scattering length are imported from the ILL neutron data booklet, and the nucleai are assumed to be  
+point-like, i.e. with form factor of unity.  
+
+The hydrogens and deuteriums are included implicitely. This is done for the 20 natural amino acids and the  
+hetero atoms currently included in the HETATM library (MainFunction.c). If a hetero atom in the PDB does not  
+exist in the library, no H's or D's will be added. The H's and D's are added according to the Protein Data  
+Base (www4.rcsb.org/ligand/).  
+
+If chosen, a water layer is added explicitely and included in the PDDF and thus in the calculated scattering  
+intensity.  
