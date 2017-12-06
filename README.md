@@ -4,16 +4,18 @@ The program calculates the PDDF from a high-resolution protein structure in PDB 
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
 A water layer can be added as an option. 
 
-# License
+## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          
                                                                      
 CaPP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).  
                                                                      
-# Citing the program  
+## Citing the program  
 If you use the CaPP software in your work, please cite write:                                    
 CaPP, source code freely available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP                                                  
 
-# Dependencies for the GUI  
+## Dependencies
+
+### Dependencies for the GUI  
 - python 2.7  
 - wxpython 2.9
 - matplotlib  
@@ -26,17 +28,18 @@ $ easy_install pip
 $ pip.exe install wxpython  
 $ pip.exe install matplotlib  
 
-# Dependencies for developers and users of Linux
+### Dependencies for developers and users of Linux
 - To recompile the source code, a c-compiler is needed,  
 e.g. gcc (Linux/MacOS) and Pelles C (Windows).  
 
-# Different platforms  
+### Different platforms  
 Executables have been made for MacOS and Windows  
 Users of other OS should:  
 1) compile MainFunction.c and call the executable "capp"  
         >> gcc MainFunction.c -o capp  -lm
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
+
         >> python CaPP_1.0.py  
 
 CaPP has been tested on  
@@ -44,15 +47,19 @@ CaPP has been tested on
 - Windows Vista and Windows 7, compiled with Pelles C  
 - Ubuntu 16.04 LTS, compiled with gcc  
 
-# Running the program, GUI mode
-To start the GUI, type in the terminal:  
+## Running the program
+
+### Running the program, GUI mode
+To start the GUI, type in the terminal
+
         >> python CaPP_1.0.py  
 
-# Running the program, batch mode
-Type in the terminal:  
+### Running the program, batch mode
+Type in the terminal  
+
         >> capp [options] PDBFILE.pdb  
   
-Options:  
+##### Options:  
   
 - c [input: Contrast of water layer]  
 Add a water layer with (c)ontrast between 0 and 2 times the solvent scattering length.  
@@ -79,38 +86,38 @@ SAXS contrast asssumed if option is not chosen.
 Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.  
 Default: 3.0 Aangstrom. 
 
-Example:  
+##### Example:  
 
         >> capp -c 0.1 -m 30 -s 0.4 -r 2.0 4u2p.pdb  
 
-# Output
+## Output
 assuming ABC.pdb as input pdb file  
 
-- ABC_w.pdb  
+##### ABC_w.pdb  
     water beads added to ABC.pdb (after CONNECT, before END), e.g.  
     ATOM  26485  Q   WAT W1497     -24.394   2.153 -28.888  1.00 10.00           Q  
     
-- ABC_w_only.pdb  
+##### ABC_w_only.pdb  
     a pdb file only with the water bead lines (for visualization, e.g. in PyMOL)  
 
-- ABC_pr.dat/ABC_w_pr.dat
+##### ABC_pr.dat/ABC_w_pr.dat
     PDDF for the pdb file without/with water layer, columns:  
-        1: r     = pair distance  
-        2: P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
-        3: G(r)  = sum ( Ba(i) * Ba(j) )  
-        4: H(r)  = sum ( Ba(i) * Ba(j) )  
-        5: J(r)  = sum ( Ba(i) * Ba(j) )  
-        6: K(r)  = sum ( Ba(i) * Ba(j) )  
+        - 1: r     = pair distance  
+        - 2: P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
+        - 3: G(r)  = sum ( Ba(i) * Ba(j) )  
+        - 4: H(r)  = sum ( Ba(i) * Ba(j) )  
+        - 5: J(r)  = sum ( Ba(i) * Ba(j) )  
+        - 6: K(r)  = sum ( Ba(i) * Ba(j) )  
     Ba[i]: scattering length of atom i  
     Bs[i]: scattering length of solvent, excluded by atom i  
     dB[i]: excess scattering length of atom i  
     columns 3-6 used only to calculate th form factor P(q)  
     (optional, see CaPP_A.B.py for details)    
 
-- ABC_Pq  
+##### ABC_Pq  
     Formfactor for the protein  
 
-# About the calculations
+## About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
 
 X-ray scattering length are calculated as the number of electrons times the electron scattering length. 
@@ -132,7 +139,7 @@ Base (www4.rcsb.org/ligand/).
 If chosen, a water layer is added explicitely and included in the PDDF and thus in the calculated scattering  
 intensity.  
 
-# Acknowledgements
+## Acknowledgements
 Søren Kynde made most of the c subroutines that were edited and gathered to form the program.  
 Thanks to Lasse Dreier Cristensen, and to Martin Schmiele for valuable contributions:  
 debugging, testing, writing smarter subfunctions etc.  
