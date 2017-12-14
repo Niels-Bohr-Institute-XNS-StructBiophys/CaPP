@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     
             // INSTRUCTIONS FOR USE
     
-    printf("\n \
+/*    printf("\n \
            Welcome to CaPP (Calculate p(r) function from a PDB file)\n \
            -------------------------------------------------------------------- \n \
            This program calculates the pair distance distribution function, p(r),\n \
@@ -76,7 +76,9 @@ int main(int argc, char **argv)
                SAXS contrast asssumed if option is not chosen. \n\n \
             -r [input: Resolution of p(r) function] \n\
                Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function. \n\
-               Default: 3.0 Aangstrom. ");
+               Default: 3.0 Aangstrom. "); 
+ */
+
     if(argc == 1){
         printf("\n\n");
         printf("\n            ******************************************************");
@@ -116,7 +118,7 @@ int main(int argc, char **argv)
     
             // READING OPTIONS
     
-        printf("\n\n");
+        printf("\n");
         printf("\n            ************* Options chosen: *************\n");
 
     char ch;

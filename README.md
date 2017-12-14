@@ -145,9 +145,35 @@ Base (www4.rcsb.org/ligand/).
 If chosen, a water layer is added explicitely and included in the PDDF and thus in the calculated scattering  
 intensity.  
 
+## Note on Dmax
+The Dmax is the true Dmax, i.e. the furhest distance betweeen any two atoms (or water beads) in the protein.  
+However, this value is not detectable, since only very few atom pairs have this distance. Therefore, Dmax  
+found with CaPP will be a larger value than the experimentally determined Dmax, and the values are thus not  
+directly comparable. A pragmatic solution is to take the r, where p(r) has decreased to 1% of its maximal value.  
+This number is comparable to experimentally determined Dmax values, and can be considered as a good prediction  
+of the experimentally determined Dmax.  
+
 ## Acknowledgements
 Søren Kynde made most of the c subroutines that were edited and gathered to form the program.  
 Thanks to Lasse Sander Dreyer, and to Martin Schmiele for valuable contributions:  
 debugging, testing, writing smarter subfunctions etc.  
 To CoNeXT and University of Copenhagen for co-funding the project.   
 To my supervisor, Lise Arleth, for supporting the project.  
+
+## Known bugs
+- the program cannot find the pdb file if the path contain white space.  
+- the plotting is not stable on Windows 7 (the program crashes) and is therefore disabled for for all versions of Windows.
+
+## Future development
+- fitting option for scale  
+- fitting option for the WL contrast  
+- automatically give Dmax comparable with exp. detectable Dmax (see "Note on Dmax")  
+- expand HETATM library  
+- include info about excluded WL in header  
+- write paper about the program  
+- add the 20 natural occuring aa to the HETATM library (these can be ligands, thus listed as hetero atoms)  
+- possibility to plot p(r) and P(q), if already calculated  
+- remember last opened folder (for finding new pdb)  
+
+
+
