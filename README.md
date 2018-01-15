@@ -149,9 +149,10 @@ intensity.
 The Dmax is the true Dmax, i.e. the furhest distance betweeen any two atoms (or water beads) in the protein.  
 However, this value is not detectable, since only very few atom pairs have this distance. Therefore, Dmax  
 found with CaPP will be a larger value than the experimentally determined Dmax, and the values are thus not  
-directly comparable. A pragmatic solution is to take the r, where p(r) has decreased to 1% of its maximal value.  
-This number is comparable to experimentally determined Dmax values, and can be considered as a good prediction  
-of the experimentally determined Dmax.  
+directly comparable. A pragmatic solution is to use as Dmax the value of r, where p(r) has decreased to 1% of 
+its maximal value. This number is comparable to experimentally determined Dmax values, and mathes well with a 
+visual assesment of Dmax for the calculated pair distance distribution functions. The Dmax found using this 1%
+threshold is thus good prediction of the experimentally determined Dmax.  
 
 ## Acknowledgements
 Søren Kynde made most of the c subroutines that were edited and gathered to form the program.  
