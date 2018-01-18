@@ -158,7 +158,7 @@ threshold is thus good prediction of the experimentally determined Dmax.
 CaPP can automatically fit the theoretical formfactor P(q) to a dataset, if this is provided. 
 Two parameters, scaling (S) and background (B), are fitted to obtain a theoretical scattering given as:  
 
-        >> I(q) = S * P(q) + B
+        I(q) = S * P(q) + B
 
 where q = 4pi sin(t)/l and 2t and l are the scattering angle and wavelength respectively. The q-values are  
 imported from the data file and assumed to be in units of aa (nm can be chosen in the GUI).  
