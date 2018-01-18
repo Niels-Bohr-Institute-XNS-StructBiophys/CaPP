@@ -1,4 +1,4 @@
-# CaPP 1.0
+# CaPP 2.0
 Calculating Pair distance distribution functions (PDDF) for Proteins.  
 The program calculates the PDDF from a high-resolution protein structure in PDB format,  
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
@@ -43,7 +43,7 @@ Users of other OS should:
 2) place the executable, capp, in the same folder as CaPP.py  
 3) Run CaPP  
 
-        >> python CaPP_1.0.py  
+        >> python CaPP_2.0.py  
 
 CaPP has been tested on  
 - MacOS 10.12 (Sierra), compiled with gcc
@@ -154,6 +154,16 @@ its maximal value. This number is comparable to experimentally determined Dmax v
 visual assesment of Dmax for the calculated pair distance distribution functions. The Dmax found using this 1%
 threshold is thus good prediction of the experimentally determined Dmax.  
 
+## Fitting (New feature in CaPP 2.0)
+CaPP can automatically fit the theoretical formfactor P(q) to a dataset, if this is provided. 
+Two parameters, scaling (S) and background (B), are fitted to obtain a theoretical scattering given as:  
+
+        >> I(q) = S * P(q) + B
+
+where q = 4pi sin(t)/l and 2t and l are the scattering angle and wavelength respectively. The q-values are  
+imported from the data file and assumed to be in units of aa (nm can be chosen in the GUI).  
+The density of the water layer cannot (yet) be fitted.  
+
 ## Acknowledgements
 Søren Kynde made most of the c subroutines that were edited and gathered to form the program.  
 Thanks to Lasse Sander Dreyer, and to Martin Schmiele for valuable contributions:  
@@ -165,8 +175,7 @@ To my supervisor, Lise Arleth, for supporting the project.
 - the program cannot find the pdb file if the path contain white space.  
 - the plotting is not stable on Windows 7 (the program crashes) and is therefore disabled for for all versions of Windows.
 
-## Future development
-- fitting option for scale  
+## Future development  
 - fitting option for the WL contrast  
 - automatically give Dmax comparable with exp. detectable Dmax (see "Note on Dmax")  
 - expand HETATM library  
@@ -174,7 +183,3 @@ To my supervisor, Lise Arleth, for supporting the project.
 - write paper about the program  
 - add the 20 natural occuring aa to the HETATM library (these can be ligands, thus listed as hetero atoms)  
 - possibility to plot p(r) and P(q), if already calculated  
-- remember last opened folder (for finding new pdb)  
-
-
-
