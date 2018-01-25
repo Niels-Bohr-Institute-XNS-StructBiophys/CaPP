@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     
     double SolventD2O = -1.0;
     int PointsInPofr;
-    double Delta_r = 2.0; //"resolution" is 3 Å
+    double Delta_r = 2.0; //default "resolution" is 2 Å
     double WaterLayerContrast = 0.0; //contrast of hydration layer
     double HalfBilayerThickness = 0.0;
     int OPTION_d_CHOSEN = 0;
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
                SAXS contrast asssumed if option is not chosen. \n\n \
             -r [input: Resolution of p(r) function] \n\
                Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function. \n\
-               Default: 3.0 Aangstrom. "); 
+               Default: 2.0 Aangstrom. ");
  */
 
     if(argc == 1){
@@ -137,11 +137,11 @@ int main(int argc, char **argv)
                     exit(-1);
                 }
                 WaterLayerContrast = char2double(OptArg);
-                printf("\n            (-c) Water Layer Contrast = %2.0f prc of solvent scattering length\n", WaterLayerContrast*100);
+                printf("\n            (-c) Water Layer Contrast = %6.2f prc of solvent scattering length\n", WaterLayerContrast*100.0);
                 if (WaterLayerContrast == 0) {
                     printf("\n\n            !!! NB !!! Since you have chosen 0 as water layer contrast (input -c), no water layer will be added\n\n");
                 }
-                if (WaterLayerContrast < 0.0 || WaterLayerContrast > 1.00){ printf("\n\n\n            !!!ERROR!!! The water Layer contrast, option -c, should be between 0.0 and 1.0\n\n\n"); exit(-1);}
+                if (WaterLayerContrast < -2.00 || WaterLayerContrast > 2.00){ printf("\n\n\n            !!!ERROR!!! The water Layer contrast, option -c, should be between -2.0 and 2.0\n\n\n"); exit(-1);}
 
                 break;
             case 'd':
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
                     exit(-1);
                 }
                 HalfBilayerThickness = CheckHalfBilayerThickness(filename);
-                printf("\n            (-d) Bilayer Thickness from OPM = %2.1f\n", 2 * HalfBilayerThickness);
+                printf("\n            (-d) Bilayer Thickness from OPM = %6.2f\n", 2 * HalfBilayerThickness);
                 OPTION_d_CHOSEN = 1;
                 break;
             case 'm':
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
                     exit(-1);
                 }
                 HalfBilayerThickness = char2double(OptArg)*0.5;
-                printf("\n            (-m) Manual Bilayer Thickness = %2.1f Angstrom.\n            NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!\n", 2 * HalfBilayerThickness);
+                printf("\n            (-m) Manual Bilayer Thickness = %6.2f Angstrom.\n            NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!\n", 2 * HalfBilayerThickness);
                 OPTION_m_CHOSEN = 1;
                 if (HalfBilayerThickness == 0) {
                     printf("\n\n\n            !!! Error !!! Dear user, you have chosen a bilayer thickness of 0 Angstrom or not given any input after option -m. Please try again with an input. \n\n\n");
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
                 }
                 SolventD2O = char2double(OptArg);
                 if (SolventD2O < 0.0) { printf("\n        (-s) SAXS\n"); }
-                else{ printf("\n            (-s) SANS with %2.0f prc D2O in the solvent\n", SolventD2O*100); }
+                else{ printf("\n            (-s) SANS with %4.1f prc D2O in the solvent\n", SolventD2O*100.0); }
                 if (SolventD2O > 1.00){ printf("\n\n\n            !!!ERROR!!! The solvent D2O content, option -s, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n"); exit(-1);}
                 break;
             case 'r':
@@ -196,7 +196,7 @@ int main(int argc, char **argv)
                     printf("\n\n\n            !!! Error !!! Dear user, you have chosen 0 Angstrom resolution or not given any resolution after option -r. Please try again with an input. \n\n\n");
                     exit(-1);
                 }
-                printf("\n            (-r) Resolution = %2.1f Angstrom\n", Delta_r);
+                printf("\n            (-r) Resolution = %6.4f Angstrom\n", Delta_r);
                 break;
             case 'g':
                 OPTION_g_CHOSEN = 1;
@@ -223,13 +223,13 @@ int main(int argc, char **argv)
     
         printf("\n            ********************************************\n");
 
-    if(WaterLayerContrast > 0.0) {
+    if(WaterLayerContrast > 0.0 || WaterLayerContrast < 0.0) {
         printf("\n\n");
         printf("\n            ************ Adding Water Layer ************\n");
         filename = AddWaterLayerToPDB(filename, HalfBilayerThickness);
         PointerToFile = fopen(filename,"r");
-        printf("\n            Bilayer Thickness = %2.2f\n", 2 * HalfBilayerThickness);
-        printf("\n            Water has been added with contrast = %2.1f\n", WaterLayerContrast);
+        printf("\n            Bilayer Thickness = %6.4f\n", 2 * HalfBilayerThickness);
+        printf("\n            Water has been added with contrast = %6.4f\n", WaterLayerContrast);
         printf("\n            PDB with protein and water generated: %s \n", filename);
         int PDBFilenameLength = strlen(filename) - 4; // length of first part of pdb filename, e.g. 6 for 1x2y_w.pdb
         char WaterOnlyFileName[PDBFilenameLength];
@@ -640,6 +640,45 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
                 }
+                else if (strcmp(&AminoName,"LMT")==0) {
+                    sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"O2")==0) {n_D = 2;}
+                    else if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C7")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C8")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C9")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C10")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C11")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C12")==0) {n_H = 3;}
+                    else if (strcmp(&LongAtomName,"C1'")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C2'")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C3'")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C4'")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5'")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6'")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"O1'")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O2'")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O6'")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1B")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O2B")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O3B")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O5B")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O6B")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"C1B")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C2B")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C3B")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C4B")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5B")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6B")==0) {n_H = 2;}
+                }
                 else if (strcmp(&AminoName,"LHG")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
                     if (strcmp(&LongAtomName,"O2")==0) {n_D = 2;}
@@ -769,6 +808,29 @@ int main(int argc, char **argv)
                     else if (strcmp(&LongAtomName,"C8")==0) {n_H = 3;}
                     else if (strcmp(&LongAtomName,"C12")==0) {n_H = 2;}
                 }
+                else if (strcmp(&AminoName,"PEG")==0) {
+                    sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"N2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
+                }
+                else if (strcmp(&AminoName,"PG0")==0) {
+                    sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"N2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 3;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"OTT")==0) {n_D = 1;}
+                }
                 else if (strcmp(&AminoName,"GOL")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N2")==0) {n_D = 1;}
@@ -800,7 +862,7 @@ int main(int argc, char **argv)
                 Ba[i] = Atoms[i].XRayScatteringLength;
             }
             else {
-                Atoms[i].NeutronScatteringLength += n_D * element[DEUTERIUM].NeutronScatteringLength - n_H * 3.742e-13;
+                Atoms[i].NeutronScatteringLength += n_D * element[DEUTERIUM].NeutronScatteringLength - n_H * 3.741e-13;
                 Ba[i] = Atoms[i].NeutronScatteringLength;
             }
             Bs[i] = rhoSolvent * Atoms[i].Volume;
@@ -846,8 +908,8 @@ int main(int argc, char **argv)
     } else {
         printf("# SAXS contrast\n"); fprintf(outputFile, "# SAXS contrast\n");
     }
-    if (WaterLayerContrast > 0.0) {
-        printf("# Water layer added with contrast: %.2lf\n", WaterLayerContrast); fprintf(outputFile, "# Water layer added with contrast: %.2lf\n", WaterLayerContrast);
+    if (WaterLayerContrast > 0.0 || WaterLayerContrast < 0.0) {
+        printf("# Water layer added with contrast: %6.4lf\n", WaterLayerContrast); fprintf(outputFile, "# Water layer added with contrast: %6.4lf\n", WaterLayerContrast);
     } else {
         printf("# No water layer added\n"); fprintf(outputFile, "# No water layer added\n");
     }

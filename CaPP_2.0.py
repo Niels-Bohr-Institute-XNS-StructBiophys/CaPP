@@ -330,7 +330,7 @@ class MainCls(wx.Frame):
 
         Change_resolution_button = wx.BoxSizer(wx.HORIZONTAL)
         Change_resolution_button.AddSpacer(10)
-        self.Change_resolution_button = wx.CheckBox(self.Panel, -1, 'Change resolution of the p(r)? (Default: 3 Angstrom)', size = (350, -1))
+        self.Change_resolution_button = wx.CheckBox(self.Panel, -1, 'Change resolution of the p(r)? (Default: 2 Angstrom)', size = (350, -1))
         Change_resolution_button.Add(self.Change_resolution_button)
         BoxSizer.Add(Change_resolution_button, 0, wx.ALIGN_CENTER, wx.EXPAND|wx.HORIZONTAL)
         self.Bind(wx.EVT_CHECKBOX, self.EnableResolutionBoxFnc, self.Change_resolution_button)
@@ -421,7 +421,7 @@ class MainCls(wx.Frame):
         self.Destroy()
 
     def nmFnc(self,event):
-        if self.Water_layer_button.GetValue():
+        if self.nm_button.GetValue():
             print("data in nm")
 
     def EnableWLButtonsFnc(self, event):
@@ -503,8 +503,8 @@ class MainCls(wx.Frame):
         
         if self.Water_layer_button.GetValue():
             WL_choice               = "-c"
-            WL_contrast_tmp         = float(self.Water_layer_contrast_box.GetValue())/100
-            WL_contrast             = "%1.2f" % WL_contrast_tmp
+            WL_contrast_tmp         = float(self.Water_layer_contrast_box.GetValue())/100.0
+            WL_contrast             = "%6.4f" % WL_contrast_tmp
         
         if self.Exclude_water_layer_OPM_button.GetValue():
             Exclude_WL_choice       = "-d"
@@ -521,7 +521,7 @@ class MainCls(wx.Frame):
         elif self.SANS_button.GetValue():
             XN_choice = "-s"
             solvent_tmp = float(self.SANS_solvent_box.GetValue())/100
-            solvent = "%1.3f" % solvent_tmp
+            solvent = "%6.4f" % solvent_tmp
         else:
             Message = 'SAXS chosen as default'
             wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
@@ -530,6 +530,8 @@ class MainCls(wx.Frame):
         Output = "%s/%s %s %s %s %s %s %s %s %s -g %s" % (programpath, capp_version, XN_choice, solvent, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
 
         # run command line
+        #import subprocess
+        #subprocess.call([Output])
         os.system(Output)
         
         # print command line to terminal window
@@ -559,17 +561,10 @@ class MainCls(wx.Frame):
 
         if self.Water_layer_button.GetValue():
             WL_choice               = "-c"
-            WL_contrast_tmp         = float(self.Water_layer_contrast_box.GetValue())/100
-            WL_contrast             = "%1.2f" % WL_contrast_tmp
+            WL_contrast_tmp         = float(self.Water_layer_contrast_box.GetValue())/100.0
+            WL_contrast             = "%6.4f" % WL_contrast_tmp
 
         if self.Exclude_water_layer_OPM_button.GetValue():
-            #check file
-            file = fopen(self.PDBPathStr,'r')
-            line = file.readline()
-            
-            
-            Message = 'ERROR: see terminal window'
-            wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
             Exclude_WL_choice       = "-d"
         if self.Exclude_water_layer_M_button.GetValue():
             Exclude_WL_choice       = "-m"
@@ -662,18 +657,28 @@ class MainCls(wx.Frame):
 
         PointsInr = len(r)
         
-        # create or import q-vector
+        # create or import q vector
         if self.DataPathStr == 'Non':
-            # create q-vector
             PointsInQ = 200
             qmin = 0.001
             qmax = 1.0
             dq = (qmax - qmin) / (PointsInQ - 1)
-            q = np.arange(qmin, qmax+dq, dq)
+            q = np.arange(qmin, qmax+dq, dq) # create q vector
         else:
-            #import q-vector
-            headerlines = 2
-            q = np.genfromtxt(self.DataPathStr, skiprows=headerlines,usecols=[0], unpack=True)
+            #count number of header lines in data file
+            file = open(self.DataPathStr,'r')
+            count = 0
+            STOP = 0
+            while STOP < 1:
+                line = file.readline()
+                numbers_str = line.split()
+                try:
+                    numbers_float = [float(x) for x in numbers_str]
+                    STOP = 1
+                except:
+                    count = count + 1
+            file.close()
+            q = np.genfromtxt(self.DataPathStr, skiprows=count,usecols=[0], unpack=True) #import q vector
             if self.nm_button.GetValue():
                 q = q*0.1 # convert from nm to angstrom
         
@@ -709,12 +714,14 @@ class MainCls(wx.Frame):
                 qr = q[i] * r[j]
                 sinc = math.sin(qr)/qr
                 Psum = Psum + (gr[j] * psi_c2 - (hr[j] + jr[j]) * psi_c * Gauss_sphere_mean + kr[j] * Gauss_sphere_mean2 ) * sinc
+                #Psum = Psum + (gr[j] - (hr[j] + jr[j]) + kr[j] ) * Gauss_sphere_mean2 * sinc
             Pq[i] = Psum
         Pq = Pq / Pq[0] # Normalize P(q) such that P(0) = 1
 
         # plot P(q)
         if capp_version == "capp_windows.exe":
             print("Plotting not available on Windows") # then it crashes
+            Message = 'P(q) succesfully calculated - see folder with pdb file'
         else:
             self.Figure2 = pylab.figure(2)
             Subplot2 = pylab.subplot(111)
@@ -785,7 +792,7 @@ class MainCls(wx.Frame):
                     STOP = 1
                 except:
                     count = count + 1
-                    #print("count:",count)
+            print("count:",count)
             file.close()
             q,I,dI = np.genfromtxt(self.DataPathStr, skiprows=count,usecols=[0,1,2], unpack=True) #import data
             if self.nm_button.GetValue():
@@ -793,10 +800,13 @@ class MainCls(wx.Frame):
             Pq = np.genfromtxt(Pq_filename, skiprows=1,usecols=[1], unpack=True) #import P(q)
             S0 = I[2] #Scale, initial guess
             B0 = 0.001 #Bg, initial guess
-            #print('S0 is ', S0)
             def func(q,S,B):
                 return S * Pq + B
+            print("q = ", q)
+            print("I = ", I)
+            print("dI= ", dI)
             popt, pcov = curve_fit(func,q,I,sigma=dI,p0=[S0,B0])
+            #popt, pcov = curve_fit(func,q,I,p0=[S0,B0])
             #print('popt is ', popt)
             # plot data and fit
             if capp_version == "capp_windows.exe":
@@ -830,7 +840,7 @@ class MainCls(wx.Frame):
     ### Define function for filebrowsing for PDB
     def BrowsePDBFnc(self, event):
         
-        FileDialogWindow = wx.FileDialog(None, 'Please select PDB-file...', os.getcwd(), defaultFile = '',style = wx.OPEN)
+        FileDialogWindow = wx.FileDialog(None, 'Please select PDB-file...', os.getcwd(), defaultFile = '')
 
         if FileDialogWindow.ShowModal() == wx.ID_OK:
             self.PDBPathStr = FileDialogWindow.GetPath()
@@ -854,7 +864,7 @@ class MainCls(wx.Frame):
 
 ### Define function for filebrowsing for data
     def BrowseDataFnc(self, event):
-        FileDialogWindow = wx.FileDialog(None, 'Please select Data-file...', os.getcwd(), defaultFile = '',style = wx.OPEN)
+        FileDialogWindow = wx.FileDialog(None, 'Please select Data-file...', os.getcwd(), defaultFile = '')
         
         if FileDialogWindow.ShowModal() == wx.ID_OK:
             self.DataPathStr = FileDialogWindow.GetPath()
