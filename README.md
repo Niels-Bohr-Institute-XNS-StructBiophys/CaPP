@@ -1,4 +1,4 @@
-# CaPP 2.0
+# CaPP 3.8
 Calculating Pair distance distribution functions (PDDF) for Proteins.  
 The program calculates the PDDF from a high-resolution protein structure in PDB format,  
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
@@ -13,7 +13,7 @@ Check that the denpendencies are properly installed (see below)
 ### Running the program, GUI mode
 To start the GUI, type in the terminal
 
-        >> python path-to-folder/CaPP_2.0.py  
+        >> python path-to-folder/CaPP_A.B.py  
 
 ### Running the program, batch mode
 Type in the terminal  
@@ -24,7 +24,7 @@ Type in the terminal
 
         >> ./path-to-folder/capp [options] PDBFILE.pdb  (linux)
 
-##### Options:  
+##### Options  
 
 - c [input: Contrast of water layer]  
 Add a water layer with (c)ontrast between 0 and 2 times the solvent scattering length.  
@@ -45,13 +45,15 @@ NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!
 
 - s [input: prc D20 in the solvent]  
 Choose SANS contrast and enter the D2O-content (between 0 and 1) of the (s)olvent.  
-SAXS contrast asssumed if option is not chosen.  
+SAXS contrast asssumed if option is not chosen. 
+
+- p [input: perdeuteration of protein]
+Choose SANS contrast and enter the (p)erdeuteration (between 0 and 1) of the protein. 
 
 - r [input: Resolution of p(r) function]  
 Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.  
-Default: 2.0 Aangstrom.  
-Too small will not give a smooth p(r), too large will give wrong results for P(q) if  
-this is calculated from the p(r) function.  
+Default: 1.0 Aangstrom.  
+Too small binsize will not an oscillating p(r), and too large will give wrong results for P(q).  
 
 ##### Example:  
 
@@ -63,11 +65,16 @@ this is calculated from the p(r) function.
 - python 2.7  
 - wxpython 2.9
 - matplotlib  
-- scipy
-tested on MacOS 10.12 under Enthought Canopy 2.7 (64-bit)   
-and with python under cygwin on windows 7 (no build-in plotting available)  
+- scipy 0.17 or newer (0.17 have bounds option in the function scipy.optimize.least_squares)
 
-##### Windows (with cygwin terminal) type:  
+## Platforms
+
+### Tested OS 
+CaPP_A.B (latest version) has been tested on   
+- MacOS 10.12, compiled with gcc, and with python from Enthought Canopy 2.7 (64-bit)  
+- May work on Windows, but without option of plotting
+
+##### Install on Windows (with cygwin terminal) type:  
     $ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
     $ python ez_setup.py  
     $ /cygdrive/c/Python27/Scripts/easy_install-2.7.exe pip  
@@ -75,12 +82,11 @@ and with python under cygwin on windows 7 (no build-in plotting available)
     $ /cygdrive/c/Python27/Scripts/pip.exe install matplotlib 
     § /cygdrive/c/Python27/Scripts/pip.exe install scipy
 
-### Dependencies for developers and users of Linux
+### Developers and other OS
 - To recompile the source code, a c-compiler is needed,  
 e.g. gcc (Linux/MacOS) or Pelles C (Windows).  
-
-### Different platforms  
-Executables have been made for MacOS and Windows  
+  
+Executables have been made exclusively for MacOS  
 Users of other OS should:  
 1) compile MainFunction.c (with flag -lm) and name the executable "capp"  
 
@@ -90,11 +96,6 @@ Users of other OS should:
 3) Run CaPP  
 
         >> python CaPP_A.B.py  
-
-CaPP has been tested on  
-- MacOS 10.12 (Sierra), compiled with gcc
-- Windows Vista and Windows 7, compiled with Pelles C  
-- Ubuntu 16.04 LTS, compiled with gcc  
 
 ## Output
 assuming ABC.pdb as input pdb file  
@@ -120,11 +121,14 @@ where
 Ba[i]: scattering length of atom i  
 Bs[i]: scattering length of solvent, excluded by atom i  
 dB[i]: excess scattering length of atom i  
-columns 3-6 used only to calculate th form factor P(q)  
-(optional, see CaPP_A.B.py for details)    
+columns 3-6 are used to calculate the form factor P(q)  
 
 ##### ABC_Pq  
-A datafile with the form factor for the protein  
+A datafile with the form factor for the protein, columns:  
+1. q, scattering vector  
+2. P(q), form factor  
+3. A00(q)^2, the square of the partial amplitude with l=m=0 (Svergun et al, 1995, J. Appl. Cryst., 28, 768-773)  
+4. Beta, factor used in the decoupling approximation, given by Beta = A00(q)^2/P(q)  (Hoiberg-Nielsen2009, 2009, Biophys. J., 97, 1445-1453)
 
 ## About the calculations
 The PDDF is calculated using the positions of each atom in the PDB file.  
@@ -179,12 +183,37 @@ No resolution effects are included for SAXS, nor SANS data.
 The density of the water layer cannot (yet) be fitted.  
 
 ## Versions  
-#### CaPP_1.0  
-- from summer 2017
-#### CaPP_2.0  
-- January 2018  
-- Fitting of scale and bg
+#### CaPP 1  
+- Release June 2017  
+
+#### CaPP 2  
+- Release January 2018 
+- only change in python part  
+- Fitting of scale and bg  
 - other minor improvements  
+
+#### CaPP 3
+- Release August 2018
+- Change in python part and c part  
+- Fitting of WL contrast  
+- always calculate P(q) when p(r) is calculated  
+- option to exclude the first q-points from the fit  
+- improvements of GUI  
+- more precise calc of P(q), better form factor approximation
+- treat RNA and DNA
+- bugfix: not include TER lines when counting #atoms (function CheckNumberOfAtoms()). Fixed!
+- robustness: pdb was not read correctly after PyMOL manipulation, so WL was placed wrong. Fixed! 
+- stop use of structs for treatment of residues - difficult, unintutive, ineffective, etc... 
+- clean-up in source codes - significant simplifications!
+- less printing to terminal
+- OPtion to fit with a linear combination of 2 pdb files  
+- allows for sucrose SAXS contrast variation  
+- include resolution effects (from 4th column in data) in SANS fitting (3.6) 
+- check number of columns in data files (3.6)
+- handle datafile with header in the buttom of data file (3.6)
+- GUI implementation of Rg calculator was buggy - removed (3.8)
+- Option for perdeuteration included (3.8)
+- include info about excluded WL in header (3.8)
 
 ## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          
@@ -204,16 +233,12 @@ To CoNeXT and University of Copenhagen for co-funding the project.
 To my supervisor, Lise Arleth, for supporting the project.  
 
 ## Known bugs (to be fixed)
-- the program cannot find the pdb file if the path contain white space.  
+- the program cannot find the pdb file if the path contains white space.  
 - the plotting is not working on Windows (the program crashes) and is therefore disabled.  
 - the program is generally not stable under Windows.   
 
-## Future development  
-- fitting option for the WL contrast
-- include resolution effects (from 4th column in data) in SANS fitting
+## Future development   
 - automatically give Dmax comparable with exp. detectable Dmax (see "Note on Dmax")  
-- expand HETATM library  
-- include info about excluded WL in header  
-- write paper to present the program to the world  
-- add the 20 natural occuring aa to the HETATM library (these can be ligands, thus listed as hetero atoms)  
-- possibility to plot p(r) and P(q), if already calculated  
+- expand HETATM library   
+- add the 20 natural occuring aa to the HETATM library (these can be ligands and listed as hetero atoms)  
+- write a paper to present the program to the world 
