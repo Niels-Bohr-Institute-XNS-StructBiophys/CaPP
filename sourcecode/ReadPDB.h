@@ -18,7 +18,11 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double n_W = 4.133; // number of watermolecules per water residue
     double r, D;
     int index;
+<<<<<<< HEAD
     enum {HYDROGEN, DEUTERIUM, HD, CARBON, NITROGEN, OXYGEN, FLUORINE, SODIUM, MAGNESIUM, PHOSPHORUS, SULFUR, CHLORINE, CALCIUM, MANGANESE, IRON, COPPER, ZINK, GOLD, WATER, UNKNOWN};
+=======
+    enum {HYDROGEN, DEUTERIUM, CARBON, NITROGEN, OXYGEN, FLUORINE, SODIUM, MAGNESIUM, PHOSPHORUS, SULFUR, CHLORINE, CALCIUM, MANGANESE, IRON, COPPER, ZINK, GOLD, WATER, UNKNOWN};
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
     
     // SUCROSE CONTRAST VARIATION
     double VolSolution = 0.1; // liter
@@ -43,9 +47,14 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     /*                                      Scattering-length                                                                       */
     /*                   x    y    z       X-ray[cm]        Neutron[cm]                                    V[AA^3] Mw[Da]  Name*/
     struct Atom element[] = {
+<<<<<<< HEAD
         [HYDROGEN]   = { 0.0, 0.0, 0.0,    1 * 2.82e-13,    3.741e-13,                                       5.15,   1.0,   'A'} ,
         [DEUTERIUM]  = { 0.0, 0.0, 0.0,    1 * 2.82e-13,    6.671e-13,                                       5.15,   2.0,   'A'} ,
         [HD]         = { 0.0, 0.0, 0.0,    1 * 2.82e-13,    6.671e-13*SolventD2O-3.741e-13*(1.0-SolventD2O), 5.15,   1.5,   'A'} ,
+=======
+        [HYDROGEN]  =  { 0.0, 0.0, 0.0,    1 * 2.82e-13,    3.741e-13,                                       5.15,   1.0,   'A'} ,
+        [DEUTERIUM]  = { 0.0, 0.0, 0.0,    1 * 2.82e-13,    6.671e-13*SolventD2O-3.741e-13*(1.0-SolventD2O), 5.15,   2.0,   'A'} ,
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
         [CARBON]     = { 0.0, 0.0, 0.0,    6 * 2.82e-13,    6.646e-13,                                      16.44,  12.0,   'A'} ,
         [NITROGEN]   = { 0.0, 0.0, 0.0,    7 * 2.82e-13,    9.360e-13,                                       2.49,  14.0,   'A'} ,
         [OXYGEN]     = { 0.0, 0.0, 0.0,    8 * 2.82e-13,    5.803e-13,                                       9.13,  16.0,   'A'} ,
@@ -71,6 +80,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     //                                               Experimentally determined values
     //    (P, S, Mn, Ca, F, Mg, Cl, Cu, Fe, Zn):    Batsanov, Inorg Mat(2001), vol37, no9, p871.
     //                                               Van der Waals radii, mean of values from Table 1 and 2 (P from Table 5)
+<<<<<<< HEAD
     // HD is a libile Hydrogen, that can be exchanged with Deuterium
     //
     
@@ -78,6 +88,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double ScatteringLengthSolvent = 2.0 * element[HD].NeutronScatteringLength + element[OXYGEN].NeutronScatteringLength;
     if(SolventD2O<0.0){
         ScatteringLengthSolvent = 2.0 * element[HD].XRayScatteringLength + element[OXYGEN].XRayScatteringLength;
+=======
+    
+    // SOLVENT SCATT LENGTH (with sucrose)
+    double ScatteringLengthSolvent = 2.0 * element[DEUTERIUM].NeutronScatteringLength + element[OXYGEN].NeutronScatteringLength;
+    if(SolventD2O<0.0){
+        ScatteringLengthSolvent = 2.0 * element[DEUTERIUM].XRayScatteringLength + element[OXYGEN].XRayScatteringLength;
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
         ScatteringLengthSolvent = ScatteringLengthSolvent + SucPerSolv * ScatLenSuc;
     }
     double rhoSolvent = ScatteringLengthSolvent/VolumeSolvent;
@@ -95,6 +112,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     
     double n_H; // number of non-exchangable (strongly bound) Hydrogen
     double n_D; // number of exchangeable Hydrogen attachd to main atom
+<<<<<<< HEAD
     double n_DD; // number of non-exchangeable (strongly bound) Deuterium (after perdeuteration)
     
     // VOLUME CORRECTION FACTORS
@@ -102,12 +120,18 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double LipCorrFactor = 1.06; // from Matlab: CalcLipVol.m
     double DNACorrFactor = 1.0; // not determined
     double RNACorrFactor = 1.0; // not determined
+=======
+    double n_DD = 0.0; // number of non-exchangeable (strongly bound) Deuterium (after perdeuteration)
+    
+    int DNA, RNA;
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
 
     int NumberOfH = 0;
     int NumberOfAlternativeAtoms = 0;
     int NumberOfOtherLines = 0;
     int i = i_start;
     while(fgets(buffer,sizeof(buffer),PointerToFile)!=NULL){
+<<<<<<< HEAD
         
         // read atom name:
         if (sscanf(buffer, "ATOM%*73c%s",&Atoms[i].Name) == 1 || sscanf(buffer, "HETATM%*71c%s",&Atoms[i].Name) == 1) {}
@@ -118,13 +142,28 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         // ignore alternative position atoms (only use position A):
         else if (AlternativeAtomPosition == 'B') {NumberOfAlternativeAtoms++;}
         // read all other atoms:
+=======
+        R = 0;
+        
+        // read atom name.
+        if (sscanf(buffer, "ATOM%*73c%s",&Atoms[i].Name) == 1 || sscanf(buffer, "HETATM%*71c%s",&Atoms[i].Name) == 1) {}
+        // read alternative atom pos
+        if (sscanf(buffer, "ATOM%*12c%c",&AlternativeAtomPosition) == 1 || sscanf(buffer, "HETATM%*10c%c",&AlternativeAtomPosition) == 1) {}
+        
+        // if atom is H or D then ignore and if it is a repeated atom with alternative position then ignore (only use position A, else read atom.
+        if (strcmp(&Atoms[i].Name,"H") == 0 || strcmp(&Atoms[i].Name,"D") == 0) {NumberOfH++;}
+        else if (AlternativeAtomPosition == 'B') {NumberOfAlternativeAtoms++;}
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
         else if (sscanf(buffer,"ATOM%*18c%d%*4c%lf%lf%lf%*22c%s",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z,&AtomName)==5 ||
             sscanf(buffer,"HETATM%*16c%d%*4c%lf%lf%lf%*22c%s",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z,&AtomName)==5 ) {
             n_D = 0;
             n_H = 0;
             DNA = 0;
             RNA = 0;
+<<<<<<< HEAD
             LIP = 0;
+=======
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
             
             // Read element and give values from atom list
             if (strcmp(&AtomName,"C")==0) {
@@ -158,6 +197,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
             else if (strcmp(&AtomName,"Q")==0) {
                 CopyPhysicalParameters(&Atoms[i], &element[WATER]); n_D = 2.0 * n_W;}
             else {
+<<<<<<< HEAD
                 CopyPhysicalParameters(&Atoms[i], &element[UNKNOWN]); u++;
             }
             
@@ -165,6 +205,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
             if (sscanf(buffer,"ATOM%*13c%s", &AminoName) == 1 || sscanf(buffer,"HETATM%*11c%s", &AminoName) == 1)
             {
                 // ADD H/D to AMINO ACIDS
+=======
+                CopyPhysicalParameters(&Atoms[i], &element[UNKNOWN]); u++;}
+            
+            // Add H/D to amino acids. Ordered alphabetically. Then for DNA and RNA
+            if (sscanf(buffer,"ATOM%*13c%s", &AminoName) == 1)
+            {
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
                 if (strcmp(&AminoName,"ALA")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
@@ -334,7 +381,10 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"CG1")==0) {n_H = 3;}
                     else if (strcmp(&LongAtomName,"CG2")==0) {n_H = 3;}
                 }
+<<<<<<< HEAD
                 // ADD H/D to DNA nucleotides
+=======
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
                 else if (strcmp(&AminoName,"DA")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"C1'")==0) {n_H = 1;}
@@ -437,7 +487,10 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
                     DNA = 1;
                 }
+<<<<<<< HEAD
                 // ADD H/D to RNA nucleotides
+=======
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
                 else if (strcmp(&AminoName,"A")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
                     if (strcmp(&LongAtomName,"C1'")==0) {n_H = 1;}
@@ -543,8 +596,16 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
                     RNA = 1;
                 }
+<<<<<<< HEAD
                 // ADD H/D to RNA to other heteroatomic molecueles
                 else if (strcmp(&AminoName,"HOH")==0) {
+=======
+            }
+            // H/D added to HETATM according to http://www.rcsb.org/ligand
+            else if (sscanf(buffer,"HETATM%*11c%s", &AminoName) == 1)
+            {
+                if (strcmp(&AminoName,"HOH")==0) {
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
                     n_D = 2; // HOH is a water atom in the crystal
                     Atoms[i].Volume = 30.0 - 2*5.15; // implicit solvent, therefore the volume of two H/D is subtracted
                 }
@@ -859,6 +920,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C7")==0) {n_H = 3;}
                     else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
                 }
+<<<<<<< HEAD
                 else if (strcmp(&AminoName,"POPE")==0) {
                     LIP = 1;
                     sscanf(buffer,"HETATM%*6c%s", &LongAtomName);
@@ -976,6 +1038,30 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 n_DD = Perdeuteration * n_H;
                 n_H = n_H - n_DD;
                 Atoms[i].NeutronScatteringLength += n_D * element[HD].NeutronScatteringLength - n_H * element[HYDROGEN].NeutronScatteringLength + n_DD * element[DEUTERIUM].NeutronScatteringLength;
+=======
+            }
+            // Update volume and scattering length with implicit H and D (adjust if DNA or RNA)
+            Atoms[i].Volume += (n_D + n_H) * 5.15;
+            if (DNA == 1) {
+                Atoms[i].Volume *= 1.0; // DNA volume correctioin
+            }
+            if (RNA == 1) {
+                Atoms[i].Volume *= 1.0; /// RNA volume correctioin
+            }
+            
+            SumOfVolume += Atoms[i].Volume;
+            
+            
+            if(SolventD2O < 0.0){
+                Atoms[i].XRayScatteringLength += (n_D + n_H) * element[DEUTERIUM].XRayScatteringLength;
+                Ba[i] = Atoms[i].XRayScatteringLength;
+            }
+            else {
+                n_D = n_D; // exchangeable hydrogens are the same
+                n_DD = Perdeuteration * n_H;
+                n_H = n_H - n_DD;
+                Atoms[i].NeutronScatteringLength += n_D * element[DEUTERIUM].NeutronScatteringLength - n_H * element[HYDROGEN].NeutronScatteringLength + n_DD * 6.671e-13 ;
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
                 Ba[i] = Atoms[i].NeutronScatteringLength;
             }
             Bs[i] = rhoSolvent * Atoms[i].Volume;

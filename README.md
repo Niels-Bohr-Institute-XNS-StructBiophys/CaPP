@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # CaPP 3.9
+=======
+# CaPP 3.8
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
 Calculating Pair distance distribution functions (PDDF) for Proteins.  
 The program calculates the PDDF from a high-resolution protein structure in PDB format,  
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
@@ -68,12 +72,21 @@ Too small binsize will not an oscillating p(r), and too large will give wrong re
 - scipy 0.17 or newer (0.17 have bounds option in the function scipy.optimize.least_squares)
 
 ## Platforms
+<<<<<<< HEAD
 
 ### Tested OS 
 CaPP_A.B (latest version) has been tested on   
 - MacOS 10.12, compiled with gcc, and with python from Enthought Canopy 2.7 (64-bit)  
 - May work on Windows, but without option of plotting
 
+=======
+
+### Tested OS 
+CaPP_A.B (latest version) has been tested on   
+- MacOS 10.12, compiled with gcc, and with python from Enthought Canopy 2.7 (64-bit)  
+- May work on Windows, but without option of plotting
+
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
 ##### Install on Windows (with cygwin terminal) type:  
     $ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
     $ python ez_setup.py  
@@ -211,11 +224,19 @@ The density of the water layer cannot (yet) be fitted.
 
 #### CaPP 2  
 - Release January 2018 
+<<<<<<< HEAD
+=======
+- only change in python part  
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
 - Fitting of scale and bg  
 - other minor improvements  
 
 #### CaPP 3
 - Release August 2018
+<<<<<<< HEAD
+=======
+- Change in python part and c part  
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
 - Fitting of WL contrast  
 - always calculate P(q) when p(r) is calculated  
 - option to exclude the first q-points from the fit  
@@ -227,7 +248,11 @@ The density of the water layer cannot (yet) be fitted.
 - stop use of structs for treatment of residues - difficult, unintutive, ineffective, etc... 
 - clean-up in source codes - significant simplifications!
 - less printing to terminal
+<<<<<<< HEAD
 - Option to fit with a linear combination of 2 pdb files  
+=======
+- OPtion to fit with a linear combination of 2 pdb files  
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
 - allows for sucrose SAXS contrast variation  
 - include resolution effects (from 4th column in data) in SANS fitting (3.6) 
 - check number of columns in data files (3.6)
@@ -235,8 +260,11 @@ The density of the water layer cannot (yet) be fitted.
 - GUI implementation of Rg calculator was buggy - removed (3.8)
 - Option for perdeuteration included (3.8)
 - include info about excluded WL in header (3.8)
+<<<<<<< HEAD
 - calculate A00 functions (3.8)
 - fix minor bugs, expand HETATM list (3.9)
+=======
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
 
 ## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          
@@ -261,5 +289,12 @@ To my supervisor, Lise Arleth, for supporting the project.
 - the program is generally not stable under Windows.   
 
 ## Future development   
+<<<<<<< HEAD
 - automatically give Dmax comparable with exp. detectable Dmax (see "Note on Dmax")   
 - write a paper     
+=======
+- automatically give Dmax comparable with exp. detectable Dmax (see "Note on Dmax")  
+- expand HETATM library   
+- add the 20 natural occuring aa to the HETATM library (these can be ligands and listed as hetero atoms)  
+- write a paper to present the program to the world 
+>>>>>>> 509c72e74235e58d805f89c2db77102f65256548
