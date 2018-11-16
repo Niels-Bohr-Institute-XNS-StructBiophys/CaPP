@@ -246,7 +246,7 @@ CaPP is free software: you can redistribute it and/or modify it under the terms 
 CaPP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details (http://www.gnu.org/licenses/).  
 
 ## Citing the program  
-If you use the CaPP software in your work, please cite the GitHub addres:                                 
+If you use the CaPP software in your work, please cite the GitHub address:                                 
 
         github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP  
 
