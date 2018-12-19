@@ -2,7 +2,7 @@
 ##                              ##
 ##    Copyright 2018,           ##
 ##    Andreas Larsen            ##
-##    andreas.larsen@nbi.dk     ##
+##    andreas.larsen@nbi.ku.dk  ##
 
 ## This file is part of CaPP.                                           ##
 ##                                                                      ##
@@ -95,7 +95,7 @@ class MainCls(wx.Frame):
         width = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)
         height = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
         position = (width/3.0, height/20.0)
-        wx.Frame.__init__(self, parent, id, title = 'CaPP - Calculate p(r) from PDB files', pos = position)
+        wx.Frame.__init__(self, parent, id, title = 'CaPP - Calculate p(r) for Proteins (PDB format)', pos = position)
         BoxSizer = wx.BoxSizer(wx.VERTICAL)
         self.Panel = wx.lib.scrolledpanel.ScrolledPanel(self, -1)
         self.Panel.SetupScrolling(False, True)
@@ -690,6 +690,7 @@ class MainCls(wx.Frame):
                 value = float(self.SAXS_solvent_box.GetValue())
                 string_value = "%1.0f" % value
                 filename2 = filename2 + "_X" + string_value
+                filename2_nowater = short_filename2 + "_X" + string_value
             self.PlotprFnc(filename2,PDB2ID)
             self.CalcPqFnc(filename2,filename2_nowater,short_filename2,PDB2ID)
 
@@ -998,6 +999,10 @@ class MainCls(wx.Frame):
             if self.fitPDB2_button.GetValue():
                 filename2 = os.path.splitext(self.PDB2PathStr)[0]
                 PDB2ID = os.path.splitext(os.path.basename(self.PDB2PathStr))[0]
+
+                if self.Water_layer_button.GetValue():
+                    filename2 = filename2 + "_w"
+
                 if self.SANS_button.GetValue():
                     value1 = float(self.SANS_solvent_box.GetValue());
                     string_value1 = "%1.0f" % value1
@@ -1009,12 +1014,8 @@ class MainCls(wx.Frame):
                     string_value = "%1.0f" % value
                     filename2 = filename2 + "_X" + string_value
                 
-                if self.Water_layer_button.GetValue():
-                    pr_filename2 = filename2 + "_w_pr.dat"
-                else:
-                    pr_filename2 = filename2 + "_pr.dat"
-                Pq_filename2 = pr_filename2[:-6] + "Pq.dat"
-                Pq_RES_filename2 = pr_filename2[:-6] + "Pq_RES.dat"
+                Pq_filename2 = filename2 + "_Pq.dat"
+                Pq_RES_filename2 = filename2 + "Pq_RES.dat"
         
         #count number of lines in data file
             NumberOfLines = sum(1 for line in open(self.DataPathStr)) + 1
@@ -1274,7 +1275,7 @@ class MainCls(wx.Frame):
                 else:
                     self.Figure3 = pylab.figure(3)
                     Subplot3 = pylab.subplot(111)
-                    Subplot3.errorbar(q, I, dI, label="Data", color='k',fmt='.')
+                    Subplot3.errorbar(q, I, dI, label="Data", color='r',fmt='.')
                 Subplot3 = pylab.subplot(111)
                 if self.fitPDB2_button.GetValue():
                     if self.Water_layer_button.GetValue():
@@ -1307,6 +1308,10 @@ class MainCls(wx.Frame):
             # export fit
             filename = os.path.splitext(self.PDBPathStr)[0]
             PDBID = os.path.splitext(os.path.basename(self.PDBPathStr))[0]
+
+            if self.Water_layer_button.GetValue():
+                filename = filename + "_w"
+
             if self.fitPDB2_button.GetValue():
                 filename2 = os.path.splitext(self.PDB2PathStr)[0]
                 PDB2ID = os.path.splitext(os.path.basename(self.PDB2PathStr))[0]
@@ -1320,11 +1325,9 @@ class MainCls(wx.Frame):
                 value = float(self.SAXS_solvent_box.GetValue())
                 string_value = "%1.0f" % value
                 filename = filename + "_X" + string_value
-            if self.Water_layer_button.GetValue():
-                fit_filename = filename + "_w_Fit.dat"
-            else:
-                fit_filename = filename + "_Fit.dat"
-                                    
+            
+            fit_filename = filename + "_Fit.dat"
+
             Fit_fid = open(fit_filename, "w")
             Fit_fid.write("#   %s\n" % fitvalues)
             Fit_fid.write("#   %s\n" % fiterrors)
