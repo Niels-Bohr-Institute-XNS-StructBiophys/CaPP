@@ -105,7 +105,7 @@ class MainCls(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.CloseWindowFnc) # close pylab explicitely for to avoid crash
 
         BoxSizer.AddSpacer(3)
-        
+
         ### Widgets for PDB-file import
         PDBTextSizer = wx.BoxSizer(wx.HORIZONTAL)
         PDBTextSizer.AddSpacer(10)
@@ -144,7 +144,7 @@ class MainCls(wx.Frame):
         self.DataPathStr = 'Non'
         DataPathSizer.Add(self.DataPathTxt)
         BoxSizer.Add(DataPathSizer, 0, wx.EXPAND|wx.HORIZONTAL)
-        
+
         DataBtnSizer = wx.BoxSizer(wx.HORIZONTAL)
         DataBtnSizer.AddSpacer(10)
         self.BrowseDataBtn = wx.Button(self.Panel, label = 'Browse')
@@ -153,7 +153,7 @@ class MainCls(wx.Frame):
         DataBtnSizer.AddSpacer(10)
         BoxSizer.Add(DataBtnSizer, 0, wx.EXPAND|wx.HORIZONTAL)
         self.BrowseDataBtn.Disable()
-        
+
         nm_button = wx.BoxSizer(wx.HORIZONTAL)
         nm_button.AddSpacer(10)
         self.nm_button = wx.CheckBox(self.Panel, -1, 'q in data is in [1/nm] (default: [1/aa])', size = (350, -1))
@@ -161,7 +161,7 @@ class MainCls(wx.Frame):
         BoxSizer.Add(nm_button, 0, wx.ALIGN_CENTER, wx.EXPAND|wx.HORIZONTAL)
         self.Bind(wx.EVT_CHECKBOX, self.nmFnc, self.nm_button)
         self.nm_button.Disable()
-        
+
         BoxSizer.AddSpacer(5)
         LineData = wx.StaticLine(self.Panel, -1)
         BoxSizer.Add(LineData, 0, wx.EXPAND|wx.HORIZONTAL)
@@ -174,24 +174,24 @@ class MainCls(wx.Frame):
         SAXS_button.Add(self.SAXS_button)
         BoxSizer.Add(SAXS_button, 0, wx.EXPAND|wx.HORIZONTAL) # position SAXS button
         self.Bind(wx.EVT_RADIOBUTTON, self.EnableSAXSFnc, self.SAXS_button)
-        
+
         SAXS_solvent_box = wx.BoxSizer(wx.HORIZONTAL) # prepare for SAXS solvent box
         SAXS_solvent_box.AddSpacer(29)
-        
+
         self.left_SAXS = wx.StaticText(self.Panel, -1, "Sucrose content =")
         SAXS_solvent_box.Add(self.left_SAXS)
         self.left_SAXS.Disable()
-        
+
         self.SAXS_solvent_box = wx.TextCtrl(self.Panel, -1, '', size = (40, -1)) # make SAXS solvent box
         self.SAXS_solvent_box.SetValue('0')
         SAXS_solvent_box.Add(self.SAXS_solvent_box) # ?
         BoxSizer.Add(SAXS_solvent_box) # position SAXS solvent box
         self.SAXS_solvent_box.Disable()
-        
+
         self.right_SAXS = wx.StaticText(self.Panel, -1, "g/100 ml (%)")
         SAXS_solvent_box.Add(self.right_SAXS)
         self.right_SAXS.Disable()
-        
+
         SANS_button = wx.BoxSizer(wx.HORIZONTAL) # prepare for SANS button
         SANS_button.AddSpacer(10) # vertical spacing
         self.SANS_button = wx.RadioButton(self.Panel, -1, 'SANS') # make SANS button
@@ -270,7 +270,7 @@ class MainCls(wx.Frame):
         self.right_WL.Disable()
 
         BoxSizer.AddSpacer(5)
-        
+
         ### Widgets to exclude water layer from TMD
         WLText = wx.BoxSizer(wx.HORIZONTAL)
         WLText.AddSpacer(10)
@@ -326,7 +326,7 @@ class MainCls(wx.Frame):
         OPMText.Add(self.OPMText)
         BoxSizer.Add(OPMText, 0, wx.EXPAND|wx.HORIZONTAL)
         self.OPMText.Disable()
-        
+
         MText1 = wx.BoxSizer(wx.HORIZONTAL)
         MText1.AddSpacer(10)
         self.MText1 = wx.StaticText(self.Panel, -1, '(**) Align protein with TMD perp. to the xy-plane,', size = (330, -1))
@@ -355,7 +355,7 @@ class MainCls(wx.Frame):
         CalculateButtonSpace.Add(self.CalculateButton, 1, wx.EXPAND)
         CalculateButtonSpace.AddSpacer(10)
         BoxSizer.Add(CalculateButtonSpace, 0, wx.EXPAND|wx.HORIZONTAL)
-        
+
         BoxSizer.AddSpacer(5)
         Line_after_widget = wx.StaticLine(self.Panel, -1) # make line after widget
         BoxSizer.Add(Line_after_widget, 0, wx.EXPAND|wx.HORIZONTAL)
@@ -386,14 +386,14 @@ class MainCls(wx.Frame):
         self.right_skip = wx.StaticText(self.Panel, -1, " points in q (default: 0)")
         Skip_box.Add(self.right_skip)
         self.right_skip.Disable()
-        
+
         fitWL_button = wx.BoxSizer(wx.HORIZONTAL)
         fitWL_button.AddSpacer(10)
         self.fitWL_button = wx.CheckBox(self.Panel, -1, 'Fit WL contrast? (default: fixed to chosen value)', size = (350, -1))
         fitWL_button.Add(self.fitWL_button)
         BoxSizer.Add(fitWL_button, 0, wx.ALIGN_CENTER, wx.EXPAND|wx.HORIZONTAL)
         self.fitWL_button.Disable()
-        
+
         fitPDB2_button = wx.BoxSizer(wx.HORIZONTAL)
         fitPDB2_button.AddSpacer(10)
         self.fitPDB2_button = wx.CheckBox(self.Panel, -1, 'Fit with 2 PDBs? Location of 2nd PDB file:', size = (350, -1))
@@ -401,14 +401,14 @@ class MainCls(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.EnableBrowsePDB2Fnc, self.fitPDB2_button)
         BoxSizer.Add(fitPDB2_button, 0, wx.ALIGN_CENTER, wx.EXPAND|wx.HORIZONTAL)
         self.fitPDB2_button.Disable()
-        
+
         PDB2PathSizer = wx.BoxSizer(wx.HORIZONTAL)
         PDB2PathSizer.AddSpacer(10)
         self.PDB2PathTxt = wx.StaticText(self.Panel, -1, '')
         self.PDB2PathStr = 'N/A'
         PDB2PathSizer.Add(self.PDB2PathTxt)
         BoxSizer.Add(PDB2PathSizer, 0, wx.EXPAND|wx.HORIZONTAL)
-        
+
         PDB2BtnSizer = wx.BoxSizer(wx.HORIZONTAL)
         PDB2BtnSizer.AddSpacer(10)
         self.BrowsePDB2Btn = wx.Button(self.Panel, label = 'Browse')
@@ -417,12 +417,12 @@ class MainCls(wx.Frame):
         PDB2BtnSizer.AddSpacer(10)
         BoxSizer.Add(PDB2BtnSizer, 0, wx.EXPAND|wx.HORIZONTAL)
         self.BrowsePDB2Btn.Disable()
-        
+
         BoxSizer.AddSpacer(5)
         Line_after_widget = wx.StaticLine(self.Panel, -1) # make line after widget
         BoxSizer.Add(Line_after_widget, 0, wx.EXPAND|wx.HORIZONTAL)
         BoxSizer.AddSpacer(5)
-        
+
         ### Widgets to change resolution (binsize)
         Change_resolution_button = wx.BoxSizer(wx.HORIZONTAL)
         Change_resolution_button.AddSpacer(10)
@@ -430,20 +430,20 @@ class MainCls(wx.Frame):
         Change_resolution_button.Add(self.Change_resolution_button)
         BoxSizer.Add(Change_resolution_button, 0, wx.ALIGN_CENTER, wx.EXPAND|wx.HORIZONTAL)
         self.Bind(wx.EVT_CHECKBOX, self.EnableResolutionBoxFnc, self.Change_resolution_button)
-        
+
         Resolution_box = wx.BoxSizer(wx.HORIZONTAL)
         Resolution_box.AddSpacer(29)
-        
+
         self.left_res = wx.StaticText(self.Panel, -1, "Binsize =")
         Resolution_box.Add(self.left_res)
         self.left_res.Disable()
-        
+
         self.Resolution_box = wx.TextCtrl(self.Panel, -1, '', size = (40, -1))
         self.Resolution_box.SetValue('1.0')
         Resolution_box.Add(self.Resolution_box)
         BoxSizer.Add(Resolution_box)
         self.Resolution_box.Disable()
-        
+
         self.right_res = wx.StaticText(self.Panel, -1, "A")
         Resolution_box.Add(self.right_res)
         self.right_res.Disable()
@@ -555,7 +555,7 @@ class MainCls(wx.Frame):
         self.left_SAXS.Disable()
         self.SAXS_solvent_box.Disable()
         self.right_SAXS.Disable()
-        
+
     def EnableSAXSFnc(self, event):
         self.left_SAXS.Enable()
         self.SAXS_solvent_box.Enable()
@@ -568,7 +568,7 @@ class MainCls(wx.Frame):
         self.right_SANS_d.Disable()
         self.RES_button.SetValue(0)
         self.RES_button.Disable()
-    
+
     ### Define CaPP function
     def cappFnc(self, event):
 
@@ -627,13 +627,13 @@ class MainCls(wx.Frame):
             Message = 'SAXS chosen as default'
             print(Message)
             wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
-    
+
         # assemble options into a command line
         if self.fitPDB2_button.GetValue():
             Output = "%s/%s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (programpath, capp_version, XN_choice, solvent, Perdeut_choice, perdeut, X_choice, PrcSucrose, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDB2PathStr)
         else:
             Output = "%s/%s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (programpath, capp_version, XN_choice, solvent, Perdeut_choice, perdeut, X_choice, PrcSucrose, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
-        
+
         # print command line to terminal window
         print("Command generated by the GUI and sent to terminal:")
         print(Output)
@@ -641,7 +641,7 @@ class MainCls(wx.Frame):
 
         # run command line
         os.system(Output)
-        
+
         # close pop-up window
         self.second_window.Destroy()
 
@@ -660,7 +660,7 @@ class MainCls(wx.Frame):
             value2 = float(self.SANS_perdeut_box.GetValue())
             string_value2 = "%1.0f" % value2
             filename = filename + "_N" + string_value1 + "P" + string_value2
-            filename_nowater = short_filename + "_N" + string_value1 + "P" + string_value2                
+            filename_nowater = short_filename + "_N" + string_value1 + "P" + string_value2
         else:
             value = float(self.SAXS_solvent_box.GetValue())
             string_value = "%1.0f" % value
@@ -668,24 +668,24 @@ class MainCls(wx.Frame):
             filename_nowater = short_filename + "_X" + string_value
         self.PlotprFnc(filename,PDBID)
         self.CalcPqFnc(filename,filename_nowater,short_filename,PDBID)
-        
+
         # calculate P(q), and plot P(q) and p(r) for 2nd PDB
         if self.fitPDB2_button.GetValue():
             short_filename2 = os.path.splitext(self.PDB2PathStr)[0]
             PDB2ID = os.path.splitext(os.path.basename(self.PDB2PathStr))[0]
-            
+
             if self.Water_layer_button.GetValue():
-                filename2 = short_filename2 + "_w" 
+                filename2 = short_filename2 + "_w"
             else:
-                filename2 = short_filename2   
-            
+                filename2 = short_filename2
+
             if self.SANS_button.GetValue():
                 value1 = float(self.SANS_solvent_box.GetValue())
                 string_value1 = "%1.0f" % value1
                 value2 = float(self.SANS_perdeut_box.GetValue())
                 string_value2 = "%1.0f" % value2
                 filename2 = filename2 + "_N" + string_value1 + "P" + string_value2
-                filename2_nowater = short_filename2 + "_N" + string_value1 + "P" + string_value2   
+                filename2_nowater = short_filename2 + "_N" + string_value1 + "P" + string_value2
             else:
                 value = float(self.SAXS_solvent_box.GetValue())
                 string_value = "%1.0f" % value
@@ -696,14 +696,14 @@ class MainCls(wx.Frame):
 
     ### define function for plotting p(r)
     def PlotprFnc(self,filename, PDBID):
-      
+
         #import p(r)
         pr_filename = filename + "_pr.dat"
         r,pr = np.genfromtxt(pr_filename, skip_header=10,usecols=[0,1],unpack=True)
-        
+
         # normalize p(r)
         pr = pr / max(pr)
-        
+
         #plot p(r)
         if capp_version == "capp_windows.exe":
             print("Plotting not available on Windows") # then it crashes
@@ -731,7 +731,7 @@ class MainCls(wx.Frame):
             Subplot.set_ylabel('p(r)',fontsize=14)
             pylab.suptitle('Pair Distance Distribution for the structure(s)',fontsize=14)
             pylab.show()
-    
+
     ### Define function for calculating P(q)
     def CalcPqFnc(self, filename, filename_nowater, short_filename, PDBID):
 
@@ -757,7 +757,7 @@ class MainCls(wx.Frame):
         prw_filename = ""
         prc_filename = ""
         prt_filename = ""
-        
+
         if self.Water_layer_button.GetValue():
             pr_filename = filename_nowater + "_pr.dat" #protein (no water)
             grp,hrp,jrp,krp = np.genfromtxt(pr_filename, skip_header=10,usecols=[2,3,4,5],unpack=True)
@@ -774,8 +774,8 @@ class MainCls(wx.Frame):
 
         # import mean volume
         v_mean_line = linecache.getline(pr_filename,8)
-        v_mean = float(v_mean_line[v_mean_line_max:])
-        
+        v_mean = float(v_mean_line.split(':')[1])
+
         # create or import q vector
         if self.DataPathStr == 'Non':
             PointsInQ = 200
@@ -810,7 +810,7 @@ class MainCls(wx.Frame):
                             if totallines < NumberOfLines:
                                 footerlines = footerlines + 1
                     else:
-                        datalines = datalines + 1 
+                        datalines = datalines + 1
                         columns_in_datafile = columns
                     HEADER_END = 1
                 except:
@@ -822,13 +822,13 @@ class MainCls(wx.Frame):
             if datalines == 0:
                 Message = 'Cannot read datafile. Datafile should have 3 or 4 columns: q, I, and sigma_q (sigma_q is optional: SANS resolution effects).'
                 print(Message)
-                wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)    
+                wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
             else:
                 if self.RES_button.GetValue():
                     if columns_in_datafile == 3:
-                        Message = 'Datafile should have 4 columns: q, I, sigma_I, sigma_q - 4th for SANS resolution effects.' 
-                        print(Message)    
-                        wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)    
+                        Message = 'Datafile should have 4 columns: q, I, sigma_I, sigma_q - 4th for SANS resolution effects.'
+                        print(Message)
+                        wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
             file.close()
             q = np.genfromtxt(self.DataPathStr,skip_header=headerlines,skip_footer=footerlines,usecols=[0], unpack=True) #import q vector
             if self.nm_button.GetValue():
@@ -956,7 +956,7 @@ class MainCls(wx.Frame):
             Subplot2.set_xlabel('q [$1/\AA$]',fontsize=14)
             Subplot2.set_ylabel('P(q)',fontsize=14)
             pylab.suptitle('Form Factor for the structure(s)',fontsize=14)
-            pylab.show()            
+            pylab.show()
 
         # Enable buttons in GUI
         if self.DataPathStr != 'Non':
@@ -969,7 +969,7 @@ class MainCls(wx.Frame):
 
     ### Define function for Fitting Bg, scale and water layer (optional)
     def FitFnc(self, event):
-        
+
         # check for data file
         if self.DataPathStr == 'Non':
             Message = 'Please provide a data file (q,I,dI), recalculate P(q) (to obtain the right q-values) and try again.'
@@ -993,10 +993,10 @@ class MainCls(wx.Frame):
                 value = float(self.SAXS_solvent_box.GetValue());
                 string_value = "%1.0f" % value
                 filename = filename + "_X" + string_value
-            
+
             Pq_filename = filename + "_Pq.dat"
             Pq_RES_filename = filename + "_Pq_RES.dat"
-            
+
         # define Pq filename 2
             if self.fitPDB2_button.GetValue():
                 filename2 = os.path.splitext(self.PDB2PathStr)[0]
@@ -1015,10 +1015,10 @@ class MainCls(wx.Frame):
                     value = float(self.SAXS_solvent_box.GetValue());
                     string_value = "%1.0f" % value
                     filename2 = filename2 + "_X" + string_value
-                
+
                 Pq_filename2 = filename2 + "_Pq.dat"
                 Pq_RES_filename2 = filename2 + "Pq_RES.dat"
-        
+
         #count number of lines in data file
             NumberOfLines = sum(1 for line in open(self.DataPathStr)) + 1
 
@@ -1044,7 +1044,7 @@ class MainCls(wx.Frame):
                             if totallines < NumberOfLines:
                                 footerlines = footerlines + 1
                     else:
-                        datalines = datalines + 1 
+                        datalines = datalines + 1
                         columns_in_datafile = columns
                     HEADER_END = 1
                 except:
@@ -1056,13 +1056,13 @@ class MainCls(wx.Frame):
             if datalines == 0:
                 Message = 'Cannot read datafile. Datafile should have 3 or 4 columns: q, I, and sigma_q (sigma_q is optional: SANS resolution effects).'
                 print(Message)
-                wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)    
+                wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
             else:
                 if self.RES_button.GetValue():
                     if columns_in_datafile == 3:
-                        Message = 'Datafile should have 4 columns: q, I, sigma_I, sigma_q - 4th for SANS resolution effects.' 
-                        print(Message)    
-                        wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)    
+                        Message = 'Datafile should have 4 columns: q, I, sigma_I, sigma_q - 4th for SANS resolution effects.'
+                        print(Message)
+                        wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
         #import and truncate data
             q,I,dI = np.genfromtxt(self.DataPathStr,skip_header=headerlines,skip_footer=footerlines,usecols=[0,1,2], unpack=True)
             if self.nm_button.GetValue():
@@ -1071,14 +1071,14 @@ class MainCls(wx.Frame):
             I_trunc = I[skip_first:]
             q_trunc = q[skip_first:]
             dI_trunc = dI[skip_first:]
-            
+
         #variables for calculation of chi2r
             Np = 2 #number of fitted parameters (bg and scale)
             if self.fitPDB2_button.GetValue():
                 Np = Np + 1 # also fit the prefactor A
             df = len(q_trunc) - Np # df = degrees of freedom
             chi2r = 0.0
-            
+
         #variables and functions for fitting
             Pq      = [1.0]*len(q_trunc) #declare P(q)
             Pq2     = Pq #declare P(q) 2
@@ -1093,7 +1093,7 @@ class MainCls(wx.Frame):
                     I = S * Pq + B
                 else:
                     sum_Pq_RES = [0.0]*len(q_trunc)
-                    sum_w = 0.0 
+                    sum_w = 0.0
                     for j in range(-3,3+1):
                         w = math.exp(-j**2/2)
                         sum_Pq_RES  += w * np.array(Pq_RES)[j+3]
@@ -1116,7 +1116,7 @@ class MainCls(wx.Frame):
                     PofQ1 = sum_Pq_RES/sum_w
                     PofQ2 = sum_Pq2_RES/sum_w
                     I = S * (A * PofQ1 + (1.0-A)*PofQ2) + B
-                return I 
+                return I
 
         #variables used if water layer contrast (wlc) is fitted - golden range search
             wlc_string = ""
@@ -1135,7 +1135,7 @@ class MainCls(wx.Frame):
             tol = 0.01 #tolerance for change in chi2r before stopping
             WhichToCalc = 0
             ii = 0
-            
+
             # fit data
             if self.fitWL_button.GetValue():
                 if self.fitPDB2_button.GetValue():
@@ -1146,7 +1146,7 @@ class MainCls(wx.Frame):
                 Np = Np + 1 # also fit the WL contrast
                 while d_chi2r > tol:
                     dx = xmax-xmin
-                    
+
                     if WhichToCalc == 1 or WhichToCalc == 0:
                         x1 = xmax-dx*R
                         wlc_string = str(x1)
@@ -1155,13 +1155,13 @@ class MainCls(wx.Frame):
                         Pq = np.genfromtxt(Pq_filename, skip_header=1+skip_first,usecols=[1], unpack=True)
                         if self.RES_button.GetValue():
                             Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7 = np.genfromtxt(Pq_RES_filename,skip_header=1+skip_first,usecols=[1,2,3,4,5,6,7], unpack=True)
-                            Pq_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])                        
+                            Pq_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])
                         if self.fitPDB2_button.GetValue():
                             Pq2 = np.genfromtxt(Pq_filename2, skip_header=1+skip_first,usecols=[1], unpack=True)
                             if self.RES_button.GetValue():
                                 Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7 = np.genfromtxt(Pq_RES_filename2, skip_header=1+skip_first,usecols=[1,2,3,4,5,6,7], unpack=True)
-                                Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])                              
-                            popt, pcov = curve_fit(func2,q_trunc,I_trunc,bounds=((0,1e-99,0),(1e99,1e99,1)),sigma=dI_trunc,p0=[S0,B0,A0])    
+                                Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])
+                            popt, pcov = curve_fit(func2,q_trunc,I_trunc,bounds=((0,1e-99,0),(1e99,1e99,1)),sigma=dI_trunc,p0=[S0,B0,A0])
                             I_fit = func2(q_trunc,*popt)
                         else:
                             popt, pcov = curve_fit(func1,q_trunc,I_trunc,sigma=dI_trunc,p0=[S0,B0])
@@ -1170,7 +1170,7 @@ class MainCls(wx.Frame):
                         ii = ii + 1
                         Status = "Ite = %d, Chi2r = %f, WL = %f" % (ii, chi2r_1, x1)
                         print(Status)
-                
+
                     if WhichToCalc == 2 or WhichToCalc == 0:
                         x2 = dx*R+xmin
                         wlc_string = str(x2)
@@ -1184,9 +1184,9 @@ class MainCls(wx.Frame):
                             Pq2 = np.genfromtxt(Pq_filename2, skip_header=1+skip_first,usecols=[1], unpack=True)
                             if self.RES_button.GetValue():
                                 Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7 = np.genfromtxt(Pq_RES_filename2, skip_header=1+skip_first,usecols=[1,2,3,4,5,6,7], unpack=True)
-                                Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])                
+                                Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])
                             popt, pcov = curve_fit(func2,q_trunc,I_trunc,bounds=((0,1e-99,0),(1e99,1e99,1)),sigma=dI_trunc,p0=[S0,B0,A0])
-                            I_fit = func2(q_trunc,*popt) 
+                            I_fit = func2(q_trunc,*popt)
                         else:
                             popt, pcov = curve_fit(func1,q_trunc,I_trunc,sigma=dI_trunc,p0=[S0,B0])
                             I_fit = func1(q_trunc,*popt)
@@ -1231,9 +1231,9 @@ class MainCls(wx.Frame):
                     Pq2 = np.genfromtxt(Pq_filename2, skip_header=1+skip_first,usecols=[1], unpack=True)
                     if self.RES_button.GetValue():
                         Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7 = np.genfromtxt(Pq_RES_filename2, skip_header=1+skip_first,usecols=[1,2,3,4,5,6,7], unpack=True)
-                        Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])                
+                        Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])
                     popt, pcov = curve_fit(func2,q_trunc,I_trunc,bounds=((0,1e-99,0),(1e99,1e99,1)),sigma=dI_trunc,p0=[S0,B0,A0])
-                    I_fit = func2(q_trunc,*popt) 
+                    I_fit = func2(q_trunc,*popt)
                 else:
                     popt, pcov = curve_fit(func1,q_trunc,I_trunc,sigma=dI_trunc,p0=[S0,B0])
                     I_fit = func1(q_trunc,*popt)
@@ -1251,14 +1251,14 @@ class MainCls(wx.Frame):
                     Pq2 = np.genfromtxt(Pq_filename2, skip_header=1+skip_first,usecols=[1], unpack=True)
                     if self.RES_button.GetValue():
                         Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7 = np.genfromtxt(Pq_RES_filename2, skip_header=1+skip_first,usecols=[1,2,3,4,5,6,7], unpack=True)
-                        Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])                
+                        Pq2_RES  = np.matrix([Pq_R1,Pq_R2,Pq_R3,Pq_R4,Pq_R5,Pq_R6,Pq_R7])
                     popt, pcov = curve_fit(func2,q_trunc,I_trunc,bounds=([0,-np.inf,0],[np.inf,np.inf,1]),sigma=dI_trunc,p0=[S0,B0,A0])
-                    I_fit = func2(q_trunc,*popt) 
+                    I_fit = func2(q_trunc,*popt)
                 else:
                     popt, pcov = curve_fit(func1,q_trunc,I_trunc,sigma=dI_trunc,p0=[S0,B0])
                     I_fit = func1(q_trunc,*popt)
                 chi2r = np.sum(( (I_trunc - I_fit) / dI_trunc)**2)/df
-            
+
             # plot data and fit
             wlc = float(self.Water_layer_contrast_box.GetValue()) #water layer contrast
             if capp_version == "capp_windows.exe":
@@ -1327,7 +1327,7 @@ class MainCls(wx.Frame):
                 value = float(self.SAXS_solvent_box.GetValue())
                 string_value = "%1.0f" % value
                 filename = filename + "_X" + string_value
-            
+
             fit_filename = filename + "_Fit.dat"
 
             Fit_fid = open(fit_filename, "w")
@@ -1362,7 +1362,7 @@ class MainCls(wx.Frame):
 
     ### Define function for filebrowsing for PDB
     def BrowsePDBFnc(self, event):
-        
+
         FileDialogWindow = wx.FileDialog(None, 'Please select PDB-file...', os.getcwd(), defaultFile = '')
 
         if FileDialogWindow.ShowModal() == wx.ID_OK:
@@ -1383,54 +1383,54 @@ class MainCls(wx.Frame):
             self.CalculateButton.Enable()
             self.BrowseDataBtn.Enable()
             self.nm_button.Enable()
-    
+
         FileDialogWindow.Destroy()
 
 
     ### Define function for filebrowsing for PDB2
     def BrowsePDB2Fnc(self, event):
-    
+
         FileDialogWindow = wx.FileDialog(None, 'Please select PDB2-file...', os.getcwd(), defaultFile = '')
-        
+
         if FileDialogWindow.ShowModal() == wx.ID_OK:
             self.PDB2PathStr = FileDialogWindow.GetPath()
             PDB2PathDisplayStr = str(self.PDB2PathStr)
-            
+
             while len(PDB2PathDisplayStr) > 49:
                 PDB2PathDisplayStr = PDB2PathDisplayStr[1:]
-            
+
             if len(self.PDB2PathStr) > 49:
                 PDB2PathDisplayStr = '...' + PDB2PathDisplayStr
-        
+
             self.PDB2PathTxt.SetLabel(PDB2PathDisplayStr)
-            
+
             DirectoryStr = os.path.dirname(self.PDB2PathStr)
             os.chdir(DirectoryStr)
-            
+
             self.CalculateButton.Enable()
             self.BrowseDataBtn.Enable()
-        
+
         FileDialogWindow.Destroy()
-    
+
     ### Define function for filebrowsing for data
     def BrowseDataFnc(self, event):
         FileDialogWindow = wx.FileDialog(None, 'Please select Data-file...', os.getcwd(), defaultFile = '')
-        
+
         if FileDialogWindow.ShowModal() == wx.ID_OK:
             self.DataPathStr = FileDialogWindow.GetPath()
             DataPathDisplayStr = str(self.DataPathStr)
-            
+
             while len(DataPathDisplayStr) > 49:
                 DataPathDisplayStr = DataPathDisplayStr[1:]
-            
+
             if len(self.DataPathStr) > 49:
                 DataPathDisplayStr = '...' + DataPathDisplayStr
-        
+
             self.DataPathTxt.SetLabel(DataPathDisplayStr)
-            
+
             DirectoryStr = os.path.dirname(self.DataPathStr)
             os.chdir(DirectoryStr)
-    
+
             self.FitButton.Enable()
             self.left_skip.Enable()
             self.Skip_box.Enable()
@@ -1438,9 +1438,9 @@ class MainCls(wx.Frame):
             self.fitPDB2_button.Enable()
             if self.SANS_button.GetValue():
                 self.RES_button.Enable()
-        
+
         FileDialogWindow.Destroy()
-    
+
     ### Define exit function
     def CloseWindowFnc(self, event):
         try:
@@ -1452,7 +1452,7 @@ class MainCls(wx.Frame):
     ### Define funciton to extract file name from a file path
     def path_leaf(self,path):
         head, tail = ntpath.split(path)
-        return tail or ntpath.basename(head) 
+        return tail or ntpath.basename(head)
 
 ### Boilerplate code linking program and widgets
 if __name__ == '__main__':
