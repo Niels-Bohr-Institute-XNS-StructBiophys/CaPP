@@ -47,8 +47,9 @@ NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!
 Choose SANS contrast and enter the D2O-content (between 0 and 1) of the (s)olvent.  
 SAXS contrast asssumed if option is not chosen. 
 
-- p [input: perdeuteration of protein]
-Choose SANS contrast and enter the (p)erdeuteration (between 0 and 1) of the protein. 
+- A, -B, -C, -D, -E, -F [input: perdeuteration of protein]
+Choose SANS contrast and enter the (p)erdeuteration (between 0 and 1) of the protein chain.    
+For single-chain proteins, use -A.    
 
 - r [input: Resolution of p(r) function]  
 Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.  
@@ -70,7 +71,6 @@ Too small binsize will not an oscillating p(r), and too large will give wrong re
 ## Platforms
 CaPP_A.B (latest version) has been tested on   
 - MacOS 10.12, compiled with gcc, and with python from Enthought Canopy 2.7 (64-bit)  
-- May work on Windows, but without option of plotting
 
 ##### Install on Windows (with cygwin terminal) type:  
     $ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
@@ -90,13 +90,14 @@ Users of other OS should:
 
         >> gcc MainFunction.c -o capp  -lm
 
-2) place the executable, capp, in the same folder as CaPP.py  
+2) place the executable, capp, in the same folder as CaPP_A.B.py (A.B is the version)   
 3) Run CaPP  
 
         >> python CaPP_A.B.py  
 
 ## Output
-assuming ABC.pdb as input pdb file  
+assuming ABC.pdb as input pdb file.  
+(options) denote the contrast (X for SAXS, N100_P50 for SANS in 100% D20 and chain A 50% perdeuterated).    
 
 ##### ABC_w.pdb  
 A new pdb with water beads added as lines to ABC.pdb (after CONNECT, before END), e.g. 
@@ -106,7 +107,7 @@ A new pdb with water beads added as lines to ABC.pdb (after CONNECT, before END)
 ##### ABC_w_only.pdb  
 A pdb file with the water bead lines only (for visualization, e.g. in PyMOL)  
 
-##### ABC_pr.dat/ABC_w_pr.dat
+##### ABC_(options)_pr.dat
 A data files with the PDDF for the pdb file without/with water layer, columns:  
 1. r     = pair distance  
 2. P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
@@ -121,7 +122,7 @@ Bs[i]: scattering length of solvent, excluded by atom i
 dB[i]: excess scattering length of atom i  
 columns 3-6 are used to calculate the form factor P(q)  
 
-##### ABC_Pq  
+##### ABC_(options)_Pq  
 A datafile with the form factor for the protein, columns:  
 1. q, scattering vector  
 2. P(q), form factor  
@@ -159,7 +160,7 @@ the beads are not included in the transmembrane (TM) part, which is relevant for
 The water layer is explicitely written to a "pseudo" PDB file  and can thus be visualized, e.g. with PyMOL.  
 ("pseudo") because the dummy beads are not real atoms.  
 
-### Atomic volumes and scattering lengts (copied from Readme.h)
+### Atomic volumes and scattering lengts (copied from ReadPDB.h)
                  x    y    z       X-ray[cm]        Neutron[cm]                                    V[AA^3]  Mw[Da]  Name
 [HYDROGEN]  =  { 0.0, 0.0, 0.0,    1 * 2.82e-13,    3.741e-13,                                       5.15,   1.0,   'A'} ,    
 [DEUTERIUM]  = { 0.0, 0.0, 0.0,    1 * 2.82e-13,    6.671e-13*SolventD2O-3.741e-13*(1.0-SolventD2O), 5.15,   2.0,   'A'} ,    
@@ -209,7 +210,7 @@ The density of the water layer cannot (yet) be fitted.
 
 #### CaPP 2  
 - Release January 2018 
-- only change in python part  
+- only changes in python part  
 - Fitting of scale and bg  
 - other minor improvements  
 
@@ -229,15 +230,9 @@ The density of the water layer cannot (yet) be fitted.
 - less printing to terminal
 - Option to fit with a linear combination of 2 pdb files  
 - allows for sucrose SAXS contrast variation  
-- include resolution effects (from 4th column in data) in SANS fitting (3.6) 
-- check number of columns in data files (3.6)
-- handle datafile with header in the buttom of data file (3.6)
-- GUI implementation of Rg calculator was buggy - removed (3.8)
-- Option for perdeuteration included (3.8)
-- include info about excluded WL in header (3.8)
-- calculate A00 functions (3.8)
-- fix minor bugs, expand HETATM list (3.9)
-- include calculations for some lipids (3.9)
+- include resolution effects (from 4th column in data) in SANS fit, check no. of columns in data files, handle datafile with footer (3.6)
+- Removed GUI implementation of Rg calculator (buggy), option for perdeuteration, include info about excluded WL in header, calculate A00 functions (3.8)
+- fix minor bugs, expand HETATM list,   include calculations for some lipids (3.9)
 - multi-chain perdeuteration options, bug fixes (3.10)
 
 ## License
