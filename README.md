@@ -1,4 +1,4 @@
-# CaPP 3.9
+# CaPP 3.10
 Calculating Pair distance distribution functions (PDDF) for Proteins.  
 The program calculates the PDDF from a high-resolution protein structure in PDB format,  
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
@@ -228,7 +228,6 @@ The density of the water layer cannot (yet) be fitted.
 - clean-up in source codes - significant simplifications!
 - less printing to terminal
 - Option to fit with a linear combination of 2 pdb files  
-- Option to fit with a linear combination of 2 pdb files  
 - allows for sucrose SAXS contrast variation  
 - include resolution effects (from 4th column in data) in SANS fitting (3.6) 
 - check number of columns in data files (3.6)
@@ -239,6 +238,7 @@ The density of the water layer cannot (yet) be fitted.
 - calculate A00 functions (3.8)
 - fix minor bugs, expand HETATM list (3.9)
 - include calculations for some lipids (3.9)
+- multi-chain perdeuteration options, bug fixes (3.10)
 
 ## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          
