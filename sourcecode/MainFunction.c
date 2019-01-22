@@ -1,6 +1,6 @@
 ///                           ///
 ///  CaPP A.B                 ///
-///  Copyright 2018           ///
+///  Copyright 2019           ///
 ///  University of Copenhagen ///
 ///  Niels Bohr Institute     ///
 ///                           ///
@@ -32,7 +32,12 @@ int main(int argc, char **argv)
             // DEFAULT PARAMETER VALUES
     
     double SolventD2O = -1.0; // D2O content in solvent (SANS)
-    double Perdeuteration = 0.0; // perdeuterated fraction of the protein (SANS)
+    double Perdeuteration_A = 0.0; // perdeuterated fraction of the protein, chain A (SANS)
+    double Perdeuteration_B = -1.0; // perdeuterated fraction of the protein, chain B (SANS), negative for no chain B
+    double Perdeuteration_C = -1.0; // perdeuterated fraction of the protein, chain C (SANS), negative for no chain C
+    double Perdeuteration_D = -1.0; // perdeuterated fraction of the protein, chain D (SANS), negative for no chain D
+    double Perdeuteration_E = -1.0; // perdeuterated fraction of the protein, chain E (SANS), negative for no chain E
+    double Perdeuteration_F = -1.0; // perdeuterated fraction of the protein, chain F (SANS), negative for no chain F
     double PrcSucrose = 0.0; // sucrose in solvent (SAXS) in 0.01*% = 0.01*g/100ml
     double Delta_r = 1.0; //default "resolution" (binsize in r) is 1 A
     double WaterLayerContrast = 0.0; //contrast of hydration layer
@@ -60,7 +65,8 @@ int main(int argc, char **argv)
     if (strcmp(filename,"-help")==0 || strcmp(filename,"-h")==0 || strcmp(filename,"-use")==0 || strcmp(filename,"help")==0 || strcmp(filename,"h")==0 || strcmp(filename,"use")==0 ){
         printf("\n\n");
         printf("\n            ******************************************************");
-        printf("\n            See above for instructions on how to use the program.");
+        printf("\n            Instructions on how to use the program:");
+        printf("\n            see GitHub");
         printf("\n            ******************************************************\n\n\n\n");
         exit(-1);
     }
@@ -86,7 +92,7 @@ int main(int argc, char **argv)
         //printf("\n            ************* Options chosen: *************\n");
 
     char ch;
-    const char *ValidOpts = "c:dm:s:x:r:p:g";
+    const char *ValidOpts = "c:dm:s:x:r:p:A:B:C:D:E:F:g";
     char *CheckOptArg;
     while((ch=options(argc,argv,ValidOpts))!=-1)
     {
@@ -173,18 +179,93 @@ int main(int argc, char **argv)
                 }
                 //printf("\n            (-r) Resolution = %6.4f Angstrom\n", Delta_r);
                 break;
-            case 'p':
+            case 'A':
             CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
             if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -p, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -p was \"%s\"\n\n\n\n", OptArg);
+                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -A, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                printf("\n            Input argument for option -A was \"%s\"\n\n\n\n", OptArg);
                 exit(-1);
             }
             if (SolventD2O < 0.0) {
-                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -p, and SAXS contrast, so the perdeuteration has no effect.\n");
+                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -A, and SAXS contrast, so the perdeuteration has no effect.\n");
             }
-            Perdeuteration = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -p, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+            Perdeuteration_A = char2double(OptArg);
+            if (Perdeuteration_A > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -A, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                exit(-1);
+            }
+            break;
+            case 'B':
+            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -B, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                printf("\n            Input argument for option -B was \"%s\"\n\n\n\n", OptArg);
+                exit(-1);
+            }
+            if (SolventD2O < 0.0) {
+                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -B, and SAXS contrast, so the perdeuteration has no effect.\n");
+            }
+            Perdeuteration_B = char2double(OptArg);
+            if (Perdeuteration_B > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -B, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                exit(-1);
+            }
+            break;
+            case 'C':
+            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -C, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                printf("\n            Input argument for option -C was \"%s\"\n\n\n\n", OptArg);
+                exit(-1);
+            }
+            if (SolventD2O < 0.0) {
+                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -C, and SAXS contrast, so the perdeuteration has no effect.\n");
+            }
+            Perdeuteration_C = char2double(OptArg);
+            if (Perdeuteration_C > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -C, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                exit(-1);
+            }
+            break;
+            case 'D':
+            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -D, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                printf("\n            Input argument for option -D was \"%s\"\n\n\n\n", OptArg);
+                exit(-1);
+            }
+            if (SolventD2O < 0.0) {
+                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -D, and SAXS contrast, so the perdeuteration has no effect.\n");
+            }
+            Perdeuteration_D = char2double(OptArg);
+            if (Perdeuteration_D > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -D, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                exit(-1);
+            }
+            break;
+            case 'E':
+            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -E, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                printf("\n            Input argument for option -E was \"%s\"\n\n\n\n", OptArg);
+                exit(-1);
+            }
+            if (SolventD2O < 0.0) {
+                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -E, and SAXS contrast, so the perdeuteration has no effect.\n");
+            }
+            Perdeuteration_E = char2double(OptArg);
+            if (Perdeuteration_E > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -E, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                exit(-1);
+            }
+            break;
+            case 'F':
+            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -F, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                printf("\n            Input argument for option -F was \"%s\"\n\n\n\n", OptArg);
+                exit(-1);
+            }
+            if (SolventD2O < 0.0) {
+                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -F, and SAXS contrast, so the perdeuteration has no effect.\n");
+            }
+            Perdeuteration_F = char2double(OptArg);
+            if (Perdeuteration_F > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -F, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
                 exit(-1);
             }
             break;
@@ -249,24 +330,45 @@ int main(int argc, char **argv)
     double MeanVolumeWL = 0.0;
     int TOTAL_pr = 0;
     
-    int NumberOfAtomsPDB = ReadPDB(filename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxPDB, &SumAtomWeightPDB, &RgPDB, &MeanVolumePDB,TOTAL_pr);
+    int NumberOfAtomsPDB = ReadPDB(filename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration_A, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxPDB, &SumAtomWeightPDB, &RgPDB, &MeanVolumePDB,TOTAL_pr);
 
     if (OPTION_WL_CHOSEN == 1){
         
-        int NumberOfAtomsWL = ReadPDB(waterfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, NumberOfAtomsPDB, &PointsInPofr, &DmaxWL, &SumAtomWeightWL, &RgWL, &MeanVolumeWL,TOTAL_pr);
+        int NumberOfAtomsWL = ReadPDB(waterfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration_A, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, NumberOfAtomsPDB, &PointsInPofr, &DmaxWL, &SumAtomWeightWL, &RgWL, &MeanVolumeWL,TOTAL_pr);
         
         CalcCrossTerms(filename, NumberOfAtomsPDB, NumberOfAtomsWL, Ba, Bs, dB, Atoms, WaterLayerContrast, Delta_r, PointsInPofr);
         
         
         // generate filenames
         char buf[99];
+        char buf_tmp[99];
         if(SolventD2O >= 0.0 || SolventD2O >= 1.0){
-            sprintf(buf,"_N%1.0fP%1.0f",SolventD2O*100,Perdeuteration*100);
+            sprintf(buf,"_N%1.0f_P%1.0f",SolventD2O*100,Perdeuteration_A*100);
+            if (Perdeuteration_B >= 0.0 && Perdeuteration_B <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_B*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_C >= 0.0 && Perdeuteration_C <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_C*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_D >= 0.0 && Perdeuteration_D <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_D*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_E >= 0.0 && Perdeuteration_E <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_E*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_F >= 0.0 && Perdeuteration_F <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_F*100);
+                strcat(buf,buf_tmp);
+            }
         } else {
             sprintf(buf,"_X%1.0f",PrcSucrose);
         }
         char *input11 = GetCStringBeforeLastDelimiter(filename, '.');        // extracts 1HEJ from 1HEJ.pdb
-        char *input1 = strcat(input11, buf);                                 //adds e.g. _X10 to 1HEJ -> 1HEJ_X10
+        char *input1 = strcat(input11, buf);                                 //adds e.g. _X10 to 1HEJ = 1HEJ_X10
         char *protein_pr_filename = strcat(input1, "_pr.dat");               // adds _pr.dat to 1HEJ_X10 -> 1HEJ_X10_pr.dat
         char *input2 = GetCStringBeforeLastDelimiter(filename, '.');         // extracts 1HEJ from 1HEJ.pdb
         char *wl_pr_filename = strcat(input2, "_w_only_pr.dat");             // adds _w_only_pr.dat to 1HEJ -> 1HEJ_w_only_pr.dat
@@ -333,7 +435,7 @@ int main(int argc, char **argv)
         TOTAL_pr = 1;
         
         // Generate pr for protein + water and print headerlines until (and inclusive) Rg//
-        NumberOfAtomsPDB = ReadPDB(totalfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxTot, &SumAtomWeightTot, &RgTot, &MeanVolumeTot,TOTAL_pr);
+        NumberOfAtomsPDB = ReadPDB(totalfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration_A, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxTot, &SumAtomWeightTot, &RgTot, &MeanVolumeTot,TOTAL_pr);
         
         // Open file with pr for protein + water
         TotalFile = fopen(total_pr_filename,"a"); // total file (append)

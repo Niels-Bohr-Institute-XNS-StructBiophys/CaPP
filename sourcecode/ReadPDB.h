@@ -1,4 +1,4 @@
-int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, struct Atom *Atoms, double WaterLayerContrast, double SolventD2O, double Perdeuteration, double PrcSucrose, double Delta_r, double HalfBilayerThickness, int OPTION_g_CHOSEN, int OPTION_WL_CHOSEN, int i_start, int * PointsInPofrPointer, double * DmaxPointer, double * SumAtomWeightPointer, double * RgPointer, double *MeanVolumePointer, int TOTAL_pr)
+int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, struct Atom *Atoms, double WaterLayerContrast, double SolventD2O, double Perdeuteration_A, double Perdeuteration_B, double Perdeuteration_C, double Perdeuteration_D, double Perdeuteration_E, double Perdeuteration_F, double PrcSucrose, double Delta_r, double HalfBilayerThickness, int OPTION_g_CHOSEN, int OPTION_WL_CHOSEN, int i_start, int * PointsInPofrPointer, double * DmaxPointer, double * SumAtomWeightPointer, double * RgPointer, double *MeanVolumePointer, int TOTAL_pr)
 {
     double NonExchNH = 0.1; // cannot be changed (in GUI or in batch mode).
                             // give rise to minor, almost q-independent contribution,
@@ -91,7 +91,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double SqDist, SqDistMax=0, GuessOnDmax;
     double SumOfVolume = 0.0;
     
-    char AminoName, AtomName, LongAtomName,AlternativeAtomPosition;
+    char AminoName, AtomName, LongAtomName,AlternativeAtomPosition, Chain;
     
     double n_H; // number of non-exchangable (strongly bound) Hydrogen
     double n_D; // number of exchangeable Hydrogen attachd to main atom
@@ -111,8 +111,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         
         // read atom name:
         if (sscanf(buffer, "ATOM%*73c%s",&Atoms[i].Name) == 1 || sscanf(buffer, "HETATM%*71c%s",&Atoms[i].Name) == 1) {}
+        
         // read alternative atom pos:
         if (sscanf(buffer, "ATOM%*12c%c",&AlternativeAtomPosition) == 1 || sscanf(buffer, "HETATM%*10c%c",&AlternativeAtomPosition) == 1) {}
+        
+        // read chain:
+        if (sscanf(buffer, "ATOM%*17c%s",&Chain) == 1 || sscanf(buffer, "HETATM%*15c%s",&Chain) == 1) {}
+        
         // ignore H and D:
         if (strcmp(&Atoms[i].Name,"H") == 0 || strcmp(&Atoms[i].Name,"D") == 0) {NumberOfH++;}
         // ignore alternative position atoms (only use position A):
@@ -973,7 +978,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 Ba[i] = Atoms[i].XRayScatteringLength;
             }
             else {
-                n_DD = Perdeuteration * n_H;
+                if (strcmp(&Chain,"A")==0) {n_DD = Perdeuteration_A * n_H;}
+                else if (strcmp(&Chain,"B")==0) {n_DD = Perdeuteration_B * n_H;}
+                else if (strcmp(&Chain,"C")==0) {n_DD = Perdeuteration_C * n_H;}
+                else if (strcmp(&Chain,"D")==0) {n_DD = Perdeuteration_D * n_H;}
+                else if (strcmp(&Chain,"E")==0) {n_DD = Perdeuteration_E * n_H;}
+                else if (strcmp(&Chain,"F")==0) {n_DD = Perdeuteration_F * n_H;}
+                else {n_DD =  Perdeuteration_A * n_H;} // if there is only 1 chain, no chain labels
                 n_H = n_H - n_DD;
                 Atoms[i].NeutronScatteringLength += n_D * element[HD].NeutronScatteringLength - n_H * element[HYDROGEN].NeutronScatteringLength + n_DD * element[DEUTERIUM].NeutronScatteringLength;
                 Ba[i] = Atoms[i].NeutronScatteringLength;
@@ -1033,10 +1044,33 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     // CHECK IF FILE FOR p(r) FUNCTION EXIST
     FILE *outputFile;
     char *inputPDB = GetCStringBeforeLastDelimiter(filename, '.'); //extracts 1HEJ from 1HEJ.pdb
-    char buf[50];
+    char buf[99];
+    char buf_tmp[99];
     if(i_start == 0){
         if(SolventD2O >= 0.0 && SolventD2O <= 1.0){
-            sprintf(buf,"_N%1.0fP%1.0f_pr.dat",SolventD2O*100,Perdeuteration*100);
+            sprintf(buf,"_N%1.0f_P%1.0f",SolventD2O*100,Perdeuteration_A*100);
+            if (Perdeuteration_B >= 0.0 && Perdeuteration_B <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_B*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_C >= 0.0 && Perdeuteration_C <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_C*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_D >= 0.0 && Perdeuteration_D <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_D*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_E >= 0.0 && Perdeuteration_E <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_E*100);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_F >= 0.0 && Perdeuteration_F <= 1.0) {
+                sprintf(buf_tmp,"_%1.0f",Perdeuteration_F*100);
+                strcat(buf,buf_tmp);
+            }
+            strcpy(buf_tmp,"_pr.dat");
+            strcat(buf,buf_tmp);
         } else {
             sprintf(buf,"_X%1.0f_pr.dat",PrcSucrose);
         }
@@ -1057,7 +1091,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         // PRINT OUTPUT TO TERMINAL AND p(r) FILE
         fprintf(outputFile, "# Location of PDB-file: %s\n", filename);
         if (SolventD2O >= 0.0 && SolventD2O <= 1.0) {
-            fprintf(outputFile, "# SANS with %1.0f prc D2O in the solvent\n", SolventD2O*100);
+            fprintf(outputFile, "# SANS with %1.0f prc D2O in the solvent. Perdeut, chain A,...,F: %1.0f,%1.0f,%1.0f,%1.0f,%1.0f,%1.0f prc\n", SolventD2O*100,Perdeuteration_A*100,Perdeuteration_B*100,Perdeuteration_C*100,Perdeuteration_D*100,Perdeuteration_E*100,Perdeuteration_F*100);
         } else {
             fprintf(outputFile, "# SAXS contrast with %1.0f prc sucrose in the solvent\n",PrcSucrose);
         }
