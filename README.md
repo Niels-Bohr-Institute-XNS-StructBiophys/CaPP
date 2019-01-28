@@ -1,4 +1,4 @@
-# CaPP 3.10
+# CaPP 3.11
 Calculating Pair distance distribution functions (PDDF) for Proteins.  
 The program calculates the PDDF from a high-resolution protein structure in PDB format,  
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
@@ -26,6 +26,9 @@ Type in the terminal
 
 ##### Options  
 
+- h [no input]    
+help    
+
 - c [input: Contrast of water layer]  
 Add a water layer with (c)ontrast between 0 and 2 times the solvent scattering length.  
 Typically 0.1.  
@@ -47,9 +50,9 @@ NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!
 Choose SANS contrast and enter the D2O-content (between 0 and 1) of the (s)olvent.  
 SAXS contrast asssumed if option is not chosen. 
 
-- A, -B, -C, -D, -E, -F [input: perdeuteration of protein]
-Choose SANS contrast and enter the (p)erdeuteration (between 0 and 1) of the protein chain.    
-For single-chain proteins, use -A.    
+-A,-B,...,-G [input: prc perdeuteration]     
+Perdeuteration of chain (A),...,(G). Enter percent (between 0 and 1).     
+For single-chain proteins (no chain labels), use -A, which is then used globally.       
 
 - r [input: Resolution of p(r) function]  
 Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.  
@@ -112,14 +115,14 @@ A data files with the PDDF for the pdb file without/with water layer, columns:
 1. r     = pair distance  
 2. P(r)  = PDDF = sum ( dBa(i) * dBa(j) ) for i \neq j  
 3. G(r)  = sum ( Ba(i) * Ba(j) )  
-4. H(r)  = sum ( Ba(i) * Ba(j) )  
-5. J(r)  = sum ( Ba(i) * Ba(j) )  
-6. K(r)  = sum ( Ba(i) * Ba(j) )  
+4. H(r)  = sum ( Ba(i) * Bs(j) )  
+5. J(r)  = sum ( Bs(i) * Ba(j) )  
+6. K(r)  = sum ( Bs(i) * Bs(j) )  
 
 where  
-Ba[i]: scattering length of atom i  
-Bs[i]: scattering length of solvent, excluded by atom i  
-dB[i]: excess scattering length of atom i  
+Ba(i): scattering length of atom i  
+Bs(i): scattering length of solvent, excluded by atom i  
+dB(i): excess scattering length of atom i  
 columns 3-6 are used to calculate the form factor P(q)  
 
 ##### ABC_(options)_Pq  
@@ -234,6 +237,8 @@ The density of the water layer cannot (yet) be fitted.
 - Removed GUI implementation of Rg calculator (buggy), option for perdeuteration, include info about excluded WL in header, calculate A00 functions (3.8)
 - fix minor bugs, expand HETATM list,   include calculations for some lipids (3.9)
 - multi-chain perdeuteration options, bug fixes (3.10)
+- bug-fixes (3.11)    
+- read PDBs without last column with atomnames (3.11)    
 
 ## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          
@@ -262,3 +267,5 @@ To my supervisor, Lise Arleth, for supporting the project.
 - expand HETATM library   
 - add the 20 natural occuring aa to the HETATM library (these can be ligands and listed as hetero atoms)  
 - write a paper to present the program to the world 
+- simultaneously fit SAXS and SANS 
+- exclude WL info in filenames
