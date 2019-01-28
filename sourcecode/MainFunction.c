@@ -32,12 +32,14 @@ int main(int argc, char **argv)
             // DEFAULT PARAMETER VALUES
     
     double SolventD2O = -1.0; // D2O content in solvent (SANS)
-    double Perdeuteration_A = 0.0; // perdeuterated fraction of the protein, chain A (SANS)
-    double Perdeuteration_B = -1.0; // perdeuterated fraction of the protein, chain B (SANS), negative for no chain B
-    double Perdeuteration_C = -1.0; // perdeuterated fraction of the protein, chain C (SANS), negative for no chain C
-    double Perdeuteration_D = -1.0; // perdeuterated fraction of the protein, chain D (SANS), negative for no chain D
-    double Perdeuteration_E = -1.0; // perdeuterated fraction of the protein, chain E (SANS), negative for no chain E
-    double Perdeuteration_F = -1.0; // perdeuterated fraction of the protein, chain F (SANS), negative for no chain F
+    double Perdeuteration = 0.0; // perdeuterated fraction of the protein (SANS)
+    double Perdeuteration_B = 0.0; // perdeuterated fraction of chain B (SANS)
+    double Perdeuteration_C = 0.0;
+    double Perdeuteration_D = 0.0;
+    double Perdeuteration_E = 0.0;
+    double Perdeuteration_F = 0.0;
+    double Perdeuteration_G = 0.0;
+    
     double PrcSucrose = 0.0; // sucrose in solvent (SAXS) in 0.01*% = 0.01*g/100ml
     double Delta_r = 1.0; //default "resolution" (binsize in r) is 1 A
     double WaterLayerContrast = 0.0; //contrast of hydration layer
@@ -48,11 +50,56 @@ int main(int argc, char **argv)
     int OPTION_WL_CHOSEN = 0; // include a water layer
     int NO_OPTIONS_CHOSEN = 1;
     
+    char *filename = argv[argc-1];
+    if (strcmp(filename,"-help")==0 || strcmp(filename,"-h")==0 || strcmp(filename,"-use")==0 || strcmp(filename,"help")==0 || strcmp(filename,"h")==0 || strcmp(filename,"use")==0 ){
+        printf("\n \
+               *********************************************************************  \n \
+               Welcome to CaPP (Calculate p(r) function from a PDB file)              \n \
+               --------------------------------------------------------------------   \n \
+               This program calculates the pair distance distribution function, p(r), \n \
+               of a PDB file. The distances are weighted with the scattering contrast \n \
+               for X-rays in an aqueous solution or for Neutrons in a D2O/H2O solvent,\n \
+               as specified by the user. Proteins can be deuterated in SANS.          \n \
+               A water layer can be added.                                            \n \
+               --------------------------------------------------------------------   \n \
+               Questions/bug-reports/suggustions/collaborations/etc, contact:         \n \
+               Andreas Haahr Larsen, andreas.larsen@nbi.ku.dk                         \n \
+               *********************************************************************  \n \
+               Usage:\n\n \
+               capp [options] NAME_of_PDB \n\n\
+               Options: \n\n\
+               -c [input: Contrast of water layer] \n\
+               Add a water layer with (c)ontrast between 0 and 2 times the solvent scattering length.\n\
+               Typically 0.1.\n\
+               Default: No water layer.\n\n\
+               -d [no input] \n\
+               Only relevant for membrane proteins.\n\
+               Removes water layer from the bilayer region. \n\
+               Choose -d if the pdb is from the OPM (d)atabase, that provides the bilayer thickness. \n\n\
+               -m [input: Bilayer Thickness] \n\
+               Only relevant for membrane proteins. \n\
+               Removes water layer from the bilayer region. \n\
+               Choose -m to (m)anually provide the bilayer thickness in Aangstrom. \n\
+               Typically 30 Aangstrom. \n\
+               NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!\n\n \
+               -s [input: prc D20 in the solvent] \n\
+               Choose SANS contrast and enter the D2O-content (between 0 and 1) of the (s)olvent. \n\
+               SAXS contrast asssumed if option is not chosen. \n\n \
+               -r [input: Resolution of p(r) function] \n\
+               Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function. \n\
+               Default: 2.0 Aangstrom. \n\n \
+               -A,-B,...,-G [input: prc perdeuteration] \n\
+               Perdeuteration of chain (A),...,(G). Enter percent (between 0 and 1). \n\
+               For single-chain proteins (no chain labels), use -A, which is then used globally.\n\
+               \n\n");
+        exit(-1);
+    }
+
     if(argc == 1){
         printf("\n\n");
         printf("\n            ******************************************************");
         printf("\n            Please provide a PDB file name.");
-        printf("\n            See above for instructions on how to use the program.");
+        printf("\n            Type capp -h for help.");
         printf("\n            ******************************************************\n\n\n\n");
         exit(-1);
     }
@@ -61,16 +108,6 @@ int main(int argc, char **argv)
     
     FILE *PointerToFile;
 
-    char *filename = argv[argc-1];
-    if (strcmp(filename,"-help")==0 || strcmp(filename,"-h")==0 || strcmp(filename,"-use")==0 || strcmp(filename,"help")==0 || strcmp(filename,"h")==0 || strcmp(filename,"use")==0 ){
-        printf("\n\n");
-        printf("\n            ******************************************************");
-        printf("\n            Instructions on how to use the program:");
-        printf("\n            see GitHub");
-        printf("\n            ******************************************************\n\n\n\n");
-        exit(-1);
-    }
-    
     if( (PointerToFile = fopen(filename,"r"))==0){
         filename = strcat(filename, ".pdb"); // adds .pdb extension to filename if not given
     }
@@ -92,7 +129,7 @@ int main(int argc, char **argv)
         //printf("\n            ************* Options chosen: *************\n");
 
     char ch;
-    const char *ValidOpts = "c:dm:s:x:r:p:A:B:C:D:E:F:g";
+    const char *ValidOpts = "c:dm:s:x:r:A:B:C:D:E:F:G:g";
     char *CheckOptArg;
     while((ch=options(argc,argv,ValidOpts))!=-1)
     {
@@ -115,7 +152,7 @@ int main(int argc, char **argv)
                 break;
             case 'd':
                 if (OPTION_m_CHOSEN == 1) {
-                    printf("\n\n\n            !!!ERROR!!! Dear user, you cannot choose BOTH option -d and option -m.\n\n\n\n");
+                    printf("\n\n\n            !!!ERROR!!! You cannot choose BOTH option -d and option -m.\n\n\n\n");
                     exit(-1);
                 }
                 HalfBilayerThickness = CheckHalfBilayerThickness(filename);
@@ -124,7 +161,7 @@ int main(int argc, char **argv)
                 break;
             case 'm':
                 if (OPTION_d_CHOSEN == 1) {
-                    printf("\n\n\n            !!!ERROR!!! Dear user, you cannot choose BOTH option -d and option -m.\n\n\n\n");
+                    printf("\n\n\n            !!!ERROR!!! You cannot choose BOTH option -d and option -m.\n\n\n\n");
                     exit(-1);
                 }
                 CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
@@ -137,7 +174,7 @@ int main(int argc, char **argv)
                 //printf("\n            (-m) Manual Bilayer Thickness = %6.2f Angstrom.\n            NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!\n", 2 * HalfBilayerThickness);
                 OPTION_m_CHOSEN = 1;
                 if (HalfBilayerThickness == 0) {
-                    printf("\n\n\n            !!! Error !!! Dear user, you have chosen a bilayer thickness of 0 Angstrom or not given any input after option -m. Please try again with an input. \n\n\n");
+                    printf("\n\n\n            !!! Error !!! You have chosen a bilayer thickness of 0 Angstrom or not given any input after option -m. Please try again with an input. \n\n\n");
                     exit(-1);
                 }
                 break;
@@ -174,7 +211,7 @@ int main(int argc, char **argv)
                 }
                 Delta_r = char2double(OptArg);
                 if (Delta_r == 0) {
-                    printf("\n\n\n            !!! Error !!! Dear user, you have chosen 0 Angstrom resolution or not given any resolution after option -r. Please try again with an input. \n\n\n");
+                    printf("\n\n\n            !!! Error !!! You have chosen 0 Angstrom resolution or not given any resolution after option -r. Please try again with an input. \n\n\n");
                     exit(-1);
                 }
                 //printf("\n            (-r) Resolution = %6.4f Angstrom\n", Delta_r);
@@ -189,11 +226,11 @@ int main(int argc, char **argv)
             if (SolventD2O < 0.0) {
                 printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -A, and SAXS contrast, so the perdeuteration has no effect.\n");
             }
-            Perdeuteration_A = char2double(OptArg);
-            if (Perdeuteration_A > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -A, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+            Perdeuteration = char2double(OptArg);
+            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -A, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
                 exit(-1);
             }
-            break;
+                break;
             case 'B':
             CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
             if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
@@ -205,10 +242,10 @@ int main(int argc, char **argv)
                 printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -B, and SAXS contrast, so the perdeuteration has no effect.\n");
             }
             Perdeuteration_B = char2double(OptArg);
-            if (Perdeuteration_B > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -B, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -B, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
                 exit(-1);
             }
-            break;
+                break;
             case 'C':
             CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
             if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
@@ -220,10 +257,10 @@ int main(int argc, char **argv)
                 printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -C, and SAXS contrast, so the perdeuteration has no effect.\n");
             }
             Perdeuteration_C = char2double(OptArg);
-            if (Perdeuteration_C > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -C, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -C, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
                 exit(-1);
             }
-            break;
+                break;
             case 'D':
             CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
             if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
@@ -235,10 +272,10 @@ int main(int argc, char **argv)
                 printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -D, and SAXS contrast, so the perdeuteration has no effect.\n");
             }
             Perdeuteration_D = char2double(OptArg);
-            if (Perdeuteration_D > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -D, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -D, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
                 exit(-1);
             }
-            break;
+                break;
             case 'E':
             CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
             if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
@@ -250,10 +287,10 @@ int main(int argc, char **argv)
                 printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -E, and SAXS contrast, so the perdeuteration has no effect.\n");
             }
             Perdeuteration_E = char2double(OptArg);
-            if (Perdeuteration_E > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -E, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -E, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
                 exit(-1);
             }
-            break;
+                break;
             case 'F':
             CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
             if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
@@ -265,10 +302,25 @@ int main(int argc, char **argv)
                 printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -F, and SAXS contrast, so the perdeuteration has no effect.\n");
             }
             Perdeuteration_F = char2double(OptArg);
-            if (Perdeuteration_F > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -F, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -F, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
                 exit(-1);
             }
-            break;
+                break;
+            case 'G':
+            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -G, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                printf("\n            Input argument for option -G was \"%s\"\n\n\n\n", OptArg);
+                exit(-1);
+            }
+            if (SolventD2O < 0.0) {
+                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -G, and SAXS contrast, so the perdeuteration has no effect.\n");
+            }
+            Perdeuteration_G = char2double(OptArg);
+            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -G, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                exit(-1);
+            }
+                break;
             case 'g':
                 OPTION_g_CHOSEN = 1;
         }
@@ -276,13 +328,13 @@ int main(int argc, char **argv)
     //if(NO_OPTIONS_CHOSEN == 1) {printf("\n            No options chosen - default values used\n");}
     
     if( (OPTION_d_CHOSEN || OPTION_m_CHOSEN) && WaterLayerContrast == 0) {
-        printf("\n\n");
-        printf("\n            *************************************************************");
-        printf("\n            You have chosen option -m or option -d (exclude WL at TMD),");
-        printf("\n            but the contrast of the water layer is 0, i.e. there is no WL,");
-        printf("\n            i.e. there is nothing to exclude.");
-        printf("\n            See above for instructions on how to use the program.");
-        printf("\n            *************************************************************\n\n\n\n");
+        printf("\n\n\
+                    *************************************************************\n\
+                    You have chosen option -m or option -d (exclude WL at TMD),\n\
+                    but the contrast of the water layer is 0, i.e. there is no WL,\n\
+                    i.e. there is nothing to exclude.\n\
+                    See above for instructions on how to use the program.\n\
+                    *************************************************************\n\n\n\n");
         exit(-1);
     }
 
@@ -330,11 +382,11 @@ int main(int argc, char **argv)
     double MeanVolumeWL = 0.0;
     int TOTAL_pr = 0;
     
-    int NumberOfAtomsPDB = ReadPDB(filename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration_A, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxPDB, &SumAtomWeightPDB, &RgPDB, &MeanVolumePDB,TOTAL_pr);
+    int NumberOfAtomsPDB = ReadPDB(filename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxPDB, &SumAtomWeightPDB, &RgPDB, &MeanVolumePDB,TOTAL_pr);
 
     if (OPTION_WL_CHOSEN == 1){
         
-        int NumberOfAtomsWL = ReadPDB(waterfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration_A, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, NumberOfAtomsPDB, &PointsInPofr, &DmaxWL, &SumAtomWeightWL, &RgWL, &MeanVolumeWL,TOTAL_pr);
+        int NumberOfAtomsWL = ReadPDB(waterfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, NumberOfAtomsPDB, &PointsInPofr, &DmaxWL, &SumAtomWeightWL, &RgWL, &MeanVolumeWL,TOTAL_pr);
         
         CalcCrossTerms(filename, NumberOfAtomsPDB, NumberOfAtomsWL, Ba, Bs, dB, Atoms, WaterLayerContrast, Delta_r, PointsInPofr);
         
@@ -343,39 +395,43 @@ int main(int argc, char **argv)
         char buf[99];
         char buf_tmp[99];
         if(SolventD2O >= 0.0 || SolventD2O >= 1.0){
-            sprintf(buf,"_N%1.0f_P%1.0f",SolventD2O*100,Perdeuteration_A*100);
-            if (Perdeuteration_B >= 0.0 && Perdeuteration_B <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_B*100);
+            sprintf(buf,"_N%1.0f_P%1.0f",SolventD2O*100,Perdeuteration*100);
+            if (Perdeuteration_B > 0.0 && Perdeuteration_B <= 1.0) {
+                sprintf(buf_tmp,"_B%1.0f",Perdeuteration_B*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_C >= 0.0 && Perdeuteration_C <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_C*100);
+            if (Perdeuteration_C > 0.0 && Perdeuteration_C <= 1.0) {
+                sprintf(buf_tmp,"_C%1.0f",Perdeuteration_C*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_D >= 0.0 && Perdeuteration_D <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_D*100);
+            if (Perdeuteration_D > 0.0 && Perdeuteration_D <= 1.0) {
+                sprintf(buf_tmp,"_D%1.0f",Perdeuteration_D*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_E >= 0.0 && Perdeuteration_E <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_E*100);
+            if (Perdeuteration_E > 0.0 && Perdeuteration_E <= 1.0) {
+                sprintf(buf_tmp,"_E%1.0f",Perdeuteration_E*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_F >= 0.0 && Perdeuteration_F <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_F*100);
+            if (Perdeuteration_F > 0.0 && Perdeuteration_F <= 1.0) {
+                sprintf(buf_tmp,"_F%1.0f",Perdeuteration_F*100.0);
+                strcat(buf,buf_tmp);
+            }
+            if (Perdeuteration_G > 0.0 && Perdeuteration_G <= 1.0) {
+                sprintf(buf_tmp,"_G%1.0f",Perdeuteration_G*100.0);
                 strcat(buf,buf_tmp);
             }
         } else {
             sprintf(buf,"_X%1.0f",PrcSucrose);
         }
-        char *input11 = GetCStringBeforeLastDelimiter(filename, '.');        // extracts 1HEJ from 1HEJ.pdb
-        char *input1 = strcat(input11, buf);                                 //adds e.g. _X10 to 1HEJ = 1HEJ_X10
+        char *input1 = GetCStringBeforeLastDelimiter(filename, '.');        // extracts 1HEJ from 1HEJ.pdb
+        strcat(input1, buf);                                 //adds e.g. _X10 to 1HEJ -> 1HEJ_X10
         char *protein_pr_filename = strcat(input1, "_pr.dat");               // adds _pr.dat to 1HEJ_X10 -> 1HEJ_X10_pr.dat
         char *input2 = GetCStringBeforeLastDelimiter(filename, '.');         // extracts 1HEJ from 1HEJ.pdb
         char *wl_pr_filename = strcat(input2, "_w_only_pr.dat");             // adds _w_only_pr.dat to 1HEJ -> 1HEJ_w_only_pr.dat
         char *input3 = GetCStringBeforeLastDelimiter(filename, '.');         // extracts 1HEJ from 1HEJ.pdb
         char *cross_pr_filename = strcat(input3, "_cross_pr.dat");           // adds _cross_pr.dat to 1HEJ -> 1HEJ_cross_pr.dat
-        char *input44 = GetCStringBeforeLastDelimiter(totalfilename, '.');   // extracts 1HEJ_w from 1HEJ_w.pdb
-        char *input4 = strcat(input44, buf);                                 //adds e.g. _X10 to 1HEJ_w -> 1HEJ_w_X10
+        char *input4 = GetCStringBeforeLastDelimiter(totalfilename, '.');   // extracts 1HEJ_w from 1HEJ_w.pdb
+        strcat(input4, buf);                                 //adds e.g. _X10 to 1HEJ_w -> 1HEJ_w_X10
         char *total_pr_filename = strcat(input4, "_pr.dat");                 // adds _pr.dat to 1HEJ_w_X10 -> 1HEJ_w_X10_pr.dat
         
         // import from water, protein and cross term files. Sum up the terms to get the total pr.
@@ -435,7 +491,7 @@ int main(int argc, char **argv)
         TOTAL_pr = 1;
         
         // Generate pr for protein + water and print headerlines until (and inclusive) Rg//
-        NumberOfAtomsPDB = ReadPDB(totalfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration_A, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxTot, &SumAtomWeightTot, &RgTot, &MeanVolumeTot,TOTAL_pr);
+        NumberOfAtomsPDB = ReadPDB(totalfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxTot, &SumAtomWeightTot, &RgTot, &MeanVolumeTot,TOTAL_pr);
         
         // Open file with pr for protein + water
         TotalFile = fopen(total_pr_filename,"a"); // total file (append)
@@ -488,36 +544,3 @@ int main(int argc, char **argv)
 
 // INSTRUCTIONS FOR USE
 
-/*    printf("\n \
- Welcome to CaPP (Calculate p(r) function from a PDB file)\n \
- -------------------------------------------------------------------- \n \
- This program calculates the pair distance distribution function, p(r),\n \
- of a PDB file. The distances are weighted with the scattering contrast\n \
- for X-rays in an aqueous solution or for Neutrons in a D2O/H2O solvent,\n \
- as specified by the user. \n \
- Optionally, a water layer can be added \n \
- -------------------------------------------------------------------- \n \
- Usage:\n\n \
- capp [options] NAME_of_PDB \n\n \
- Options: \n\n \
- -c [input: Contrast of water layer] \n\
- Add a water layer with (c)ontrast between 0 and 2 times the solvent scattering length.\n\
- Typically 0.1.\n\
- Default: No water layer.\n\n\
- -d [no input] \n\
- Only relevant for membrane proteins.\n\
- Removes water layer from the bilayer region. \n\
- Choose -d if the pdb is from the OPM (d)atabase, that provides the bilayer thickness. \n\n \
- -m [input: Bilayer Thickness] \n\
- Only relevant for membrane proteins. \n\
- Removes water layer from the bilayer region. \n\
- Choose -m to (m)anually provide the bilayer thickness in Aangstrom. \n\
- Typically 30 Aangstrom. \n\
- NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!\n\n \
- -s [input: prc D20 in the solvent] \n\
- Choose SANS contrast and enter the D2O-content (between 0 and 1) of the (s)olvent. \n\
- SAXS contrast asssumed if option is not chosen. \n\n \
- -r [input: Resolution of p(r) function] \n\
- Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function. \n\
- Default: 2.0 Aangstrom. ");
- */

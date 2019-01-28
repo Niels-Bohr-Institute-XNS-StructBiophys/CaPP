@@ -268,4 +268,4 @@ To my supervisor, Lise Arleth, for supporting the project.
 - add the 20 natural occuring aa to the HETATM library (these can be ligands and listed as hetero atoms)  
 - write a paper to present the program to the world 
 - simultaneously fit SAXS and SANS 
-- exclude WL info in filenames
+- info about "exclude WL" in filenames and files

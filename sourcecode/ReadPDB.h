@@ -1,4 +1,4 @@
-int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, struct Atom *Atoms, double WaterLayerContrast, double SolventD2O, double Perdeuteration_A, double Perdeuteration_B, double Perdeuteration_C, double Perdeuteration_D, double Perdeuteration_E, double Perdeuteration_F, double PrcSucrose, double Delta_r, double HalfBilayerThickness, int OPTION_g_CHOSEN, int OPTION_WL_CHOSEN, int i_start, int * PointsInPofrPointer, double * DmaxPointer, double * SumAtomWeightPointer, double * RgPointer, double *MeanVolumePointer, int TOTAL_pr)
+int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, struct Atom *Atoms, double WaterLayerContrast, double SolventD2O, double Perdeuteration, double Perdeuteration_B, double Perdeuteration_C, double Perdeuteration_D, double Perdeuteration_E, double Perdeuteration_F, double Perdeuteration_G, double PrcSucrose, double Delta_r, double HalfBilayerThickness, int OPTION_g_CHOSEN, int OPTION_WL_CHOSEN, int i_start, int * PointsInPofrPointer, double * DmaxPointer, double * SumAtomWeightPointer, double * RgPointer, double *MeanVolumePointer, int TOTAL_pr)
 {
     double NonExchNH = 0.1; // cannot be changed (in GUI or in batch mode).
                             // give rise to minor, almost q-independent contribution,
@@ -91,7 +91,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double SqDist, SqDistMax=0, GuessOnDmax;
     double SumOfVolume = 0.0;
     
-    char AminoName, AtomName, LongAtomName,AlternativeAtomPosition, Chain;
+    char AminoName, LongAtomName, AlternativeAtomPosition, Chain;
     
     double n_H; // number of non-exchangable (strongly bound) Hydrogen
     double n_D; // number of exchangeable Hydrogen attachd to main atom
@@ -116,56 +116,79 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         if (sscanf(buffer, "ATOM%*12c%c",&AlternativeAtomPosition) == 1 || sscanf(buffer, "HETATM%*10c%c",&AlternativeAtomPosition) == 1) {}
         
         // read chain:
-        if (sscanf(buffer, "ATOM%*17c%s",&Chain) == 1 || sscanf(buffer, "HETATM%*15c%s",&Chain) == 1) {}
+        if (sscanf(buffer, "ATOM%*17c%s",&Chain) == 1 || sscanf(buffer, "HETATM%*15c%s",&Chain) == 1) {} else {sscanf("U","%s",&Chain);} // U for unknown chain
         
         // ignore H and D:
         if (strcmp(&Atoms[i].Name,"H") == 0 || strcmp(&Atoms[i].Name,"D") == 0) {NumberOfH++;}
         // ignore alternative position atoms (only use position A):
         else if (AlternativeAtomPosition == 'B') {NumberOfAlternativeAtoms++;}
         // read all other atoms:
-        else if (sscanf(buffer,"ATOM%*18c%d%*4c%lf%lf%lf%*22c%s",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z,&AtomName)==5 ||
-            sscanf(buffer,"HETATM%*16c%d%*4c%lf%lf%lf%*22c%s",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z,&AtomName)==5 ) {
+        else if (sscanf(buffer,"ATOM%*18c%d%*4c%lf%lf%lf",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z)==4 ||
+            sscanf(buffer,   "HETATM%*16c%d%*4c%lf%lf%lf",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z)==4 ) {
             n_D = 0;
             n_H = 0;
+            n_DD = 0;
             DNA = 0;
             RNA = 0;
             LIP = 0;
+            //printf("%s",buffer);
+            //printf("    R       ,            : %d\n",R);
+            //printf("    x,                   : %f\n",Atoms[i].x);
+            //printf("    y,                   : %f\n",Atoms[i].y);
+            //printf("    z,                   : %f\n",Atoms[i].z);
+            //printf("    Chain,         repeat: %s\n",&Chain);
+            //printf("    Buffer[12-15],       : %c%c%c%c\n",buffer[12],buffer[13],buffer[14],buffer[15]);
             
             // Read element and give values from atom list
-            if (strcmp(&AtomName,"C")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[CARBON]);}
-            else if (strcmp(&AtomName,"N")==0  || strcmp(&AtomName,"N1+")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[NITROGEN]);}
-            else if (strcmp(&AtomName,"O")==0 || strcmp(&AtomName,"O1-")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[OXYGEN]);}
-            else if (strcmp(&AtomName,"F")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[FLUORINE]);}
-            else if (strcmp(&AtomName,"NA")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[SODIUM]);}
-            else if (strcmp(&AtomName,"MG")==0) {
+            if (buffer[13] == 'C') {
+                CopyPhysicalParameters(&Atoms[i], &element[CARBON]);
+                //printf("Carbon\n");
+            } else if (buffer[13] == 'N') {
+                CopyPhysicalParameters(&Atoms[i], &element[NITROGEN]);
+                //printf("Nitorgen\n");
+            } else if (buffer[13] == 'O') {
+                CopyPhysicalParameters(&Atoms[i], &element[OXYGEN]);
+                //printf("Oxygen\n");
+            } else if (buffer[13] == 'F') {
+                CopyPhysicalParameters(&Atoms[i], &element[FLUORINE]);
+                //printf("Flourine\n");
+            } else if (buffer[12] == 'N' && buffer[13] == 'A') {
+                CopyPhysicalParameters(&Atoms[i], &element[SODIUM]);
+                //printf("Sodium\n");
+            } else if (buffer[12] == 'M' && buffer[13] == 'G') {
                 CopyPhysicalParameters(&Atoms[i], &element[MAGNESIUM]);}
-            else if (strcmp(&AtomName,"P")==0) {
+                //printf("Magnesium\n");
+            else if (buffer[13] == 'S') {
                 CopyPhysicalParameters(&Atoms[i], &element[PHOSPHORUS]);}
-            else if (strcmp(&AtomName,"S")==0) {
+                //printf("Phosporus\n");
+            else if (buffer[13] == 'S') {
                 CopyPhysicalParameters(&Atoms[i], &element[SULFUR]);}
-            else if (strcmp(&AtomName,"CL")==0) {
+                //printf("Sulfur\n");
+            else if (buffer[12] == 'C' && buffer[13] == 'L') {
                 CopyPhysicalParameters(&Atoms[i], &element[CHLORINE]);}
-            else if (strcmp(&AtomName,"CA")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[CALCIUM]);}
-            else if (strcmp(&AtomName,"MN")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[MANGANESE]);}
-            else if (strcmp(&AtomName,"FE")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[IRON]);}
-            else if (strcmp(&AtomName,"CU")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[COPPER]);}
-            else if (strcmp(&AtomName,"ZN")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[ZINK]);}
-            else if (strcmp(&AtomName,"Q")==0) {
-                CopyPhysicalParameters(&Atoms[i], &element[WATER]); n_D = 2.0 * n_W;}
-            else {
+                //printf("Chlorine\n");
+            else if (buffer[12] == 'C' && buffer[13] == 'A') {
+                CopyPhysicalParameters(&Atoms[i], &element[CALCIUM]);
+                //printf("Calcium\n");
+            } else if (buffer[12] == 'M' && buffer[13] == 'N') {
+                CopyPhysicalParameters(&Atoms[i], &element[MANGANESE]);
+                //printf("Manganese\n");
+            } else if (buffer[12] == 'F' && buffer[13] == 'E') {
+                CopyPhysicalParameters(&Atoms[i], &element[IRON]);
+                //printf("Iron\n");
+            } else if (buffer[12] == 'C' && buffer[13] == 'U') {
+                CopyPhysicalParameters(&Atoms[i], &element[COPPER]);
+                //printf("Copper\n");
+            } else if (buffer[12] == 'Z' && buffer[13] == 'N') {
+                CopyPhysicalParameters(&Atoms[i], &element[ZINK]);
+                //printf("Zink\n");
+            } else if (buffer[13] == 'Q') {
+                CopyPhysicalParameters(&Atoms[i], &element[WATER]); n_D = 2.0 * n_W;
+                //printf("WaterLayerBead\n");
+            } else {
                 CopyPhysicalParameters(&Atoms[i], &element[UNKNOWN]); u++;
+                //printf("UnknownAtom\n");
             }
-            
             // Add H/D. According to http://www.rcsb.org/ligand
             if (sscanf(buffer,"ATOM%*13c%s", &AminoName) == 1 || sscanf(buffer,"HETATM%*11c%s", &AminoName) == 1)
             {
@@ -978,13 +1001,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 Ba[i] = Atoms[i].XRayScatteringLength;
             }
             else {
-                if (strcmp(&Chain,"A")==0) {n_DD = Perdeuteration_A * n_H;}
-                else if (strcmp(&Chain,"B")==0) {n_DD = Perdeuteration_B * n_H;}
-                else if (strcmp(&Chain,"C")==0) {n_DD = Perdeuteration_C * n_H;}
-                else if (strcmp(&Chain,"D")==0) {n_DD = Perdeuteration_D * n_H;}
-                else if (strcmp(&Chain,"E")==0) {n_DD = Perdeuteration_E * n_H;}
-                else if (strcmp(&Chain,"F")==0) {n_DD = Perdeuteration_F * n_H;}
-                else {n_DD =  Perdeuteration_A * n_H;} // if there is only 1 chain, no chain labels
+                if (strcmp(&Chain,"B")==0 && Perdeuteration_B >= 0.0) {n_DD = Perdeuteration_B * n_H;}
+                else if (strcmp(&Chain,"C")==0 && Perdeuteration_C >= 0.0) {n_DD = Perdeuteration_C * n_H;}
+                else if (strcmp(&Chain,"D")==0 && Perdeuteration_D >= 0.0) {n_DD = Perdeuteration_D * n_H;}
+                else if (strcmp(&Chain,"E")==0 && Perdeuteration_E >= 0.0) {n_DD = Perdeuteration_E * n_H;}
+                else if (strcmp(&Chain,"F")==0 && Perdeuteration_F >= 0.0) {n_DD = Perdeuteration_F * n_H;}
+                else {n_DD = Perdeuteration * n_H;}
+                
                 n_H = n_H - n_DD;
                 Atoms[i].NeutronScatteringLength += n_D * element[HD].NeutronScatteringLength - n_H * element[HYDROGEN].NeutronScatteringLength + n_DD * element[DEUTERIUM].NeutronScatteringLength;
                 Ba[i] = Atoms[i].NeutronScatteringLength;
@@ -1044,33 +1067,32 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     // CHECK IF FILE FOR p(r) FUNCTION EXIST
     FILE *outputFile;
     char *inputPDB = GetCStringBeforeLastDelimiter(filename, '.'); //extracts 1HEJ from 1HEJ.pdb
-    char buf[99];
+    char buf[50];
     char buf_tmp[99];
     if(i_start == 0){
         if(SolventD2O >= 0.0 && SolventD2O <= 1.0){
-            sprintf(buf,"_N%1.0f_P%1.0f",SolventD2O*100,Perdeuteration_A*100);
-            if (Perdeuteration_B >= 0.0 && Perdeuteration_B <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_B*100);
+            sprintf(buf,"_N%1.0f_P%1.0f",SolventD2O*100,Perdeuteration*100);
+            if (Perdeuteration_B > 0.0 && Perdeuteration_B <= 1.0) {
+                sprintf(buf_tmp,"_B%1.0f",Perdeuteration_B*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_C >= 0.0 && Perdeuteration_C <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_C*100);
+            if (Perdeuteration_C > 0.0 && Perdeuteration_C <= 1.0) {
+                sprintf(buf_tmp,"_C%1.0f",Perdeuteration_C*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_D >= 0.0 && Perdeuteration_D <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_D*100);
+            if (Perdeuteration_D > 0.0 && Perdeuteration_D <= 1.0) {
+                sprintf(buf_tmp,"_D%1.0f",Perdeuteration_D*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_E >= 0.0 && Perdeuteration_E <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_E*100);
+            if (Perdeuteration_E > 0.0 && Perdeuteration_E <= 1.0) {
+                sprintf(buf_tmp,"_E%1.0f",Perdeuteration_E*100.0);
                 strcat(buf,buf_tmp);
             }
-            if (Perdeuteration_F >= 0.0 && Perdeuteration_F <= 1.0) {
-                sprintf(buf_tmp,"_%1.0f",Perdeuteration_F*100);
+            if (Perdeuteration_F > 0.0 && Perdeuteration_F <= 1.0) {
+                sprintf(buf_tmp,"_F%1.0f",Perdeuteration_F*100.0);
                 strcat(buf,buf_tmp);
             }
-            strcpy(buf_tmp,"_pr.dat");
-            strcat(buf,buf_tmp);
+            strcat(buf,"_pr.dat");
         } else {
             sprintf(buf,"_X%1.0f_pr.dat",PrcSucrose);
         }
@@ -1078,7 +1100,6 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     char *outputfilename = strcat(inputPDB, buf); // adds string to 1HEJ
     
     if (i_start == 0 && fopen(outputfilename,"r") && TOTAL_pr != 1) {
-        printf("");
         if(OPTION_g_CHOSEN == 1){
             printf("\n\n###########################################\n");
             printf("# Radius of gyration    %8.2lf\n", Rg);
@@ -1091,7 +1112,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         // PRINT OUTPUT TO TERMINAL AND p(r) FILE
         fprintf(outputFile, "# Location of PDB-file: %s\n", filename);
         if (SolventD2O >= 0.0 && SolventD2O <= 1.0) {
-            fprintf(outputFile, "# SANS with %1.0f prc D2O in the solvent. Perdeut, chain A,...,F: %1.0f,%1.0f,%1.0f,%1.0f,%1.0f,%1.0f prc\n", SolventD2O*100,Perdeuteration_A*100,Perdeuteration_B*100,Perdeuteration_C*100,Perdeuteration_D*100,Perdeuteration_E*100,Perdeuteration_F*100);
+            fprintf(outputFile, "# SANS with %1.0f prc D2O in the solvent\n", SolventD2O*100);
         } else {
             fprintf(outputFile, "# SAXS contrast with %1.0f prc sucrose in the solvent\n",PrcSucrose);
         }
