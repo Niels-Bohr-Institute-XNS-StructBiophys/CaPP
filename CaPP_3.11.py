@@ -1010,7 +1010,7 @@ class MainCls(wx.Frame):
                         psi_sum = psi_sum + a[j] * math.exp(-b[j] * q2 * inv4pi2)
                     psi_c = psi_sum/b_c # normalize to psi_c(q = 0) = 1. f_c = psi_c * b_c, where b_c = 6.0
                 psi_c2 = psi_c * psi_c
-                Gauss_sphere_mean = math.exp(- q2 * v_mean**(2.0/3.0) * inv4pi);
+                Gauss_sphere_mean = math.exp(- q2 * v_mean**(2.0/3.0) * inv4pi)
                 Gauss_sphere_mean2 = Gauss_sphere_mean * Gauss_sphere_mean
                 Psum = 0.0
                 for j in range(1,PointsInr):
@@ -1032,10 +1032,10 @@ class MainCls(wx.Frame):
 
         # Calculate beta (for decoupling aproximation)
         beta_filename = PDBID + "_beta.list"
-        r,dB = np.genfromtxt(beta_filename, skip_header=3,usecols=[0,1],unpack=True) # import list of distance and excess scattering length values
+        r_beta,dB = np.genfromtxt(beta_filename, skip_header=3,usecols=[0,1],unpack=True) # import list of distance and excess scattering length values
         A00 = np.zeros(PointsInQ)
         for i in range(0,PointsInQ):
-            qr = q[i]*r
+            qr = q[i]*r_beta
             A00[i] = sum(dB*np.sin(qr)/qr)
         A00 = A00 / A00[0] # normalise such that A00[0] = 1
         A002 = A00**2
