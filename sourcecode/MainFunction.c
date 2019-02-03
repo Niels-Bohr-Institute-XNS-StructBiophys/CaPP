@@ -541,6 +541,3 @@ int main(int argc, char **argv)
     fclose(BetaFile);
     return 0;
 }
-
-// INSTRUCTIONS FOR USE
-

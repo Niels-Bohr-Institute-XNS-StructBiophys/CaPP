@@ -238,7 +238,8 @@ The density of the water layer cannot (yet) be fitted.
 - fix minor bugs, expand HETATM list,   include calculations for some lipids (3.9)
 - multi-chain perdeuteration options, bug fixes (3.10)
 - bug-fixes in python I/O and fit functions (3.11)    
-- read PDBs without last column with 1-letter atom names (3.11)    
+- read PDBs without last column with 1-letter atom names (3.11) 
+- code clean-up (3.11)
 
 ## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          
