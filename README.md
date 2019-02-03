@@ -215,7 +215,7 @@ The density of the water layer cannot (yet) be fitted.
 - Release January 2018 
 - only changes in python part  
 - Fitting of scale and bg  
-- other minor improvements  
+- minor improvements  
 
 #### CaPP 3
 - Release August 2018
@@ -237,8 +237,8 @@ The density of the water layer cannot (yet) be fitted.
 - Removed GUI implementation of Rg calculator (buggy), option for perdeuteration, include info about excluded WL in header, calculate A00 functions (3.8)
 - fix minor bugs, expand HETATM list,   include calculations for some lipids (3.9)
 - multi-chain perdeuteration options, bug fixes (3.10)
-- bug-fixes (3.11)    
-- read PDBs without last column with atomnames (3.11)    
+- bug-fixes in python I/O and fit functions (3.11)    
+- read PDBs without last column with 1-letter atom names (3.11)    
 
 ## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          

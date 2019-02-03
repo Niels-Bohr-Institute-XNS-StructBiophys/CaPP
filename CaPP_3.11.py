@@ -22,7 +22,7 @@
 ## your work, please write:                                             ##
 ## CaPP, source code freely available at github.com/Niels-Bohr-Institute-XNS-StructBiophys/CaPP ##
 
-## Libraries
+### import Libraries
 import re
 import os
 import sys
@@ -42,21 +42,19 @@ except:
     print("")
     sys.exit(1)
 
-
-# ignore Future Warnings
+### ignore "Future Warnings"
 import warnings
 import numpy as np
 warnings.simplefilter(action='ignore', category=FutureWarning)
 print('x' in np.arange(5))   #returns False, without Warning
 
-# check OS: 
+### check OS and use correct binary. Check location of binary 
 if platform.system() == "Darwin":
     capp_version = "capp_mac"
 elif platform.system() == "Windows":
     capp_version = "capp_windows.exe"
 else:
     capp_version = "capp"
-
 programpath = os.path.dirname(os.path.realpath(__file__))
 capp_executable_location = programpath + "/" + capp_version
 print(capp_executable_location)
@@ -66,7 +64,7 @@ elif capp_version == "capp":
     print("")
     print("****************************************************************************************")
     print(" Cannot find the executable: %s. It should be in the same folder as CaPP.py " % capp_version)
-    print(" If you are not running Mac or Windows OS, then:")
+    print(" If you are not running Mac or Windows, then:")
     print("  1) compile the source code Mainfunction.c with output called capp")
     print("     e.g. gcc Mainfunction.c -o capp")
     print("  2) plase the executable, capp, in the same folder as CaPP.py")
@@ -106,8 +104,7 @@ class MainCls(wx.Frame):
         self.Panel = wx.lib.scrolledpanel.ScrolledPanel(self, -1)
         self.Panel.SetupScrolling(False, True)
         self.Bind(wx.EVT_CLOSE, self.CloseWindowFnc) # close pylab explicitely for to avoid crash
-
-        BoxSizer.AddSpacer(3)
+        BoxSizer.AddSpacer(3) # vertical spacing
         
         ### Widgets for PDB-file import
         PDBTextSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -326,7 +323,7 @@ class MainCls(wx.Frame):
         Water_layer_contrast_box.Add(self.right_WL)
         self.right_WL.Disable()
 
-        BoxSizer.AddSpacer(5)
+        BoxSizer.AddSpacer(5) # vertical spacing
         
         ### Widgets to exclude water layer from TMD
         WLText = wx.BoxSizer(wx.HORIZONTAL)
@@ -397,7 +394,6 @@ class MainCls(wx.Frame):
         BoxSizer.AddSpacer(5)
 
         ### Widgets for calculation buttons
-
         CalculateButtonSpace = wx.BoxSizer(wx.HORIZONTAL)
         CalculateButtonSpace.AddSpacer(10)
         self.CalculateButton = wx.Button(self.Panel, label = 'Calculate p(r), Rg, and P(q)')
@@ -439,14 +435,12 @@ class MainCls(wx.Frame):
         self.right_skip.Disable()
         
         fitWL_button = wx.BoxSizer(wx.HORIZONTAL)
-        #fitWL_button.AddSpacer(10)
         self.fitWL_button = wx.CheckBox(self.Panel, -1, 'Fit WL contrast? (default: fixed to chosen value)', size = (350, -1))
         fitWL_button.Add(self.fitWL_button)
         BoxSizer.Add(fitWL_button, 0, wx.ALIGN_CENTER, wx.EXPAND|wx.HORIZONTAL)
         self.fitWL_button.Disable()
         
         fitPDB2_button = wx.BoxSizer(wx.HORIZONTAL)
-        #fitPDB2_button.AddSpacer(10)
         self.fitPDB2_button = wx.CheckBox(self.Panel, -1, 'Fit with 2 PDBs? Location of 2nd PDB file:', size = (350, -1))
         fitPDB2_button.Add(self.fitPDB2_button)
         self.Bind(wx.EVT_CHECKBOX, self.EnableBrowsePDB2Fnc, self.fitPDB2_button)
@@ -476,7 +470,6 @@ class MainCls(wx.Frame):
         
         ### Widgets to change resolution (binsize)
         Change_resolution_button = wx.BoxSizer(wx.HORIZONTAL)
-        #Change_resolution_button.AddSpacer(10)
         self.Change_resolution_button = wx.CheckBox(self.Panel, -1, 'Change resolution of the p(r)? (default: 1 A)', size = (350, -1))
         Change_resolution_button.Add(self.Change_resolution_button)
         BoxSizer.Add(Change_resolution_button, 0, wx.ALIGN_CENTER, wx.EXPAND|wx.HORIZONTAL)
@@ -506,39 +499,45 @@ class MainCls(wx.Frame):
         self.Panel.Layout()
         self.Layout()
 
+###################################### FUNCTIONS ###########################################
 
-### Define minor functions:
-#       "onClose()",
-#       "nmFnc()"
-#       "resFnc()"
-#       "EnableWLButtons()",
-#       "EnableResolutionBoxFnc()",
-#       "EnableBilayerThicknessFnc()",
-#       "DisableBilayerThicknessFnc()",
-#       "EnableSAXSFnc()",
-#       "EnableSANSFnc()",
+    ### Define minor functions:
+    #       "onClose()",
+    #        "nmFnc()"
+    #       "resFnc()"
+    #       "EnableWLButtons()",
+    #       "EnableResolutionBoxFnc()",
+    #       "EnableBilayerThicknessFnc()",
+    #       "DisableBilayerThicknessFnc()",
+    #       "EnableSAXSFnc()",
+    #       "EnableSANSFnc()",
 
+    ### define function for closing GUI
     def onClose(self,event):
         self.Destroy()
 
+    ### define function for printing q unit 
     def nmFnc(self,event):
         if self.nm_button.GetValue():
             print("q in data is in [1/nm]")
         else:
             print("q in data is in [1/aa]")
 
+    ### define function for printing if resution effects are included
     def resFnc(self,event):
         if self.RES_button.GetValue():
             print("SANS resolution effects included (from 4th column in data)")
         else:
             print("SANS resolutioin effects not included (default)")
 
+    ### define funciton for enable/disable "Browse PDB 2" botton
     def EnableBrowsePDB2Fnc(self,event):
         if self.fitPDB2_button.GetValue():
             self.BrowsePDB2Btn.Enable()
         else:
             self.BrowsePDB2Btn.Disable()
 
+    ### define function for enable/disable GUI related to WL
     def EnableWLButtonsFnc(self, event):
         if self.Water_layer_button.GetValue():
             self.left_WL.Enable()
@@ -570,6 +569,7 @@ class MainCls(wx.Frame):
             self.fitWL_button.Disable()
             self.fitWL_button.SetValue(0)
 
+    ### define function for enable/disable GUI related to resolutions effects
     def EnableResolutionBoxFnc(self, event):
         if self.Change_resolution_button.GetValue():
             self.left_res.Enable()
@@ -580,16 +580,19 @@ class MainCls(wx.Frame):
             self.Resolution_box.Disable()
             self.right_res.Disable()
 
+    ### define function for enable GUI related to bilayer thickness
     def EnableBilayerThicknessFnc(self, event):
         self.Bilayer_thickness_box.Enable()
         self.right_thick.Enable()
         self.left_thick.Enable()
 
+    ### define function for disable GUI related to bilayer thickness
     def DisableBilayerThicknessFnc(self, event):
         self.Bilayer_thickness_box.Disable()
         self.right_thick.Disable()
         self.left_thick.Disable()
-
+    
+    ### define function for enable/disable GUI related to SANS
     def EnableSANSFnc(self, event):
         self.left_SANS.Enable()
         self.left_SANS_d.Enable()
@@ -612,7 +615,8 @@ class MainCls(wx.Frame):
         self.left_SAXS.Disable()
         self.SAXS_solvent_box.Disable()
         self.right_SAXS.Disable()
-        
+
+    ### define function for enable/disable GUI related to SAXS    
     def EnableSAXSFnc(self, event):
         self.left_SAXS.Enable()
         self.SAXS_solvent_box.Enable()
@@ -634,7 +638,7 @@ class MainCls(wx.Frame):
         self.RES_button.SetValue(0)
         self.RES_button.Disable()
     
-    ### Define CaPP function
+    ### define function for running CaPP (c-part)
     def cappFnc(self, event):
 
         # open pop-up window
@@ -729,32 +733,42 @@ class MainCls(wx.Frame):
             print(Message)
             wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
     
-        # assemble options into a command line
-        if self.fitPDB2_button.GetValue():
-            Output = "%s/%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (programpath, capp_version, XN_choice, solvent, Perdeut_choice_A, perdeut_A, Perdeut_choice_B, perdeut_B, Perdeut_choice_C, perdeut_C, Perdeut_choice_D, perdeut_D, Perdeut_choice_E, perdeut_E, Perdeut_choice_F, perdeut_F, Perdeut_choice_G, perdeut_G, X_choice, PrcSucrose, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDB2PathStr)
-            print("Command generated by the GUI and sent to terminal:")
-            print(Output)
-            print("")
-            # run command output in command line
-            os.system(Output)
-        
+        # assemble options into a command line and run the command line
         Output = "%s/%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (programpath, capp_version, XN_choice, solvent, Perdeut_choice_A, perdeut_A, Perdeut_choice_B, perdeut_B, Perdeut_choice_C, perdeut_C, Perdeut_choice_D, perdeut_D, Perdeut_choice_E, perdeut_E, Perdeut_choice_F, perdeut_F, Perdeut_choice_G, perdeut_G, X_choice, PrcSucrose, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDBPathStr)
         print("Command generated by the GUI and sent to terminal:")
         print(Output)
         print("")
-
-        # run command line
         os.system(Output)
-                
-        # close pop-up window
+        if self.fitPDB2_button.GetValue():
+            Output = "%s/%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (programpath, capp_version, XN_choice, solvent, Perdeut_choice_A, perdeut_A, Perdeut_choice_B, perdeut_B, Perdeut_choice_C, perdeut_C, Perdeut_choice_D, perdeut_D, Perdeut_choice_E, perdeut_E, Perdeut_choice_F, perdeut_F, Perdeut_choice_G, perdeut_G, X_choice, PrcSucrose, WL_choice, WL_contrast, Exclude_WL_choice, Bilayer_thickness, Resolution_choice, Resolution, self.PDB2PathStr)
+            print("Command generated by the GUI and sent to terminal (2nd PDB):")
+            print(Output)
+            print("")
+            os.system(Output)
+
+        ## close pop-up window
         self.second_window.Destroy()
 
-        # calculate P(q), and plot P(q) and p(r) for 1st PDB
-        short_filename = os.path.splitext(self.PDBPathStr)[0]
-        PDBID = os.path.splitext(os.path.basename(self.PDBPathStr))[0]
+        # generate filenames, plot p(r), calculate and plot P(q)
+        filename,filename_nowater,short_filename,PDBID = self.GenerateFilenamesFnc(1)
+        self.PlotprFnc(filename,PDBID) # plot p(r)   
+        self.CalcPqFnc(filename,filename_nowater,short_filename,PDBID) # calculate and plot P(q)
+        if self.fitPDB2_button.GetValue():
+            filename,filename_nowater,short_filename,PDBID = self.GenerateFilenamesFnc(2)
+            self.PlotprFnc(filename,PDBID) # plot p(r)   
+            self.CalcPqFnc(filename,filename_nowater,short_filename,PDBID) # calculate and plot P(q)
+
+    ### define function for generating filenames
+    def GenerateFilenamesFnc(self,PDBnumber):
+        if PDBnumber == 2:
+            short_filename = os.path.splitext(self.PDB2PathStr)[0]
+            PDBID = os.path.splitext(os.path.basename(self.PDB2PathStr))[0]
+        else:
+            short_filename = os.path.splitext(self.PDBPathStr)[0]
+            PDBID = os.path.splitext(os.path.basename(self.PDBPathStr))[0]
 
         if self.Water_layer_button.GetValue():
-            filename = short_filename + "_w"
+            filename = short_filename + "_w" 
         else:
             filename = short_filename
 
@@ -787,67 +801,18 @@ class MainCls(wx.Frame):
             value = float(self.SANS_perdeut_box_G.GetValue())
             if value > 0.0:
                 string_value_G = "_G%1.0f" % value
-            filename = filename + "_N" + string_value1 + "_P" + string_value_A + string_value_B  + string_value_C  + string_value_D + string_value_E + string_value_F + string_value_G
-            filename_nowater = short_filename + "_N" + string_value1 + "_P" + string_value_A + string_value_B + string_value_C + string_value_D + string_value_E + string_value_F + string_value_G              
+            filename = filename + "_N" + string_value1 + "_P" + string_value_A + string_value_B  + string_value_C + string_value_D + string_value_E + string_value_F + string_value_G
+            filename_nowater = short_filename + "_N" + string_value1 + "_P" + string_value_A + string_value_B + string_value_C + string_value_D + string_value_E + string_value_F + string_value_G             
         else:
             value = float(self.SAXS_solvent_box.GetValue())
             string_value = "%1.0f" % value
             filename = filename + "_X" + string_value
             filename_nowater = short_filename + "_X" + string_value
-        self.PlotprFnc(filename,PDBID)
-        self.CalcPqFnc(filename,filename_nowater,short_filename,PDBID)
-        
-        # calculate P(q), and plot P(q) and p(r) for 2nd PDB
-        if self.fitPDB2_button.GetValue():
-            short_filename2 = os.path.splitext(self.PDB2PathStr)[0]
-            PDB2ID = os.path.splitext(os.path.basename(self.PDB2PathStr))[0]
-            
-            if self.Water_layer_button.GetValue():
-                filename2 = short_filename2 + "_w" 
-            else:
-                filename2 = short_filename2   
-            
-            if self.SANS_button.GetValue():
-                string_value_B = ""
-                string_value_C = ""
-                string_value_D = ""
-                string_value_E = ""
-                string_value_F = ""
-                string_value_G = ""
-                value = float(self.SANS_solvent_box.GetValue())
-                string_value1 = "%1.0f" % value
-                value = float(self.SANS_perdeut_box_A.GetValue())
-                string_value_A = "%1.0f" % value 
-                value = float(self.SANS_perdeut_box_B.GetValue())
-                if value > 0.0:
-                    string_value_B = "_B%1.0f" % value
-                value = float(self.SANS_perdeut_box_C.GetValue())
-                if value > 0.0:
-                    string_value_C = "_C%1.0f" % value
-                value = float(self.SANS_perdeut_box_D.GetValue())
-                if value > 0.0:
-                    string_value_D = "_D%1.0f" % value
-                value = float(self.SANS_perdeut_box_E.GetValue())
-                if value > 0.0:
-                    string_value_E = "_E%1.0f" % value
-                value = float(self.SANS_perdeut_box_F.GetValue())
-                if value > 0.0:
-                    string_value_F = "_F%1.0f" % value
-                value = float(self.SANS_perdeut_box_G.GetValue())
-                if value > 0.0:
-                    string_value_G = "_G%1.0f" % value
-                filename2 = filename2 + "_N" + string_value1 + "_P" + string_value_A + string_value_B  + string_value_C + string_value_D + string_value_E + string_value_F + string_value_G
-                filename2_nowater = short_filename2 + "_N" + string_value1 + "_P" + string_value_A + string_value_B + string_value_C + string_value_D + string_value_E + string_value_F + string_value_G             
-            else:
-                value = float(self.SAXS_solvent_box.GetValue())
-                string_value = "%1.0f" % value
-                filename2 = filename2 + "_X" + string_value
-                filename2_nowater = short_filename2 + "_X" + string_value
-            self.PlotprFnc(filename2,PDB2ID)
-            self.CalcPqFnc(filename2,filename2_nowater,short_filename2,PDB2ID)
+
+        return filename,filename_nowater,short_filename,PDBID
 
     ### define function for plotting p(r)
-    def PlotprFnc(self,filename, PDBID):
+    def PlotprFnc(self,filename,PDBID):
       
         #import p(r)
         pr_filename = filename + "_pr.dat"
@@ -884,7 +849,7 @@ class MainCls(wx.Frame):
             pylab.suptitle('Pair Distance Distribution for the structure(s)',fontsize=14)
             pylab.show()
     
-    ### Define function for calculating P(q)
+    ### define function to calculate, plot and export P(q)
     def CalcPqFnc(self, filename, filename_nowater, short_filename, PDBID):
 
         # import p(r) protein
@@ -934,7 +899,6 @@ class MainCls(wx.Frame):
             dq = (qmax - qmin) / (PointsInQ - 1)
             q = np.arange(qmin, qmax+dq, dq) # create q vector
         else:
-
             #count number of lines in data file
             NumberOfLines = sum(1 for line in open(self.DataPathStr)) + 1
 
@@ -992,7 +956,7 @@ class MainCls(wx.Frame):
                     q_MAT[i] = sigma[i] * dq + q
         PointsInQ = len(q)
 
-        ### define inner function to calculate Pq for a certain q-value
+        ### define inner function to calculate Pq 
         def CalcPqSubFnc(q,v_mean,r, grp,hrp,jrp, grw,hrw,jrw,krw, grc,jrc,hrc,krc,gr,hr,jr,kr):
 
             # atomic form factor carbon (used for all atoms)
@@ -1098,8 +1062,6 @@ class MainCls(wx.Frame):
             else:
                 structure_name = structure_name + ", SAXS " + self.SAXS_solvent_box.GetValue() + "% Sucr"
             Subplot2.plot(q, Pq, label=structure_name)
-            #Subplot2.plot(q, A002, label='A00(q)^2')
-            #Subplot2.plot(q, Beta, label='Beta(q) = A00(q)^2/P(q)')
             Subplot2.set_xscale('log', nonposx = 'clip')
             Subplot2.set_yscale('log', nonposy = 'clip')
             Subplot2.legend(loc=3,fontsize=9)
@@ -1108,16 +1070,7 @@ class MainCls(wx.Frame):
             pylab.suptitle('Form Factor for the structure(s)',fontsize=14)
             pylab.show()            
 
-        # Enable buttons in GUI
-        if self.DataPathStr != 'Non':
-            self.FitButton.Enable()
-            self.Skip_box.Enable()
-            self.left_skip.Enable()
-            self.right_skip.Enable()
-            if self.Water_layer_button.GetValue():
-                self.fitWL_button.Enable()
-
-    ### Define function for Fitting Bg, scale and water layer (optional)
+    ### Define function for Fitting Bg, scale, water layer (optional parameter), and distribution of 2nd PDB (optional parameter)
     def FitFnc(self, event):
         
         # check for data file
@@ -1127,91 +1080,11 @@ class MainCls(wx.Frame):
             wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
         else:
             # define Pq filename
-            filename = os.path.splitext(self.PDBPathStr)[0] # element [1] is the extension (.pdb)
-
-            if self.Water_layer_button.GetValue():
-                filename = filename + "_w"
-
-            if self.SANS_button.GetValue():
-                string_value_B = ""
-                string_value_C = ""
-                string_value_D = ""
-                string_value_E = ""
-                string_value_F = ""
-                string_value_G = ""
-                value = float(self.SANS_solvent_box.GetValue())
-                string_value1 = "%1.0f" % value
-                value = float(self.SANS_perdeut_box_A.GetValue())
-                string_value_A = "%1.0f" % value
-                value = float(self.SANS_perdeut_box_B.GetValue())
-                if value > 0.0:
-                    string_value_B = "B_%1.0f" % value
-                value = float(self.SANS_perdeut_box_C.GetValue())
-                if value > 0.0:
-                    string_value_C = "C_%1.0f" % value
-                value = float(self.SANS_perdeut_box_D.GetValue())
-                if value > 0.0:
-                    string_value_D = "D_%1.0f" % value
-                value = float(self.SANS_perdeut_box_E.GetValue())
-                if value > 0.0:
-                    string_value_E = "E_%1.0f" % value
-                value = float(self.SANS_perdeut_box_F.GetValue())
-                if value > 0.0:
-                    string_value_F = "F_%1.0f" % value
-                value = float(self.SANS_perdeut_box_G.GetValue())
-                if value > 0.0:
-                    string_value_G = "G_%1.0f" % value
-                filename = filename + "_N" + string_value1 + "_P" + string_value_A + string_value_B + string_value_C + string_value_D + string_value_E + string_value_F + string_value_G
-            else:
-                value = float(self.SAXS_solvent_box.GetValue())
-                string_value = "%1.0f" % value
-                filename = filename + "_X" + string_value
-            
+            filename = self.GenerateFilenamesFnc(1)[0] # get first return value of function, filename
             Pq_filename = filename + "_Pq.dat"
             Pq_RES_filename = filename + "_Pq_RES.dat"
-            
-            # define Pq filename 2
             if self.fitPDB2_button.GetValue():
-                filename2 = os.path.splitext(self.PDB2PathStr)[0]
-
-                if self.Water_layer_button.GetValue():
-                    filename2 = filename2 + "_w"
-
-                if self.SANS_button.GetValue():
-                    string_value_B = ""
-                    string_value_C = ""
-                    string_value_D = ""
-                    string_value_E = ""
-                    string_value_F = ""
-                    string_value_G = ""
-                    value = float(self.SANS_solvent_box.GetValue())
-                    string_value1 = "%1.0f" % value
-                    value = float(self.SANS_perdeut_box_A.GetValue())
-                    string_value_A = "%1.0f" % value
-                    value = float(self.SANS_perdeut_box_B.GetValue())
-                    if value > 0.0:
-                        string_value_B = "_B%1.0f" % value
-                    value = float(self.SANS_perdeut_box_C.GetValue())
-                    if value > 0.0:
-                        string_value_C = "_C%1.0f" % value
-                    value = float(self.SANS_perdeut_box_D.GetValue())
-                    if value > 0.0:
-                        string_value_D = "_D%1.0f" % value
-                    value = float(self.SANS_perdeut_box_E.GetValue())
-                    if value > 0.0:
-                        string_value_E = "_E%1.0f" % value
-                    value = float(self.SANS_perdeut_box_F.GetValue())
-                    if value > 0.0:
-                        string_value_F = "_F%1.0f" % value
-                    value = float(self.SANS_perdeut_box_G.GetValue())
-                    if value > 0.0:
-                        string_value_G = "_G%1.0f" % value
-                    filename2 = filename2 + "_N" + string_value1 + "_P" + string_value_A + string_value_B + string_value_C + string_value_D + string_value_E + string_value_F + string_value_G
-                else:
-                    value = float(self.SAXS_solvent_box.GetValue())
-                    string_value = "%1.0f" % value
-                    filename2 = filename2 + "_X" + string_value
-                
+                filename2 = self.GenerateFilenamesFnc(2)[0] # get first return value of function, filename
                 Pq_filename2 = filename2 + "_Pq.dat"
                 Pq_RES_filename2 = filename2 + "_Pq_RES.dat"
         
@@ -1318,12 +1191,12 @@ class MainCls(wx.Frame):
                     I = S * (A * PofQ1 + (1.0-A)*PofQ2) + B
                 return I 
 
-        #variables used if water layer contrast (wlc) is fitted - golden range search
+            #variables used if water layer contrast (wlc) is fitted - golden range search
             wlc_string = ""
             maxite = 10
             R = 0.61803398875 # inverse golden ratio
             xmin = -10
-            xmax = 30
+            xmax = 20
             dx = xmax-xmin
             x1 = 0.0
             x2 = 0.0
@@ -1555,9 +1428,8 @@ class MainCls(wx.Frame):
                 Fit_fid.write("     %e \t%e \t%e \t%e\n" % (q_trunc[i],I_trunc[i],dI_trunc[i],I_fit[i]))
             Fit_fid.close()
 
-
     ### Define function for filebrowsing for PDB
-    def BrowsePDBFnc(self, event):
+    def BrowsePDBFnc(self,event):
         
         FileDialogWindow = wx.FileDialog(None, 'Please select PDB-file...', os.getcwd(), defaultFile = '')
 
@@ -1573,8 +1445,8 @@ class MainCls(wx.Frame):
 
             self.PDBPathTxt.SetLabel(PDBPathDisplayStr)
 
-            DirectoryStr = os.path.dirname(self.PDBPathStr)
-            os.chdir(DirectoryStr)
+            DirectoryStr = os.path.dirname(self.PDBPathStr) # get current directory
+            os.chdir(DirectoryStr) # cd to current directory
 
             self.CalculateButton.Enable()
             self.BrowseDataBtn.Enable()
@@ -1582,9 +1454,8 @@ class MainCls(wx.Frame):
     
         FileDialogWindow.Destroy()
 
-
     ### Define function for filebrowsing for PDB2
-    def BrowsePDB2Fnc(self, event):
+    def BrowsePDB2Fnc(self,event):
     
         FileDialogWindow = wx.FileDialog(None, 'Please select PDB2-file...', os.getcwd(), defaultFile = '')
         
@@ -1600,12 +1471,9 @@ class MainCls(wx.Frame):
         
             self.PDB2PathTxt.SetLabel(PDB2PathDisplayStr)
             
-            DirectoryStr = os.path.dirname(self.PDB2PathStr)
-            os.chdir(DirectoryStr)
-            
-            self.CalculateButton.Enable()
-            self.BrowseDataBtn.Enable()
-        
+            DirectoryStr = os.path.dirname(self.PDB2PathStr) # get current directory
+            os.chdir(DirectoryStr) # cd to current directory
+                    
         FileDialogWindow.Destroy()
     
     ### Define function for filebrowsing for data
@@ -1623,9 +1491,6 @@ class MainCls(wx.Frame):
                 DataPathDisplayStr = '...' + DataPathDisplayStr
         
             self.DataPathTxt.SetLabel(DataPathDisplayStr)
-            
-            #DirectoryStr = os.path.dirname(self.DataPathStr)
-            #os.chdir(DirectoryStr)
     
             self.FitButton.Enable()
             self.left_skip.Enable()
