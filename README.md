@@ -13,7 +13,9 @@ Check that the denpendencies are properly installed (see below)
 ### Running the program, GUI mode
 To start the GUI, type in the terminal
 
-        >> python path-to-folder/CaPP_A.B.py  
+        >> python path-to-folder/CaPP_A.B.py     
+
+A.B is the version    
 
 ### Running the program, batch mode
 Type in the terminal  
@@ -59,14 +61,14 @@ Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.
 Default: 1.0 Aangstrom.  
 Too small binsize will not an oscillating p(r), and too large will give wrong results for P(q).  
 
-##### Example:  
+##### Example, command-line use:  
 
         >> capp -c 0.1 -m 30 -s 0.4 -r 2.0 4u2p.pdb  
 
 ## Dependencies
 
 ### Dependencies for the GUI  
-- python 2.7  
+- python 2.7  (should also be compatible with python 3)
 - wxpython 2.9
 - matplotlib  
 - scipy 0.17 or newer (0.17 have bounds option in the function scipy.optimize.least_squares)
