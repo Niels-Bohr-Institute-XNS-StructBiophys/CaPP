@@ -92,8 +92,9 @@ from scipy.optimize import curve_fit
 
 ## Define main class and text
 class MainCls(wx.Frame):
+    
+    ### define funciton for creating the GUI
     def __init__(self, parent, id):
-
 
         ### Overall frame for widgets
         width = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)
@@ -499,18 +500,7 @@ class MainCls(wx.Frame):
         self.Panel.Layout()
         self.Layout()
 
-###################################### FUNCTIONS ###########################################
-
-    ### Define minor functions:
-    #       "onClose()",
-    #        "nmFnc()"
-    #       "resFnc()"
-    #       "EnableWLButtons()",
-    #       "EnableResolutionBoxFnc()",
-    #       "EnableBilayerThicknessFnc()",
-    #       "DisableBilayerThicknessFnc()",
-    #       "EnableSAXSFnc()",
-    #       "EnableSANSFnc()",
+    ##################################### FUNCTIONS ###########################################
 
     ### define function for closing GUI
     def onClose(self,event):
@@ -1075,11 +1065,15 @@ class MainCls(wx.Frame):
     ### Define function for Fitting Bg, scale, water layer (optional parameter), and distribution of 2nd PDB (optional parameter)
     def FitFnc(self, event):
         
-        # check for data file
+        # check for data file and second PDB file
         if self.DataPathStr == 'Non':
             Message = 'Please provide a data file (q,I,dI), recalculate P(q) (to obtain the right q-values) and try again.'
             print(Message)
-            wx.MessageBox(Message, "CaPP", wx.OK | wx.ICON_INFORMATION)
+            wx.MessageBox(Message, "CaPP - Error", wx.OK | wx.ICON_INFORMATION)
+        elif self.PDB2PathStr == 'N/A':
+            Message = '"Fit with 2 PDBs" chosen. Please provide a second PDB file, using the lower "Browse" button.'
+            print(Message)
+            wx.MessageBox(Message, "CaPP - Error", wx.OK | wx.ICON_INFORMATION)
         else:
             # define Pq filename
             filename = self.GenerateFilenamesFnc(1)[0] # get first return value of function, filename
@@ -1518,6 +1512,8 @@ class MainCls(wx.Frame):
     def path_leaf(self,path):
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head) 
+
+### END of MAIN funciton
 
 ### Boilerplate code linking program and widgets
 if __name__ == '__main__':

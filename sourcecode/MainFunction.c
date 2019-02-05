@@ -217,109 +217,115 @@ int main(int argc, char **argv)
                 //printf("\n            (-r) Resolution = %6.4f Angstrom\n", Delta_r);
                 break;
             case 'A':
-            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
-            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -A, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -A was \"%s\"\n\n\n\n", OptArg);
-                exit(-1);
-            }
-            if (SolventD2O < 0.0) {
-                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -A, and SAXS contrast, so the perdeuteration has no effect.\n");
-            }
-            Perdeuteration = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -A, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
-                exit(-1);
-            }
+                CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+                if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                    printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -A, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                    printf("\n            Input argument for option -A was \"%s\"\n\n\n\n", OptArg);
+                    exit(-1);
+                }
+                if (SolventD2O < 0.0) {
+                    printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -A, and SAXS contrast, so the perdeuteration has no effect.\n");
+                }
+                Perdeuteration = char2double(OptArg);
+                if (Perdeuteration > 1.00){
+                    printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -A, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                    exit(-1);
+                }
                 break;
             case 'B':
-            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
-            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -B, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -B was \"%s\"\n\n\n\n", OptArg);
-                exit(-1);
-            }
-            if (SolventD2O < 0.0) {
-                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -B, and SAXS contrast, so the perdeuteration has no effect.\n");
-            }
-            Perdeuteration_B = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -B, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
-                exit(-1);
-            }
+                CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+                if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                    printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -B, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                    printf("\n            Input argument for option -B was \"%s\"\n\n\n\n", OptArg);
+                    exit(-1);
+                }
+                if (SolventD2O < 0.0) {
+                    printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -B, and SAXS contrast, so the perdeuteration has no effect.\n");
+                }
+                Perdeuteration_B = char2double(OptArg);
+                if (Perdeuteration > 1.00){
+                    printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -B, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                    exit(-1);
+                }
                 break;
             case 'C':
-            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
-            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -C, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -C was \"%s\"\n\n\n\n", OptArg);
-                exit(-1);
-            }
-            if (SolventD2O < 0.0) {
-                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -C, and SAXS contrast, so the perdeuteration has no effect.\n");
-            }
-            Perdeuteration_C = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -C, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
-                exit(-1);
-            }
+                CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+                if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                    printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -C, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                    printf("\n            Input argument for option -C was \"%s\"\n\n\n\n", OptArg);
+                    exit(-1);
+                }
+                if (SolventD2O < 0.0) {
+                    printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -C, and SAXS contrast, so the perdeuteration has no effect.\n");
+                }
+                Perdeuteration_C = char2double(OptArg);
+                if (Perdeuteration > 1.00){
+                    printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -C, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                    exit(-1);
+                }
                 break;
             case 'D':
-            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
-            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -D, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -D was \"%s\"\n\n\n\n", OptArg);
-                exit(-1);
-            }
-            if (SolventD2O < 0.0) {
-                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -D, and SAXS contrast, so the perdeuteration has no effect.\n");
-            }
-            Perdeuteration_D = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -D, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
-                exit(-1);
-            }
+                CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+                if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                    printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -D, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                    printf("\n            Input argument for option -D was \"%s\"\n\n\n\n", OptArg);
+                    exit(-1);
+                }
+                if (SolventD2O < 0.0) {
+                    printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -D, and SAXS contrast, so the perdeuteration has no effect.\n");
+                }
+                Perdeuteration_D = char2double(OptArg);
+                if (Perdeuteration > 1.00){
+                    printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -D, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                    exit(-1);
+                }
                 break;
-            case 'E':
-            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
-            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -E, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -E was \"%s\"\n\n\n\n", OptArg);
-                exit(-1);
-            }
-            if (SolventD2O < 0.0) {
-                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -E, and SAXS contrast, so the perdeuteration has no effect.\n");
-            }
-            Perdeuteration_E = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -E, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
-                exit(-1);
-            }
+                case 'E':
+                CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+                if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                    printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -E, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                    printf("\n            Input argument for option -E was \"%s\"\n\n\n\n", OptArg);
+                    exit(-1);
+                }
+                if (SolventD2O < 0.0) {
+                    printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -E, and SAXS contrast, so the perdeuteration has no effect.\n");
+                }
+                Perdeuteration_E = char2double(OptArg);
+                if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -E, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                    exit(-1);
+                }
                 break;
             case 'F':
-            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
-            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -F, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -F was \"%s\"\n\n\n\n", OptArg);
-                exit(-1);
-            }
-            if (SolventD2O < 0.0) {
-                printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -F, and SAXS contrast, so the perdeuteration has no effect.\n");
-            }
-            Perdeuteration_F = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -F, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
-                exit(-1);
-            }
+                CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+                if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                    printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -F, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                    printf("\n            Input argument for option -F was \"%s\"\n\n\n\n", OptArg);
+                    exit(-1);
+                }
+                if (SolventD2O < 0.0) {
+                    printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -F, and SAXS contrast, so the perdeuteration has no effect.\n");
+                }
+                Perdeuteration_F = char2double(OptArg);
+                if (Perdeuteration > 1.00){
+                    printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -F, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                    exit(-1);
+                }
                 break;
             case 'G':
-            CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
-            if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
-                printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -G, a perdeuteration fraction between 0 and 1 for SANS.\n");
-                printf("\n            Input argument for option -G was \"%s\"\n\n\n\n", OptArg);
-                exit(-1);
-            }
-            if (SolventD2O < 0.0) {
+                CheckOptArg = strchr("abcdefgahcdefghijklmnopqrstuvxyz-*!%&/<>)(][{}", OptArg[0]);
+                if (strcmp(OptArg,filename)==0 || CheckOptArg != NULL){
+                    printf("\n\n\n            !!!ERROR!!! Please provide a proper input for option -G, a perdeuteration fraction between 0 and 1 for SANS.\n");
+                    printf("\n            Input argument for option -G was \"%s\"\n\n\n\n", OptArg);
+                    exit(-1);
+                }
+                if (SolventD2O < 0.0) {
                 printf("\n\n\n            WARNING! You have chosen the perdeuteration, option -G, and SAXS contrast, so the perdeuteration has no effect.\n");
-            }
-            Perdeuteration_G = char2double(OptArg);
-            if (Perdeuteration > 1.00){ printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -G, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
-                exit(-1);
-            }
+                }
+                Perdeuteration_G = char2double(OptArg);
+                if (Perdeuteration > 1.00){
+                    printf("\n\n\n            !!!ERROR!!! The perdeuteration, option -G, should be between 0 and 1 (SANS), or omitted (SAXS)\n\n\n");
+                    exit(-1);
+                }
                 break;
             case 'g':
                 OPTION_g_CHOSEN = 1;
@@ -541,3 +547,6 @@ int main(int argc, char **argv)
     fclose(BetaFile);
     return 0;
 }
+
+// INSTRUCTIONS FOR USE
+
