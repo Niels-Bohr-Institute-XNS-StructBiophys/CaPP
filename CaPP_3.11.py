@@ -31,7 +31,7 @@ import linecache
 import re
 import platform
 import ntpath
-import wx.lib.scrolledpanel
+import numpy as np
 try:
     import wx
 except:
@@ -41,10 +41,11 @@ except:
     print("******************************************************************")
     print("")
     sys.exit(1)
+import wx.lib.scrolledpanel
+
 
 ### ignore "Future Warnings"
 import warnings
-import numpy as np
 warnings.simplefilter(action='ignore', category=FutureWarning)
 print('x' in np.arange(5))   #returns False, without Warning
 
@@ -85,7 +86,6 @@ import matplotlib
 matplotlib.interactive(True)
 matplotlib.use('WXAgg')
 import pylab
-import numpy as np
 
 ## import fitting libraries
 from scipy.optimize import curve_fit
@@ -1070,7 +1070,7 @@ class MainCls(wx.Frame):
             Message = 'Please provide a data file (q,I,dI), recalculate P(q) (to obtain the right q-values) and try again.'
             print(Message)
             wx.MessageBox(Message, "CaPP - Error", wx.OK | wx.ICON_INFORMATION)
-        elif self.PDB2PathStr == 'N/A':
+        elif self.PDB2PathStr == 'N/A' and self.fitPDB2_button.GetValue():
             Message = '"Fit with 2 PDBs" chosen. Please provide a second PDB file, using the lower "Browse" button.'
             print(Message)
             wx.MessageBox(Message, "CaPP - Error", wx.OK | wx.ICON_INFORMATION)
