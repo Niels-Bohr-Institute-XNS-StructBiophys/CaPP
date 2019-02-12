@@ -1400,18 +1400,25 @@ class MainCls(wx.Frame):
             Fit_fid = open(fit_filename, "w")
             Fit_fid.write("#   %s\n" % fitvalues)
             Fit_fid.write("#   %s\n" % fiterrors)
-            Fit_fid.write("#   Sc = Scale, Bg = Background, A = part of 1st PDB, Chi2r = reduced chi square\n")
+            if self.Water_layer_button.GetValue() and self.fitPDB2_button.GetValue():
+                Fit_fid.write("#   Sc = Scale, Bg = Background, WL = excees water layer scattering density, A = part of 1st PDB, Chi2r = reduced chi square\n")
+            elif self.Water_layer_button.GetValue():
+                Fit_fid.write("#   Sc = Scale, Bg = Background, WL = excees water layer scattering density, Chi2r = reduced chi square\n")
+            elif self.fitPDB2_button.GetValue():
+                Fit_fid.write("#   Sc = Scale, Bg = Background, A = part of 1st PDB, Chi2r = reduced chi square\n")
+            else:
+                Fit_fid.write("#   Sc = Scale, Bg = Background, Chi2r = reduced chi square\n")
 
             if self.SANS_button.GetValue():
-                structure_name = "SANS in " + self.SANS_solvent_box.GetValue() + "% D2O"
+                Conditions = "SANS in " + self.SANS_solvent_box.GetValue() + "% D2O"
             else:
-                structure_name = "SAXS in " + self.SAXS_solvent_box.GetValue() + "% Sucrose"
+                Conditions = "SAXS in " + self.SAXS_solvent_box.GetValue() + "% Sucrose"
 
             if self.Water_layer_button.GetValue():
                 if self.Exclude_water_layer_M_button.GetValue() or self.Exclude_water_layer_OPM_button.GetValue():
-                    structure_name = structure_name + ", WL added with " + self.Water_layer_contrast_box.GetValue()  + "% contrast (Excluded at TMD)."
+                    Conditions = Conditions + ", WL added with " + self.Water_layer_contrast_box.GetValue()  + "% contrast (Excluded at TMD)."
                 else:
-                    structure_name = structure_name + ", WL added with " + self.Water_layer_contrast_box.GetValue()  + "% contrast."
+                    Conditions = Conditions + ", WL added with " + self.Water_layer_contrast_box.GetValue()  + "% contrast."
 
             if self.fitPDB2_button.GetValue():
                 Fit_fid.write("#   PDB 1: %s\n" % self.PDBPathStr)
@@ -1419,7 +1426,7 @@ class MainCls(wx.Frame):
             else:
                 Fit_fid.write("#   PDB: %s\n" % self.PDBPathStr)
             Fit_fid.write("#   Data: %s\n" % self.DataPathStr)
-            Fit_fid.write("#   Conditions/Settings: %s\n" % structure_name)
+            Fit_fid.write("#   Conditions/Settings: %s\n" % Conditions)
             Fit_fid.write("#   q [1/AA]  \tData_I \tData_dI  \tFit_I\n")
 
             for i in range(0,len(q_trunc)):
