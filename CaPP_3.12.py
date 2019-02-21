@@ -93,7 +93,7 @@ from scipy.optimize import curve_fit
 ## Define main class and text
 class MainCls(wx.Frame):
     
-    ### define funciton for creating the GUI
+    ##################################### Function that creates the GUI ###########################################
     def __init__(self, parent, id):
 
         ### Overall frame for widgets
@@ -499,7 +499,7 @@ class MainCls(wx.Frame):
         self.Panel.Layout()
         self.Layout()
 
-    ##################################### FUNCTIONS ###########################################
+    ##################################### FUNCTIONS related to GUI ###########################################
 
     ### define function for closing GUI
     def onClose(self,event):
@@ -627,7 +627,96 @@ class MainCls(wx.Frame):
         self.RES_button.SetValue(0)
         self.RES_button.Disable()
     
-    ### define function for running CaPP (c-part)
+    ### Define function for filebrowsing for PDB
+    def BrowsePDBFnc(self,event):
+        
+        FileDialogWindow = wx.FileDialog(None, 'Please select PDB-file...', os.getcwd(), defaultFile = '')
+
+        if FileDialogWindow.ShowModal() == wx.ID_OK:
+            self.PDBPathStr = FileDialogWindow.GetPath()
+            PDBPathDisplayStr = str(self.PDBPathStr)
+
+            while len(PDBPathDisplayStr) > 49:
+                PDBPathDisplayStr = PDBPathDisplayStr[1:]
+
+            if len(self.PDBPathStr) > 49:
+                PDBPathDisplayStr = '...' + PDBPathDisplayStr
+
+            self.PDBPathTxt.SetLabel(PDBPathDisplayStr)
+
+            DirectoryStr = os.path.dirname(self.PDBPathStr) # get current directory
+            os.chdir(DirectoryStr) # cd to current directory
+
+            self.CalculateButton.Enable()
+            self.BrowseDataBtn.Enable()
+            self.nm_button.Enable()
+    
+        FileDialogWindow.Destroy()
+
+    ### Define function for filebrowsing for PDB2
+    def BrowsePDB2Fnc(self,event):
+    
+        FileDialogWindow = wx.FileDialog(None, 'Please select PDB2-file...', os.getcwd(), defaultFile = '')
+        
+        if FileDialogWindow.ShowModal() == wx.ID_OK:
+            self.PDB2PathStr = FileDialogWindow.GetPath()
+            PDB2PathDisplayStr = str(self.PDB2PathStr)
+            
+            while len(PDB2PathDisplayStr) > 49:
+                PDB2PathDisplayStr = PDB2PathDisplayStr[1:]
+            
+            if len(self.PDB2PathStr) > 49:
+                PDB2PathDisplayStr = '...' + PDB2PathDisplayStr
+        
+            self.PDB2PathTxt.SetLabel(PDB2PathDisplayStr)
+            
+            DirectoryStr = os.path.dirname(self.PDB2PathStr) # get current directory
+            os.chdir(DirectoryStr) # cd to current directory
+                    
+        FileDialogWindow.Destroy()
+    
+    ### Define function for filebrowsing for data
+    def BrowseDataFnc(self, event):
+        FileDialogWindow = wx.FileDialog(None, 'Please select Data-file...', os.getcwd(), defaultFile = '')
+        
+        if FileDialogWindow.ShowModal() == wx.ID_OK:
+            self.DataPathStr = FileDialogWindow.GetPath()
+            DataPathDisplayStr = str(self.DataPathStr)
+            
+            while len(DataPathDisplayStr) > 49:
+                DataPathDisplayStr = DataPathDisplayStr[1:]
+            
+            if len(self.DataPathStr) > 49:
+                DataPathDisplayStr = '...' + DataPathDisplayStr
+        
+            self.DataPathTxt.SetLabel(DataPathDisplayStr)
+    
+            self.FitButton.Enable()
+            self.left_skip.Enable()
+            self.Skip_box.Enable()
+            self.right_skip.Enable()
+            self.fitPDB2_button.Enable()
+            if self.SANS_button.GetValue():
+                self.RES_button.Enable()
+        
+        FileDialogWindow.Destroy()
+    
+    ### Define exit function
+    def CloseWindowFnc(self, event):
+        try:
+            pylab.close()
+        except:
+            pass
+        sys.exit(0)
+
+    ### Define funciton to extract file name from a file path
+    def path_leaf(self,path):
+        head, tail = ntpath.split(path)
+        return tail or ntpath.basename(head) 
+
+    ##################################### FUNCTIONS for calculations ###########################################
+
+    ### define function for running CaPP (c-part) to calculate p(r)
     def cappFnc(self, event):
 
         # open pop-up window
@@ -1434,95 +1523,6 @@ class MainCls(wx.Frame):
             for i in range(0,len(q_trunc)):
                 Fit_fid.write("     %e \t%e \t%e \t%e\n" % (q_trunc[i],I_trunc[i],dI_trunc[i],I_fit[i]))
             Fit_fid.close()
-
-    ### Define function for filebrowsing for PDB
-    def BrowsePDBFnc(self,event):
-        
-        FileDialogWindow = wx.FileDialog(None, 'Please select PDB-file...', os.getcwd(), defaultFile = '')
-
-        if FileDialogWindow.ShowModal() == wx.ID_OK:
-            self.PDBPathStr = FileDialogWindow.GetPath()
-            PDBPathDisplayStr = str(self.PDBPathStr)
-
-            while len(PDBPathDisplayStr) > 49:
-                PDBPathDisplayStr = PDBPathDisplayStr[1:]
-
-            if len(self.PDBPathStr) > 49:
-                PDBPathDisplayStr = '...' + PDBPathDisplayStr
-
-            self.PDBPathTxt.SetLabel(PDBPathDisplayStr)
-
-            DirectoryStr = os.path.dirname(self.PDBPathStr) # get current directory
-            os.chdir(DirectoryStr) # cd to current directory
-
-            self.CalculateButton.Enable()
-            self.BrowseDataBtn.Enable()
-            self.nm_button.Enable()
-    
-        FileDialogWindow.Destroy()
-
-    ### Define function for filebrowsing for PDB2
-    def BrowsePDB2Fnc(self,event):
-    
-        FileDialogWindow = wx.FileDialog(None, 'Please select PDB2-file...', os.getcwd(), defaultFile = '')
-        
-        if FileDialogWindow.ShowModal() == wx.ID_OK:
-            self.PDB2PathStr = FileDialogWindow.GetPath()
-            PDB2PathDisplayStr = str(self.PDB2PathStr)
-            
-            while len(PDB2PathDisplayStr) > 49:
-                PDB2PathDisplayStr = PDB2PathDisplayStr[1:]
-            
-            if len(self.PDB2PathStr) > 49:
-                PDB2PathDisplayStr = '...' + PDB2PathDisplayStr
-        
-            self.PDB2PathTxt.SetLabel(PDB2PathDisplayStr)
-            
-            DirectoryStr = os.path.dirname(self.PDB2PathStr) # get current directory
-            os.chdir(DirectoryStr) # cd to current directory
-                    
-        FileDialogWindow.Destroy()
-    
-    ### Define function for filebrowsing for data
-    def BrowseDataFnc(self, event):
-        FileDialogWindow = wx.FileDialog(None, 'Please select Data-file...', os.getcwd(), defaultFile = '')
-        
-        if FileDialogWindow.ShowModal() == wx.ID_OK:
-            self.DataPathStr = FileDialogWindow.GetPath()
-            DataPathDisplayStr = str(self.DataPathStr)
-            
-            while len(DataPathDisplayStr) > 49:
-                DataPathDisplayStr = DataPathDisplayStr[1:]
-            
-            if len(self.DataPathStr) > 49:
-                DataPathDisplayStr = '...' + DataPathDisplayStr
-        
-            self.DataPathTxt.SetLabel(DataPathDisplayStr)
-    
-            self.FitButton.Enable()
-            self.left_skip.Enable()
-            self.Skip_box.Enable()
-            self.right_skip.Enable()
-            self.fitPDB2_button.Enable()
-            if self.SANS_button.GetValue():
-                self.RES_button.Enable()
-        
-        FileDialogWindow.Destroy()
-    
-    ### Define exit function
-    def CloseWindowFnc(self, event):
-        try:
-            pylab.close()
-        except:
-            pass
-        sys.exit(0)
-
-    ### Define funciton to extract file name from a file path
-    def path_leaf(self,path):
-        head, tail = ntpath.split(path)
-        return tail or ntpath.basename(head) 
-
-### END of MAIN funciton
 
 ### Boilerplate code linking program and widgets
 if __name__ == '__main__':
