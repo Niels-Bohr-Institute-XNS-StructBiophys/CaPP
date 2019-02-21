@@ -1,4 +1,4 @@
-# CaPP 3.11
+# CaPP 3.12
 Calculating Pair distance distribution functions (PDDF) for Proteins.  
 The program calculates the PDDF from a high-resolution protein structure in PDB format,  
 and the scattering intensity can be calculated by Fourier transform of the PDDF.  
