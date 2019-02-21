@@ -48,6 +48,7 @@ int main(int argc, char **argv)
     int OPTION_m_CHOSEN = 0; // type halfbilayer thickness manually
     int OPTION_g_CHOSEN = 0; // only calc Rg
     int OPTION_WL_CHOSEN = 0; // include a water layer
+    int OPTION_EXPLICIT_H_CHOSEN = 0; // account for Hydrogen and Deuterium explicitely
     int NO_OPTIONS_CHOSEN = 1;
     
     char *filename = argv[argc-1];
@@ -91,6 +92,8 @@ int main(int argc, char **argv)
                -A,-B,...,-G [input: prc perdeuteration] \n\
                Perdeuteration of chain (A),...,(G). Enter percent (between 0 and 1). \n\
                For single-chain proteins (no chain labels), use -A, which is then used globally.\n\
+               -H [no input] \n\
+               Account for hydrogen and deuterium explicitly. \n\
                \n\n");
         exit(-1);
     }
@@ -129,7 +132,7 @@ int main(int argc, char **argv)
         //printf("\n            ************* Options chosen: *************\n");
 
     char ch;
-    const char *ValidOpts = "c:dm:s:x:r:A:B:C:D:E:F:G:g";
+    const char *ValidOpts = "c:dm:s:x:r:A:B:C:D:E:F:G:Hg";
     char *CheckOptArg;
     while((ch=options(argc,argv,ValidOpts))!=-1)
     {
@@ -327,6 +330,9 @@ int main(int argc, char **argv)
                     exit(-1);
                 }
                 break;
+            case 'H':
+                OPTION_EXPLICIT_H_CHOSEN = 1;
+                break;
             case 'g':
                 OPTION_g_CHOSEN = 1;
         }
@@ -388,11 +394,11 @@ int main(int argc, char **argv)
     double MeanVolumeWL = 0.0;
     int TOTAL_pr = 0;
     
-    int NumberOfAtomsPDB = ReadPDB(filename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxPDB, &SumAtomWeightPDB, &RgPDB, &MeanVolumePDB,TOTAL_pr);
+    int NumberOfAtomsPDB = ReadPDB(filename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, OPTION_EXPLICIT_H_CHOSEN, i_start, &PointsInPofr, &DmaxPDB, &SumAtomWeightPDB, &RgPDB, &MeanVolumePDB,TOTAL_pr);
 
     if (OPTION_WL_CHOSEN == 1){
         
-        int NumberOfAtomsWL = ReadPDB(waterfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, NumberOfAtomsPDB, &PointsInPofr, &DmaxWL, &SumAtomWeightWL, &RgWL, &MeanVolumeWL,TOTAL_pr);
+        int NumberOfAtomsWL = ReadPDB(waterfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, OPTION_EXPLICIT_H_CHOSEN, NumberOfAtomsPDB, &PointsInPofr, &DmaxWL, &SumAtomWeightWL, &RgWL, &MeanVolumeWL,TOTAL_pr);
         
         CalcCrossTerms(filename, NumberOfAtomsPDB, NumberOfAtomsWL, Ba, Bs, dB, Atoms, WaterLayerContrast, Delta_r, PointsInPofr);
         
@@ -497,7 +503,7 @@ int main(int argc, char **argv)
         TOTAL_pr = 1;
         
         // Generate pr for protein + water and print headerlines until (and inclusive) Rg//
-        NumberOfAtomsPDB = ReadPDB(totalfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, i_start, &PointsInPofr, &DmaxTot, &SumAtomWeightTot, &RgTot, &MeanVolumeTot,TOTAL_pr);
+        NumberOfAtomsPDB = ReadPDB(totalfilename, Da, Ba, Bs, dB, Atoms, WaterLayerContrast, SolventD2O, Perdeuteration, Perdeuteration_B, Perdeuteration_C, Perdeuteration_D, Perdeuteration_E, Perdeuteration_F, Perdeuteration_G, PrcSucrose, Delta_r, HalfBilayerThickness, OPTION_g_CHOSEN, OPTION_WL_CHOSEN, OPTION_EXPLICIT_H_CHOSEN, i_start, &PointsInPofr, &DmaxTot, &SumAtomWeightTot, &RgTot, &MeanVolumeTot,TOTAL_pr);
         
         // Open file with pr for protein + water
         TotalFile = fopen(total_pr_filename,"a"); // total file (append)
@@ -547,6 +553,3 @@ int main(int argc, char **argv)
     fclose(BetaFile);
     return 0;
 }
-
-// INSTRUCTIONS FOR USE
-

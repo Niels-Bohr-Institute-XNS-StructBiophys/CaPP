@@ -28,27 +28,27 @@ Type in the terminal
 
 ##### Options  
 
-- h [no input]    
-help    
+-h [no input]    
+help. No PDB file should be given       
 
-- c [input: Contrast of water layer]  
+-c [input: Contrast of water layer]  
 Add a water layer with (c)ontrast between 0 and 2 times the solvent scattering length.  
 Typically 0.1.  
 Default: No water layer. 
 
-- d [no input]  
+-d [no input]  
 Only relevant for membrane proteins.  
 Removes water layer from the bilayer region.  
 Choose -d if the pdb is from the OPM (d)atabase, that provides the bilayer thickness.  
 
-- m [input: Bilayer Thickness]  
+-m [input: Bilayer Thickness]  
 Only relevant for membrane proteins.  
 Removes water layer from the bilayer region.  
 Choose -m to (m)anually provide the bilayer thickness in Aangstrom.  
 Typically 30 Aangstrom.  
 NB: Remember to place the TMD perpendicular to the xy-plane, in z=0!
 
-- s [input: prc D20 in the solvent]  
+-s [input: prc D20 in the solvent]  
 Choose SANS contrast and enter the D2O-content (between 0 and 1) of the (s)olvent.  
 SAXS contrast asssumed if option is not chosen. 
 
@@ -56,10 +56,13 @@ SAXS contrast asssumed if option is not chosen.
 Perdeuteration of chain (A),...,(G). Enter percent (between 0 and 1).     
 For single-chain proteins (no chain labels), use -A, which is then used globally.       
 
-- r [input: Resolution of p(r) function]  
+-r [input: Resolution of p(r) function]  
 Change the (r)esolution, i.e. the binsize (in Aangstrom) of the p(r) function.  
 Default: 1.0 Aangstrom.  
-Too small binsize will not an oscillating p(r), and too large will give wrong results for P(q).  
+Too small binsize will not an oscillating p(r), and too large will give wrong results for P(q). 
+
+-H [no input]   
+Account for hydrogen and deuterium explicitly    
 
 ##### Example, command-line use:  
 
@@ -242,6 +245,8 @@ The density of the water layer cannot (yet) be fitted.
 - bug-fixes in python I/O and fit functions (3.11)    
 - read PDBs without last column with 1-letter atom names (3.11) 
 - code clean-up (3.11)
+- inclusion for including Explicit H and D (3.12)
+- inclusion of glycosylation (3.12)
 
 ## License
 CaPP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.          

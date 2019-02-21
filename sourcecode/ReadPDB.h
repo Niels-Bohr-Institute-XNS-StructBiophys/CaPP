@@ -1,4 +1,4 @@
-int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, struct Atom *Atoms, double WaterLayerContrast, double SolventD2O, double Perdeuteration, double Perdeuteration_B, double Perdeuteration_C, double Perdeuteration_D, double Perdeuteration_E, double Perdeuteration_F, double Perdeuteration_G, double PrcSucrose, double Delta_r, double HalfBilayerThickness, int OPTION_g_CHOSEN, int OPTION_WL_CHOSEN, int i_start, int * PointsInPofrPointer, double * DmaxPointer, double * SumAtomWeightPointer, double * RgPointer, double *MeanVolumePointer, int TOTAL_pr)
+int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, struct Atom *Atoms, double WaterLayerContrast, double SolventD2O, double Perdeuteration, double Perdeuteration_B, double Perdeuteration_C, double Perdeuteration_D, double Perdeuteration_E, double Perdeuteration_F, double Perdeuteration_G, double PrcSucrose, double Delta_r, double HalfBilayerThickness, int OPTION_g_CHOSEN, int OPTION_WL_CHOSEN, int OPTION_EXPLICIT_H_CHOSEN, int i_start, int * PointsInPofrPointer, double * DmaxPointer, double * SumAtomWeightPointer, double * RgPointer, double *MeanVolumePointer, int TOTAL_pr)
 {
     double NonExchNH = 0.1; // cannot be changed (in GUI or in batch mode).
                             // give rise to minor, almost q-independent contribution,
@@ -18,7 +18,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double n_W = 4.133; // number of watermolecules per water residue
     double r, D;
     int index;
-    enum {HYDROGEN, DEUTERIUM, HD, CARBON, NITROGEN, OXYGEN, FLUORINE, SODIUM, MAGNESIUM, PHOSPHORUS, SULFUR, CHLORINE, CALCIUM, MANGANESE, IRON, COPPER, ZINK, GOLD, WATER, UNKNOWN};
+    enum {HYDROGEN, DEUTERIUM, HD, CARBON, NITROGEN, OXYGEN, FLUORINE, SODIUM, MAGNESIUM, PHOSPHORUS, SULFUR, CHLORINE, CALCIUM, MANGANESE, IRON, COPPER, ZINK, GOLD, WATER, WATERBULK, UNKNOWN};
     
     // SUCROSE CONTRAST VARIATION
     double VolSolution = 0.1; // liter
@@ -61,7 +61,8 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         [COPPER]     = { 0.0, 0.0, 0.0,   29 * 2.82e-13,    7.718e-13,                                      35.13,  63.5,   'A'} ,
         [ZINK]       = { 0.0, 0.0, 0.0,   30 * 2.82e-13,    5.680e-13,                                      37.79,  65.4,   'A'} ,
         [GOLD]       = { 0.0, 0.0, 0.0,   79 * 2.82e-13,    7.630e-13,                                      12.41, 196.7,   'A'} ,
-        [WATER]      = { 0.0, 0.0, 0.0,n_W*8 * 2.82e-13,n_W*5.803e-13,                          n_W*(a*30-2*5.15),   0.0,   'A'} ,
+        [WATER]      = { 0.0, 0.0, 0.0,n_W*8 * 2.82e-13,n_W*5.803e-13,                        n_W*(a*30.00-2*5.15),  0.0,   'A'} ,
+        [WATERBULK]  = { 0.0, 0.0, 0.0,    8 * 2.82e-13,    5.803e-13,                                      30.00,   0.0,   'A'} ,
         [UNKNOWN]    = { 0.0, 0.0, 0.0,    0 * 2.82e-13,    0.000e-13,                                       1.00,   0.0,   'A'}
     };
     // Note: [WATER] is without hydrogen/deuterium... will be added later on (implicit way)
@@ -97,13 +98,15 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double n_D; // number of exchangeable Hydrogen attachd to main atom
     double n_DD; // number of non-exchangeable (strongly bound) Deuterium (after perdeuteration)
     
-    // VOLUME CORRECTION FACTORS
-    int DNA,RNA,LIP; // is it a lip, a DNA or a RNA atom?
-    double LipCorrFactor = 1.06; // from Matlab: CalcLipVol.m
-    double DNACorrFactor = 1.0; // not determined
-    double RNACorrFactor = 1.0; // not determined
+    // VOLUME CORRECTION FACTORS (to be multiplied on volume of excluded water by atom, relative to the atom in a protein)
+    int DNA,RNA,LIP,SUC; // is it a lip, a DNA, RNA or sugar atom?
+    double LipCorrFactor = 1.06; // Matlab: CalcLipVol.m
+    double DNACorrFactor = 1.00; // not determined
+    double RNACorrFactor = 1.00; // not determined
+    double SucCorrFactor = 1.00; // not determined
+    //double SucCorrFactor = 1.00/1.49; // Biophysical Journal, 97, 2009, 1445–1453. Interrelationship of Steric Stabilization and Self-Crowding of a Glycosylated Protein. R. Høiberg-Nielsen, P. Westh, L. K. Skov, and L. Arleth
 
-    int NumberOfH = 0;
+    int NumberOfIgnoredHD = 0;
     int NumberOfAlternativeAtoms = 0;
     int NumberOfOtherLines = 0;
     int i = i_start;
@@ -119,7 +122,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         if (sscanf(buffer, "ATOM%*17c%s",&Chain) == 1 || sscanf(buffer, "HETATM%*15c%s",&Chain) == 1) {} else {sscanf("U","%s",&Chain);} // U for unknown chain
         
         // ignore H and D:
-        if (strcmp(&Atoms[i].Name,"H") == 0 || strcmp(&Atoms[i].Name,"D") == 0) {NumberOfH++;}
+        if ((strcmp(&Atoms[i].Name,"H") == 0 || strcmp(&Atoms[i].Name,"D") == 0) && OPTION_EXPLICIT_H_CHOSEN == 0) {NumberOfIgnoredHD++;}
         // ignore alternative position atoms (only use position A):
         else if (AlternativeAtomPosition == 'B') {NumberOfAlternativeAtoms++;}
         // read all other atoms:
@@ -143,9 +146,15 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
             if (buffer[13] == 'C') {
                 CopyPhysicalParameters(&Atoms[i], &element[CARBON]);
                 //printf("Carbon\n");
-            } else if (buffer[13] == 'N') {
+            } else if (buffer[13] == 'H') {
+                CopyPhysicalParameters(&Atoms[i], &element[HYDROGEN]);
+                //printf("Hydrogen\n");
+            } else if (buffer[13] == 'D') {
+                CopyPhysicalParameters(&Atoms[i], &element[DEUTERIUM]);
+                //printf("Deuterium\n");
+            } else if (buffer[12] != 'M' && buffer[12] != 'Z' && buffer[13] == 'N') {
                 CopyPhysicalParameters(&Atoms[i], &element[NITROGEN]);
-                //printf("Nitorgen\n");
+                //printf("Nitrogen\n");
             } else if (buffer[13] == 'O') {
                 CopyPhysicalParameters(&Atoms[i], &element[OXYGEN]);
                 //printf("Oxygen\n");
@@ -158,7 +167,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
             } else if (buffer[12] == 'M' && buffer[13] == 'G') {
                 CopyPhysicalParameters(&Atoms[i], &element[MAGNESIUM]);}
                 //printf("Magnesium\n");
-            else if (buffer[13] == 'S') {
+            else if (buffer[13] == 'P') {
                 CopyPhysicalParameters(&Atoms[i], &element[PHOSPHORUS]);}
                 //printf("Phosporus\n");
             else if (buffer[13] == 'S') {
@@ -571,10 +580,128 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
                     RNA = 1;
                 }
+                
+                // ADD H/D to Sugars
+                else if (strcmp(&AminoName,"Fuc")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 3;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
+                }
+                else if (strcmp(&AminoName,"Gal")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O6")==0) {n_D = 1;}
+                }
+                else if (strcmp(&AminoName,"Glc")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 0;} //else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O6")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    else if (strcmp(&LongAtomName,"CN2")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"CAN2")==0) {n_H = 3;}
+                    //else if (strcmp(&LongAtomName,"OCN2")==0) {n_D = 0;}
+                }
+                else if (strcmp(&AminoName,"Man")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O6")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O6")==0) {n_D = 1;}
+                }
+                else if (strcmp(&AminoName,"NeuPDB")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 0;}
+                    //else if (strcmp(&LongAtomName,"C3")==0) {n_H = 0;}
+                    //else if (strcmp(&LongAtomName,"C5")==0) {n_H = 0;}
+                    //else if (strcmp(&LongAtomName,"C7")==0) {n_H = 0;}
+                    //else if (strcmp(&LongAtomName,"C8")==0) {n_H = 0;}
+                    else if (strcmp(&LongAtomName,"C10")==0) {n_H = 0;}
+                    else if (strcmp(&LongAtomName,"C16")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C26")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C28")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"O16")==0) {n_D = 1;}
+                    //else if (strcmp(&LongAtomName,"O11")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O21")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O22")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O24")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"N4")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N6")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N9")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"N13")==0) {n_D = 2.0*(1.0-NonExchNH); n_H = 2.0*NonExchNH;}
+                }
+                else if (strcmp(&AminoName,"Neu")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 0;}
+                    //else if (strcmp(&LongAtomName,"C2")==0) {n_H = 0;}
+                    else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C7")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C8")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C9")==0) {n_H = 2;}
+                    else if (strcmp(&LongAtomName,"CAN5")==0) {n_H = 3;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O7")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O8")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O9")==0) {n_D = 1;}
+                    //else if (strcmp(&LongAtomName,"1O1")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"2O1")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"N5")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                }
+                
                 // ADD H/D to RNA to other heteroatomic molecueles
                 else if (strcmp(&AminoName,"HOH")==0) {
-                    n_D = 2; // HOH is a water atom in the crystal
-                    Atoms[i].Volume = 30.0 - 2*5.15; // implicit solvent, therefore the volume of two H/D is subtracted
+                    if (OPTION_EXPLICIT_H_CHOSEN) {
+                        CopyPhysicalParameters(&Atoms[i], &element[WATERBULK]);
+                    } else {
+                        n_D = 2; // HOH is a water atom in the crystal
+                        Atoms[i].Volume = 30.0 - 2*5.15; // implicit solvent, therefore the volume of two H/D is subtracted
+                    }
                 }
                 else if (strcmp(&AminoName,"ZK1")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
@@ -986,6 +1113,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"6C31")==0) {n_H = 3;}
                 }
             }
+            if (OPTION_EXPLICIT_H_CHOSEN) {n_H=0; n_D=0; n_DD=0;}
             // Update volume and scattering length with implicit H and D (adjust if DNA or RNA)
             Atoms[i].Volume += (n_D + n_H) * 5.15;
             
@@ -993,6 +1121,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
             if (DNA == 1) {Atoms[i].Volume *= DNACorrFactor;}
             else if (RNA == 1) {Atoms[i].Volume *= RNACorrFactor;}
             else if (LIP == 1) {Atoms[i].Volume *= LipCorrFactor;}
+            else if (SUC == 1) {Atoms[i].Volume *= SucCorrFactor;}
             
             SumOfVolume += Atoms[i].Volume;
             
