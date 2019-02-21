@@ -131,7 +131,7 @@ int CheckNumberOfResidues(char filename[])
     }
     // check for C-alpha (protein), C4' (RNA/DNA), or C5 (glycosylation)
     while(fgets(buffer,sizeof(buffer),fil)!=NULL){
-        if(sscanf(buffer,"ATOM%*9cCA%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC4'%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 ||sscanf(buffer,"ATOM%*9cC5%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3){
+        if(sscanf(buffer,"ATOM%*9cCA%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC5'%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC5%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC19%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 ||sscanf(buffer,"ATOM%*9cC12%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC15%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC20%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 ||sscanf(buffer,"ATOM%*9cC24%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 ){
             ii++;
             //printf("Number of residues found: %d\n",ii);
         }

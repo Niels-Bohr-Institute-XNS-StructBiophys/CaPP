@@ -100,7 +100,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     
     // VOLUME CORRECTION FACTORS (to be multiplied on volume of excluded water by atom, relative to the atom in a protein)
     int DNA,RNA,LIP,SUC; // is it a lip, a DNA, RNA or sugar atom?
-    double LipCorrFactor = 1.06; // Matlab: CalcLipVol.m
+    double LipCorrFactor = 1.06; // Calculated with Matlab script: CalcLipVolume.m
     double DNACorrFactor = 1.00; // not determined
     double RNACorrFactor = 1.00; // not determined
     double SucCorrFactor = 1.00; // not determined
@@ -693,7 +693,23 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"2O1")==0) {n_D = 0;}
                     else if (strcmp(&LongAtomName,"N5")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
                 }
-                
+                else if (strcmp(&AminoName,"UZ9")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
+                }
+                else if (strcmp(&AminoName,"CRS")==0) {
+                    SUC = 1;
+                    sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
+                    if (strcmp(&LongAtomName,"C1")==0) {n_H = 0;}
+                    else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
+                    //else if (strcmp(&LongAtomName,"C3")==0) {n_H = 0;}
+                    else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
+                    else if (strcmp(&LongAtomName,"C7")==0) {n_H = 3;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                }
                 // ADD H/D to RNA to other heteroatomic molecueles
                 else if (strcmp(&AminoName,"HOH")==0) {
                     if (OPTION_EXPLICIT_H_CHOSEN) {

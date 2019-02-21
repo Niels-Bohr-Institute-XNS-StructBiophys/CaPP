@@ -7,8 +7,9 @@ A water layer can be added as an option.
 ## Install and run the program
 
 ### Installation
-Download python files (CaPP_A.B.py, where A.B is the version), the sourcefile and the executable and place it all in a folder.  
+Download python files (CaPP_A.B.py, where A.B is the version), and the executable and place it all in a folder.  
 Check that the denpendencies are properly installed (see below)  
+Sourcefiles are only needed if the program needs to be recompiled.   
 
 ### Running the program, GUI mode
 To start the GUI, type in the terminal
