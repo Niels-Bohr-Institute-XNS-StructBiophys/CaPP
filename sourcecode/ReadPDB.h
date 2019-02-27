@@ -62,7 +62,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         [ZINK]       = { 0.0, 0.0, 0.0,   30 * 2.82e-13,    5.680e-13,                                      37.79,  65.4,   'A'} ,
         [GOLD]       = { 0.0, 0.0, 0.0,   79 * 2.82e-13,    7.630e-13,                                      12.41, 196.7,   'A'} ,
         [WATER]      = { 0.0, 0.0, 0.0,n_W*8 * 2.82e-13,n_W*5.803e-13,                        n_W*(a*30.00-2*5.15),  0.0,   'A'} ,
-        [WATERBULK]  = { 0.0, 0.0, 0.0,    8 * 2.82e-13,    5.803e-13,                                      30.00,   0.0,   'A'} ,
+        [WATERBULK]  = { 0.0, 0.0, 0.0,   10 * 2.82e-13,    5.803e-13+2.0*(6.671e-13*SolventD2O-3.741e-13*(1.0-SolventD2O)),    30.00,   0.0,   'A'} ,
         [UNKNOWN]    = { 0.0, 0.0, 0.0,    0 * 2.82e-13,    0.000e-13,                                       1.00,   0.0,   'A'}
     };
     // Note: [WATER] is without hydrogen/deuterium... will be added later on (implicit way)
@@ -76,9 +76,9 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     //
     
     // SOLVENT SCATT LENGTH (with sucrose)
-    double ScatteringLengthSolvent = 2.0 * element[HD].NeutronScatteringLength + element[OXYGEN].NeutronScatteringLength;
+    double ScatteringLengthSolvent = element[WATERBULK].NeutronScatteringLength;
     if(SolventD2O<0.0){
-        ScatteringLengthSolvent = 2.0 * element[HD].XRayScatteringLength + element[OXYGEN].XRayScatteringLength;
+        ScatteringLengthSolvent = element[WATERBULK].XRayScatteringLength;
         ScatteringLengthSolvent = ScatteringLengthSolvent + SucPerSolv * ScatLenSuc;
     }
     double rhoSolvent = ScatteringLengthSolvent/VolumeSolvent;
@@ -95,8 +95,9 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     char AminoName, LongAtomName, AlternativeAtomPosition, Chain;
     
     double n_H; // number of non-exchangable (strongly bound) Hydrogen
-    double n_D; // number of exchangeable Hydrogen attachd to main atom
+    double n_D; // number of exchangeable Hydrogen
     double n_DD; // number of non-exchangeable (strongly bound) Deuterium (after perdeuteration)
+    double n_DB; // number exchangeable Hydrogen attacehd to water bead
     
     // VOLUME CORRECTION FACTORS (to be multiplied on volume of excluded water by atom, relative to the atom in a protein)
     int DNA,RNA,LIP,SUC; // is it a lip, a DNA, RNA or sugar atom?
@@ -131,6 +132,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
             n_D = 0;
             n_H = 0;
             n_DD = 0;
+            n_DB = 0;
             DNA = 0;
             RNA = 0;
             LIP = 0;
@@ -192,7 +194,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 CopyPhysicalParameters(&Atoms[i], &element[ZINK]);
                 //printf("Zink\n");
             } else if (buffer[13] == 'Q') {
-                CopyPhysicalParameters(&Atoms[i], &element[WATER]); n_D = 2.0 * n_W;
+                CopyPhysicalParameters(&Atoms[i], &element[WATER]); n_D = 2.0 * n_W; n_DB = 2.0 * n_W;
                 //printf("WaterLayerBead\n");
             } else {
                 CopyPhysicalParameters(&Atoms[i], &element[UNKNOWN]); u++;
@@ -1129,7 +1131,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"6C31")==0) {n_H = 3;}
                 }
             }
-            if (OPTION_EXPLICIT_H_CHOSEN) {n_H=0; n_D=0; n_DD=0;}
+            if (OPTION_EXPLICIT_H_CHOSEN) {n_H=0; n_D=n_DB; n_DD=0;} // use only implicit H for added water layer beads
             // Update volume and scattering length with implicit H and D (adjust if DNA or RNA)
             Atoms[i].Volume += (n_D + n_H) * 5.15;
             
@@ -1152,7 +1154,6 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 else if (strcmp(&Chain,"E")==0 && Perdeuteration_E >= 0.0) {n_DD = Perdeuteration_E * n_H;}
                 else if (strcmp(&Chain,"F")==0 && Perdeuteration_F >= 0.0) {n_DD = Perdeuteration_F * n_H;}
                 else {n_DD = Perdeuteration * n_H;}
-                
                 n_H = n_H - n_DD;
                 Atoms[i].NeutronScatteringLength += n_D * element[HD].NeutronScatteringLength - n_H * element[HYDROGEN].NeutronScatteringLength + n_DD * element[DEUTERIUM].NeutronScatteringLength;
                 Ba[i] = Atoms[i].NeutronScatteringLength;

@@ -46,7 +46,7 @@ char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
     }
     double x,y,z;
     while(fgets(buffer,sizeof(buffer),fil)!=NULL){
-        if(sscanf(buffer,"ATOM%*9cCA%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC4'%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC5%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3){
+        if(sscanf(buffer,"ATOM%*9cCA%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC5'%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC5%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC19%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 ||sscanf(buffer,"ATOM%*9cC12%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC15%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 || sscanf(buffer,"ATOM%*9cC20%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 ||sscanf(buffer,"ATOM%*9cC24%*1c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3 ){
             CAx[i] = x;
             CAy[i] = y;
             CAz[i] = z;
@@ -56,9 +56,9 @@ char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
     fclose(fil);
     
     // find surface residues, place water beads (see Kynde's thesis)
-    int NW = 0, N = 0; // NW = number of water residues, N = Number of vacent residues (within 10 aa)
+    int NW = 0, N; // NW = number of water residues, N = Number of vacent residues (within 10 aa)
     double dx,dy,dz,D, dist, sumdx,sumdy,sumdz;
-        for(int j=0; j<Nres; j++){
+    for(int j=0; j<Nres; j++){
         N = 0;
         sumdx = 0; sumdy = 0; sumdz = 0;
         for(int i=0; i<Nres; i++){
@@ -74,7 +74,8 @@ char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
             }
         }
         D = sqrt(sumdx*sumdx + sumdy*sumdy + sumdz*sumdz);
-        if(D>=0.10*N*N){
+        //printf("D = %f \n",D);
+        if(D>=0.1*N*N || D==0.0){
             Wx[NW] = CAx[j] + 5.0*sumdx/D;
             Wy[NW] = CAy[j] + 5.0*sumdy/D;
             Wz[NW] = CAz[j] + 5.0*sumdz/D;
