@@ -23,9 +23,7 @@ Type in the terminal
 
         >> ./path-to-folder/capp_mac [options] PDBFILE.pdb  (mac OS)
 
-        >> ./path-to-folder/capp_windows [options] PDBFILE.pdb  (windows)
-
-        >> ./path-to-folder/capp [options] PDBFILE.pdb  (linux)
+        >> ./path-to-folder/capp [options] PDBFILE.pdb  (linux, windows, other)
 
 ##### Options  
 
@@ -79,9 +77,9 @@ Account for hydrogen and deuterium explicitly
 
 ## Platforms
 CaPP_A.B (latest version) has been tested on   
-- MacOS 10.12, compiled with gcc, and with python from Enthought Canopy 2.7 (64-bit)  
+- MacOS 10.12 (Sierra), compiled with gcc, and with python from Enthought Canopy 2.7 (64-bit)  
 
-##### Install on Windows (with cygwin terminal) type:  
+##### Install on Windows with cygwin terminal, may work, no garranty:  
     $ wget.exe http://peak.telecommunity.com/dist/ez_setup.py  
     $ python ez_setup.py  
     $ /cygdrive/c/Python27/Scripts/easy_install-2.7.exe pip  
@@ -89,7 +87,7 @@ CaPP_A.B (latest version) has been tested on
     $ /cygdrive/c/Python27/Scripts/pip.exe install matplotlib 
     § /cygdrive/c/Python27/Scripts/pip.exe install scipy
 
-### Developers and other OS
+### Developers and other OS than MacOS
 - To recompile the source code, a c-compiler is needed,  
 e.g. gcc (Linux/MacOS) or Pelles C (Windows).  
   
