@@ -15,10 +15,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     double Sum_dB = 0.0, Sum_B = 0.0;
     double SumAtomWeight = * SumAtomWeightPointer;
     double a = 1.0/(1.0 + WaterLayerContrast);
+    double WaterLayerGlycFactor = 1.20;
+    double WaterLayerContrastGlyc = WaterLayerContrast * WaterLayerGlycFactor;
+    double aG = 1.0/(1.0 + WaterLayerContrastGlyc);
     double n_W = 4.133; // number of watermolecules per water residue
     double r, D;
     int index;
-    enum {HYDROGEN, DEUTERIUM, HD, CARBON, NITROGEN, OXYGEN, FLUORINE, SODIUM, MAGNESIUM, PHOSPHORUS, SULFUR, CHLORINE, CALCIUM, MANGANESE, IRON, COPPER, ZINK, GOLD, WATER, WATERBULK, UNKNOWN};
+    enum {HYDROGEN, DEUTERIUM, HD, CARBON, NITROGEN, OXYGEN, FLUORINE, SODIUM, MAGNESIUM, PHOSPHORUS, SULFUR, CHLORINE, CALCIUM, MANGANESE, IRON, COPPER, ZINK, GOLD, WATER, WATERGLYC, WATERBULK, UNKNOWN};
     
     // SUCROSE CONTRAST VARIATION
     double VolSolution = 0.1; // liter
@@ -62,17 +65,18 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         [ZINK]       = { 0.0, 0.0, 0.0,   30 * 2.82e-13,    5.680e-13,                                      37.79,  65.4,   'A'} ,
         [GOLD]       = { 0.0, 0.0, 0.0,   79 * 2.82e-13,    7.630e-13,                                      12.41, 196.7,   'A'} ,
         [WATER]      = { 0.0, 0.0, 0.0,n_W*8 * 2.82e-13,n_W*5.803e-13,                        n_W*(a*30.00-2*5.15),  0.0,   'A'} ,
+        [WATERGLYC]  = { 0.0, 0.0, 0.0,n_W*8 * 2.82e-13,n_W*5.803e-13,                        n_W*(aG*30.00-2*5.15), 0.0,   'A'} ,
         [WATERBULK]  = { 0.0, 0.0, 0.0,   10 * 2.82e-13,    5.803e-13+2.0*(6.671e-13*SolventD2O-3.741e-13*(1.0-SolventD2O)),    30.00,   0.0,   'A'} ,
         [UNKNOWN]    = { 0.0, 0.0, 0.0,    0 * 2.82e-13,    0.000e-13,                                       1.00,   0.0,   'A'}
     };
-    // Note: [WATER] is without hydrogen/deuterium... will be added later on (implicit way)
+    // Note: [WATER] is without hydrogen/deuterium... it will be added (implicit)
     // Note: weight of [WATER] is set to 0, since the WL should not be included in the calculation of the atomic weight
     // Volumes from:
     //    (H,C,D,N,O):                              Fraser, J Appl Cryst(1978), 11, p693.
     //                                               Experimentally determined values
     //    (P, S, Mn, Ca, F, Mg, Cl, Cu, Fe, Zn):    Batsanov, Inorg Mat(2001), vol37, no9, p871.
     //                                               Van der Waals radii, mean of values from Table 1 and 2 (P from Table 5)
-    // HD is a libile Hydrogen, that can be exchanged with Deuterium
+    // HD is a libile Hydrogen, that can exchanged with Deuterium
     //
     
     // SOLVENT SCATT LENGTH (with sucrose)
@@ -95,9 +99,9 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
     char AminoName, LongAtomName, AlternativeAtomPosition, Chain;
     
     double n_H; // number of non-exchangable (strongly bound) Hydrogen
-    double n_D; // number of exchangeable Hydrogen
     double n_DD; // number of non-exchangeable (strongly bound) Deuterium (after perdeuteration)
-    double n_DB; // number exchangeable Hydrogen attacehd to water bead
+    double n_HD; // number of exchangeable Hydrogen
+    double n_HD_WL; // number exchangeable Hydrogen attacehd to water layer bead
     
     // VOLUME CORRECTION FACTORS (to be multiplied on volume of excluded water by atom, relative to the atom in a protein)
     int DNA,RNA,LIP,SUC; // is it a lip, a DNA, RNA or sugar atom?
@@ -129,10 +133,10 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
         // read all other atoms:
         else if (sscanf(buffer,"ATOM%*18c%d%*4c%lf%lf%lf",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z)==4 ||
             sscanf(buffer,   "HETATM%*16c%d%*4c%lf%lf%lf",&R,&Atoms[i].x,&Atoms[i].y,&Atoms[i].z)==4 ) {
-            n_D = 0;
+            n_HD = 0;
             n_H = 0;
             n_DD = 0;
-            n_DB = 0;
+            n_HD_WL = 0;
             DNA = 0;
             RNA = 0;
             LIP = 0;
@@ -194,8 +198,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 CopyPhysicalParameters(&Atoms[i], &element[ZINK]);
                 //printf("Zink\n");
             } else if (buffer[13] == 'Q') {
-                CopyPhysicalParameters(&Atoms[i], &element[WATER]); n_D = 2.0 * n_W; n_DB = 2.0 * n_W;
+                CopyPhysicalParameters(&Atoms[i], &element[WATER]);
+                n_HD = 2.0 * n_W; n_HD_WL = 2.0 * n_W;
                 //printf("WaterLayerBead\n");
+            } else if (buffer[12] == 'Q' && buffer[13] == 'G') {
+                CopyPhysicalParameters(&Atoms[i], &element[WATERGLYC]);
+                n_HD = 2.0 * n_W; n_HD_WL = 2.0 * n_W;
+                //printf("WaterLayerBeadAtGlycosylation\n");
             } else {
                 CopyPhysicalParameters(&Atoms[i], &element[UNKNOWN]); u++;
                 //printf("UnknownAtom\n");
@@ -206,53 +215,53 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 // ADD H/D to AMINO ACIDS
                 if (strcmp(&AminoName,"ALA")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 3;}
                 }
                 else if (strcmp(&AminoName,"ASN")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"ND2")==0) {n_D = 2;}
+                    else if (strcmp(&LongAtomName,"ND2")==0) {n_HD = 2;}
                 }
                 else if (strcmp(&AminoName,"ARG")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CG")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CD")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"NE")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"NH1")==0) {n_D = 2;}
-                    else if (strcmp(&LongAtomName,"NH2")==0) {n_D = 2; Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength - 2.82e-13; } // kation
+                    else if (strcmp(&LongAtomName,"NE")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"NH1")==0) {n_HD = 2;}
+                    else if (strcmp(&LongAtomName,"NH2")==0) {n_HD = 2; Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength - 2.82e-13; } // kation
                 }
                 else if (strcmp(&AminoName,"ASP")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"OD2")==0) {Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength + 2.82e-13; } // anion
                 }
                 else if (strcmp(&AminoName,"CYS")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"SG")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"SG")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"GLN")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CG")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"NE2")==0) {n_D = 2;}
+                    else if (strcmp(&LongAtomName,"NE2")==0) {n_HD = 2;}
                 }
                 else if (strcmp(&AminoName,"GLU")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CG")==0) {n_H = 2;}
@@ -260,21 +269,21 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"GLY")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 2;}
                 }
                 else if (strcmp(&AminoName,"HIS")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CD2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CE1")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"NE2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"NE2")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"ILE")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CG1")==0) {n_H = 2;}
@@ -283,7 +292,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"LEU")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CG")==0) {n_H = 1;}
@@ -292,17 +301,17 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"LYS")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CG")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CD")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CE")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"NZ")==0) {n_D = 3; Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength - 2.82e-13;} // kation
+                    else if (strcmp(&LongAtomName,"NZ")==0) {n_HD = 3; Atoms[i].XRayScatteringLength = Atoms[i].XRayScatteringLength - 2.82e-13;} // kation
                 }
                 else if (strcmp(&AminoName,"MET")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CG")==0) {n_H = 2;}
@@ -310,7 +319,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"PHE")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CD1")==0) {n_H = 1;}
@@ -329,22 +338,22 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"SER")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"OG")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"OG")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"THR")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CG2")==0) {n_H = 3;}
-                    else if (strcmp(&LongAtomName,"OG1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"OG1")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"TRP")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CD1")==0) {n_H = 1;}
@@ -352,22 +361,22 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"CZ2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CZ3")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CH2")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"NE1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"NE1")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"TYR")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CD1")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CD2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CE1")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CE2")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"OH")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"OH")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"VAL")==0) {
                     sscanf(buffer,"ATOM%*9c%3s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CA")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CB")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CG1")==0) {n_H = 3;}
@@ -386,18 +395,18 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"C5")==0) {n_H = 0;}
                     //else if (strcmp(&LongAtomName,"C6")==0) {n_H = 0;}
                     else if (strcmp(&LongAtomName,"C8")==0) {n_H = 1;}
-                    //else if (strcmp(&LongAtomName,"N1")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N3")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N6")==0) {n_D = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"N7")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N9")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N6")==0) {n_HD = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"N7")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N9")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     DNA = 1;
                 }
                 else if (strcmp(&AminoName,"DC")==0) {
@@ -411,17 +420,17 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"C4")==0) {n_H = 0;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
-                    //else if (strcmp(&LongAtomName,"N1")==0) {n_D = 0}
-                    //else if (strcmp(&LongAtomName,"N3")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N4")==0) {n_D = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 0}
+                    //else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N4")==0) {n_HD = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     DNA = 1;
                 }
                 else if (strcmp(&AminoName,"DG")==0) {
@@ -436,19 +445,19 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"C5")==0) {n_H = 0;}
                     //else if (strcmp(&LongAtomName,"C6")==0) {n_H = 0;}
                     else if (strcmp(&LongAtomName,"C8")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"N1")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
-                    else if (strcmp(&LongAtomName,"N2")==0) {n_D = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"N3")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N7")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N9")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O6")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
+                    else if (strcmp(&LongAtomName,"N2")==0) {n_HD = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N7")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N9")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O6")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     DNA = 1;
                 }
                 else if (strcmp(&AminoName,"DT")==0) {
@@ -463,17 +472,17 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C7")==0) {n_H = 3;}
-                    //else if (strcmp(&LongAtomName,"N1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N3")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O4")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     DNA = 1;
                 }
                 // ADD H/D to RNA nucleotides
@@ -489,19 +498,19 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"C5")==0) {n_H = 0;}
                     //else if (strcmp(&LongAtomName,"C6")==0) {n_H = 0;}
                     else if (strcmp(&LongAtomName,"C8")==0) {n_H = 1;}
-                    //else if (strcmp(&LongAtomName,"N1")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N3")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N6")==0) {n_D = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"N7")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N9")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O2'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N6")==0) {n_HD = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"N7")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N9")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O2'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     RNA = 1;
                 }
                 else if (strcmp(&AminoName,"C")==0) {
@@ -515,18 +524,18 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"C4")==0) {n_H = 0;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
-                    //else if (strcmp(&LongAtomName,"N1")==0) {n_D = 0}
-                    //else if (strcmp(&LongAtomName,"N3")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N4")==0) {n_D = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O2'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 0}
+                    //else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N4")==0) {n_HD = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O2'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     RNA = 1;
                 }
                 else if (strcmp(&AminoName,"G")==0) {
@@ -541,20 +550,20 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"C5")==0) {n_H = 0;}
                     //else if (strcmp(&LongAtomName,"C6")==0) {n_H = 0;}
                     else if (strcmp(&LongAtomName,"C8")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"N1")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
-                    else if (strcmp(&LongAtomName,"N2")==0) {n_D = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"N3")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N7")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N9")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O6")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O2'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
+                    else if (strcmp(&LongAtomName,"N2")==0) {n_HD = 2*(1.0-NonExchNH); n_H = 2*NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N7")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N9")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O6")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O2'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     RNA = 1;
                 }
                 else if (strcmp(&AminoName,"U")==0) {
@@ -568,18 +577,18 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     //else if (strcmp(&LongAtomName,"C4")==0) {n_H = 0;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
-                    //else if (strcmp(&LongAtomName,"N1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N3")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O4")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O2'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OP2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"OP3")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"P")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"N1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N3")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O2'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"OP1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OP2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"OP3")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"P")==0) {n_HD = 0;}
                     RNA = 1;
                 }
                 
@@ -593,11 +602,11 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 3;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_HD = 0;}
                 }
                 else if (strcmp(&AminoName,"Gal")==0) {
                     SUC = 1;
@@ -608,12 +617,12 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O6")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 0.5;} //else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O6")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"Glc")==0) {
                     SUC = 1;
@@ -624,16 +633,16 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 0;} //else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O6")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 0;} //else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O6")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"N2")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CN2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CAN2")==0) {n_H = 3;}
-                    //else if (strcmp(&LongAtomName,"OCN2")==0) {n_D = 0;}
+                    //else if (strcmp(&LongAtomName,"OCN2")==0) {n_HD = 0;}
                 }
                 else if (strcmp(&AminoName,"Man")==0) {
                     SUC = 1;
@@ -644,12 +653,12 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C4")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O5")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O6")==0) {n_D = 0.5;} //else if (strcmp(&LongAtomName,"O6")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 0.5;} //else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 0.5;} //else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 0.5;} //else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O5")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O6")==0) {n_HD = 0.5;} //else if (strcmp(&LongAtomName,"O6")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"NeuPDB")==0) {
                     SUC = 1;
@@ -663,16 +672,16 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C16")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C26")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C28")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"O16")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"O11")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O21")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O22")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O24")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
-                    //else if (strcmp(&LongAtomName,"N4")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N6")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"N9")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N13")==0) {n_D = 2.0*(1.0-NonExchNH); n_H = 2.0*NonExchNH;}
+                    else if (strcmp(&LongAtomName,"O16")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"O11")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O21")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O22")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O24")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"N2")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
+                    //else if (strcmp(&LongAtomName,"N4")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N6")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"N9")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N13")==0) {n_HD = 2.0*(1.0-NonExchNH); n_H = 2.0*NonExchNH;}
                 }
                 else if (strcmp(&AminoName,"Neu")==0) {
                     SUC = 1;
@@ -687,13 +696,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C8")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C9")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"CAN5")==0) {n_H = 3;}
-                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O7")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O8")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O9")==0) {n_D = 1;}
-                    //else if (strcmp(&LongAtomName,"1O1")==0) {n_D = 0;}
-                    //else if (strcmp(&LongAtomName,"2O1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"N5")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O7")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O8")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O9")==0) {n_HD = 1;}
+                    //else if (strcmp(&LongAtomName,"1O1")==0) {n_HD = 0;}
+                    //else if (strcmp(&LongAtomName,"2O1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"N5")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                 }
                 else if (strcmp(&AminoName,"UZ9")==0) {
                     SUC = 1;
@@ -710,20 +719,20 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C7")==0) {n_H = 3;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
                 }
                 // ADD H/D to RNA to other heteroatomic molecueles
                 else if (strcmp(&AminoName,"HOH")==0) {
                     if (OPTION_EXPLICIT_H_CHOSEN) {
                         CopyPhysicalParameters(&Atoms[i], &element[WATERBULK]);
                     } else {
-                        n_D = 2; // HOH is a water atom in the crystal
+                        n_HD = 2; // HOH is a water atom in the crystal
                         Atoms[i].Volume = 30.0 - 2*5.15; // implicit solvent, therefore the volume of two H/D is subtracted
                     }
                 }
                 else if (strcmp(&AminoName,"ZK1")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"NAP")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"NAP")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"CL")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CAJ")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"CAK")==0) {n_H = 2;}
@@ -771,10 +780,10 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"LMG")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"O2")==0) {n_D = 2;}
-                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O5")==0) {n_D = 1;}
+                    if (strcmp(&LongAtomName,"O2")==0) {n_HD = 2;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O5")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C45")==0) {n_H = 3;}
                     else if (strcmp(&LongAtomName,"C44")==0) {n_H = 3;}
                     else if (strcmp(&LongAtomName,"C43")==0) {n_H = 2;}
@@ -822,7 +831,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"LMT")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"O2")==0) {n_D = 2;}
+                    if (strcmp(&LongAtomName,"O2")==0) {n_HD = 2;}
                     else if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
@@ -841,17 +850,17 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C4'")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C5'")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6'")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"O1'")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O2'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O4'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O5'")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O6'")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O1B")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O2B")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O3B")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O5B")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O6B")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1'")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O2'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O4'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O5'")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O6'")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O1B")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O2B")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O3B")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O5B")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O6B")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C1B")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C2B")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C3B")==0) {n_H = 1;}
@@ -861,8 +870,8 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"LHG")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"O2")==0) {n_D = 2;}
-                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
+                    if (strcmp(&LongAtomName,"O2")==0) {n_HD = 2;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C24")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C10")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C9")==0) {n_H = 2;}
@@ -909,7 +918,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"MES")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N4")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N4")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 2;}
@@ -919,10 +928,10 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"NAG")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
-                    else if (strcmp(&LongAtomName,"CO3")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"CO4")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"CO6")==0) {n_D = 1;}
+                    if (strcmp(&LongAtomName,"N2")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
+                    else if (strcmp(&LongAtomName,"CO3")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"CO4")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"CO6")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 1;}
@@ -933,9 +942,9 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"BMA")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"CO3")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"CO4")==0) {n_D = 1;}
+                    if (strcmp(&LongAtomName,"O2")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"CO3")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"CO4")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C1")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 1;}
@@ -945,7 +954,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"TG1")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"O2")==0) {n_D = 1;}
+                    if (strcmp(&LongAtomName,"O2")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C34")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C8")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C9")==0) {n_H = 2;}
@@ -970,13 +979,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C29")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C30")==0) {n_H = 3;}
                     else if (strcmp(&LongAtomName,"O6")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"O11")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O11")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C24")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C25")==0) {n_H = 3;}
                 }
                 else if (strcmp(&AminoName,"PCW")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N2")==0) {n_D = 1;}
+                    if (strcmp(&LongAtomName,"N2")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C11")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C12")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
@@ -990,36 +999,36 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 }
                 else if (strcmp(&AminoName,"PEG")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N2")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C4")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
-                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O4")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O4")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"PG0")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N2")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C4")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 3;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"O2")==0) {n_D = 0;}
-                    else if (strcmp(&LongAtomName,"OTT")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"O2")==0) {n_HD = 0;}
+                    else if (strcmp(&LongAtomName,"OTT")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"GOL")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
-                    if (strcmp(&LongAtomName,"N2")==0) {n_D = 1.0-NonExchNH; n_H = NonExchNH;}
+                    if (strcmp(&LongAtomName,"N2")==0) {n_HD = 1.0-NonExchNH; n_H = NonExchNH;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C2")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"O3")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O3")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"O2")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"CRS")==0) {
                     sscanf(buffer,"HETATM%*7c%s", &LongAtomName);
@@ -1030,13 +1039,13 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"C5")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C6")==0) {n_H = 1;}
                     else if (strcmp(&LongAtomName,"C7")==0) {n_H = 3;}
-                    else if (strcmp(&LongAtomName,"O1")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"O1")==0) {n_HD = 1;}
                 }
                 else if (strcmp(&AminoName,"POPE")==0) {
                     LIP = 1;
                     sscanf(buffer,"HETATM%*6c%s", &LongAtomName);
                     if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"NH3")==0) {n_D = 3.0*(1.0-NonExchNH); n_H = 3.0*NonExchNH;}
+                    else if (strcmp(&LongAtomName,"NH3")==0) {n_HD = 3.0*(1.0-NonExchNH); n_H = 3.0*NonExchNH;}
                     else if (strcmp(&LongAtomName,"C12")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C11")==0) {n_H = 2;}
                     //else if (strcmp(&LongAtomName,"P")==0) {n_H = 0;}
@@ -1090,9 +1099,9 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     sscanf(buffer,"HETATM%*6c%s", &LongAtomName);
                     if (strcmp(&LongAtomName,"C1")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C1H")==0) {n_H = 2;}
-                    else if (strcmp(&LongAtomName,"OC3")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"OC3")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C12")==0) {n_H = 1;}
-                    else if (strcmp(&LongAtomName,"OC2")==0) {n_D = 1;}
+                    else if (strcmp(&LongAtomName,"OC2")==0) {n_HD = 1;}
                     else if (strcmp(&LongAtomName,"C11")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C22")==0) {n_H = 2;}
                     else if (strcmp(&LongAtomName,"C3")==0) {n_H = 2;}
@@ -1131,9 +1140,9 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                     else if (strcmp(&LongAtomName,"6C31")==0) {n_H = 3;}
                 }
             }
-            if (OPTION_EXPLICIT_H_CHOSEN) {n_H=0; n_D=n_DB; n_DD=0;} // use only implicit H for added water layer beads
+            if (OPTION_EXPLICIT_H_CHOSEN) {n_H=0; n_HD=n_HD_WL; n_DD=0;} // use only implicit H for added water layer beads
             // Update volume and scattering length with implicit H and D (adjust if DNA or RNA)
-            Atoms[i].Volume += (n_D + n_H) * 5.15;
+            Atoms[i].Volume += (n_HD + n_H) * 5.15;
             
             // Volume corrections factors for DNA, RNA and LIP
             if (DNA == 1) {Atoms[i].Volume *= DNACorrFactor;}
@@ -1144,7 +1153,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
             SumOfVolume += Atoms[i].Volume;
             
             if(SolventD2O < 0.0){
-                Atoms[i].XRayScatteringLength += (n_D + n_H) * element[HD].XRayScatteringLength;
+                Atoms[i].XRayScatteringLength += (n_HD + n_H) * element[HD].XRayScatteringLength;
                 Ba[i] = Atoms[i].XRayScatteringLength;
             }
             else {
@@ -1155,7 +1164,7 @@ int ReadPDB(char *filename, double *Da, double *Ba, double *Bs, double *dB, stru
                 else if (strcmp(&Chain,"F")==0 && Perdeuteration_F >= 0.0) {n_DD = Perdeuteration_F * n_H;}
                 else {n_DD = Perdeuteration * n_H;}
                 n_H = n_H - n_DD;
-                Atoms[i].NeutronScatteringLength += n_D * element[HD].NeutronScatteringLength - n_H * element[HYDROGEN].NeutronScatteringLength + n_DD * element[DEUTERIUM].NeutronScatteringLength;
+                Atoms[i].NeutronScatteringLength += n_HD * element[HD].NeutronScatteringLength - n_H * element[HYDROGEN].NeutronScatteringLength + n_DD * element[DEUTERIUM].NeutronScatteringLength;
                 Ba[i] = Atoms[i].NeutronScatteringLength;
             }
             Bs[i] = rhoSolvent * Atoms[i].Volume;

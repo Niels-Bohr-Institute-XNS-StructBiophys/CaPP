@@ -1,5 +1,5 @@
 //subfunction
-void WritePDB_Water(char filename[], double HalfBilayerThickness, double *Wx, double *Wy, double *Wz, int NW)
+void WritePDB_Water(char filename[], double HalfBilayerThickness, double *Wx, double *Wy, double *Wz, int NW, int *GLYC_WL)
 {
     FILE * fil;
     int i;
@@ -9,8 +9,13 @@ void WritePDB_Water(char filename[], double HalfBilayerThickness, double *Wx, do
     for(i=0;i<NW;i++)
     {
         if (fabs(Wz[i]) > HalfBilayerThickness){
-            fprintf(fil,"ATOM  %5d  Q   WAT W%4d    %8.3lf%8.3lf%8.3lf  1.00 10.00           Q\n",j,j,Wx[i], Wy[i],Wz[i]);
-            j++;}
+            if (GLYC_WL[i] == 1){
+                fprintf(fil,"ATOM  %5d QG   WAT W%4d    %8.3lf%8.3lf%8.3lf  1.00 10.00           Q\n",j,j,Wx[i],Wy[i],Wz[i]);
+            } else {
+                fprintf(fil,"ATOM  %5d  Q   WAT W%4d    %8.3lf%8.3lf%8.3lf  1.00 10.00           Q\n",j,j,Wx[i],Wy[i],Wz[i]);
+            }
+            j++;
+        }
     }
     fprintf(fil,"END\n");
     fclose(fil);
@@ -19,7 +24,7 @@ void WritePDB_Water(char filename[], double HalfBilayerThickness, double *Wx, do
 //mainfunction 1
 char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
 {
-    // find number of residues in the PDB (CA atoms for protein + C4' atoms for DNA/RNA)
+    // find number of residues in the PDB (CA atoms for protein, C4' atoms for DNA/RNA, C5 atoms for glycosylations)
     int Nres = CheckNumberOfResidues(inputPDB);
 
     // alpha-carbon positions (C4' pos for DNA/RNA)
@@ -31,6 +36,10 @@ char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
     double *Wx = (double *) calloc( Nres, sizeof(double));
     double *Wy = (double *) calloc( Nres, sizeof(double));
     double *Wz = (double *) calloc( Nres, sizeof(double));
+    
+    // logic: is it a glycosylation atom or not (1/0)
+    int *GLYC = (int *) calloc( Nres, sizeof(int));
+    int *GLYC_WL = (int *) calloc( Nres, sizeof(int));
     
     // get CA positions
     FILE *fil;
@@ -50,6 +59,11 @@ char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
             CAx[i] = x;
             CAy[i] = y;
             CAz[i] = z;
+            if( sscanf(buffer,"ATOM%*9cC5%*2c%*s%*10c%lf%lf%lf",&x,&y,&z) == 3){
+                GLYC[i] = 1;
+            } else {
+                GLYC[i] = 0;
+            }
             i++;
         }
     }
@@ -79,6 +93,7 @@ char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
             Wx[NW] = CAx[j] + 5.0*sumdx/D;
             Wy[NW] = CAy[j] + 5.0*sumdy/D;
             Wz[NW] = CAz[j] + 5.0*sumdz/D;
+            GLYC_WL[NW] = GLYC[j];
             NW++;
         }
     }
@@ -86,7 +101,7 @@ char * GenerateWaterLayerPDB(char *inputPDB, double HalfBilayerThickness)
     // make water pdb file
     char *inputPDB1 = GetCStringBeforeLastDelimiter(inputPDB, '.'); //extracts 1HEJ from 1HEJ.pdb
     char *waterfilename = strcat(inputPDB1, "_w_only.pdb");
-    WritePDB_Water(waterfilename, HalfBilayerThickness, Wx, Wy, Wz, NW);
+    WritePDB_Water(waterfilename, HalfBilayerThickness, Wx, Wy, Wz, NW, GLYC_WL);
     return waterfilename;
 }
 
