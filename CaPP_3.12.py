@@ -1,4 +1,4 @@
-##        CaPP A.B                   ##
+##    CaPP A.B                       ##
 ##                                   ##
 ##    Copyright 2020,                ##
 ##    Andreas Larsen                 ##
@@ -52,6 +52,15 @@ print('x' in np.arange(5))   #returns False, without Warning
 ### check OS and use correct binary. Check location of binary 
 if platform.system() == "Darwin":
     capp_version = "capp_mac"
+elif platform.system() == "Windows":
+    capp_version = "capp/capp.exe"
+    if programpath.count(" ") > 0:
+        print("")
+        print("****************************************************************************************")
+        print("Found path is: ", programpath)
+        print("Path must not contain spaces!")
+        print("****************************************************************************************")
+        sys.exit(1)
 else:
     capp_version = "capp"
 programpath = os.path.dirname(os.path.realpath(__file__))
@@ -70,6 +79,12 @@ elif capp_version == "capp":
     print("  3) re-run CaPP with: python CaPP.py")
     print("****************************************************************************************")
     print("")
+    sys.exit(1)
+elif capp_version == "capp/capp.exe":
+    print("")
+    print("****************************************************************************************")
+    print("Could not find Windows executables. Compile (gcc Mainfunction.c -o capp -lm) and place capp.exe here: ", programpath + "/" + capp_version)
+    print("****************************************************************************************")
     sys.exit(1)
 else:
     print("")
