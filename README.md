@@ -14,7 +14,10 @@ Sourcefiles are only needed if the program needs to be recompiled.
 ### Running the program, GUI mode
 To start the GUI, type in the terminal
 
-        >> python path-to-folder/CaPP_A.B.py     
+        >> python path-to-folder/CaPP_A.B.py 
+        
+or:
+        >> pythonw path-to-folder/CaPP_A.B.py 
 
 A.B is the version    
 
