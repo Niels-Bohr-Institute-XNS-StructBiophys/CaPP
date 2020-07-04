@@ -1,8 +1,8 @@
-##        CaPP A.B              ##
-##                              ##
-##    Copyright 2019,           ##
-##    Andreas Larsen            ##
-##    andreas.larsen@nbi.ku.dk  ##
+##        CaPP A.B                   ##
+##                                   ##
+##    Copyright 2020,                ##
+##    Andreas Larsen                 ##
+##    andreas.larsen@bioch.ox.ac.uk  ##
 
 ## This file is part of CaPP.                                           ##
 ##                                                                      ##
