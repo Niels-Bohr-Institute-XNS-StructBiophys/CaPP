@@ -1457,7 +1457,7 @@ class MainCls(wx.Frame):
             else:
                 self.Figure3 = pylab.figure(3)
                 Subplot3 = pylab.subplot(111)
-                Subplot3.errorbar(q, I, dI, label="Data", color='r',fmt='.')
+                Subplot3.errorbar(q, I, dI, label="Data", color='r',fmt='.',zorder=0)
             Subplot3 = pylab.subplot(111)
             if self.fitPDB2_button.GetValue():
                 if self.Water_layer_button.GetValue():
