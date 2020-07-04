@@ -16,7 +16,8 @@ To start the GUI, type in the terminal
 
         >> python path-to-folder/CaPP_A.B.py    
         
-or:    
+or:     
+        
         >> pythonw path-to-folder/CaPP_A.B.py    
 
 A.B is the version    
