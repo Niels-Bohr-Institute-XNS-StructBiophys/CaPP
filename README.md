@@ -193,7 +193,6 @@ The water layer is explicitely written to a "pseudo" PDB file  and can thus be v
 [WATER]      = { 0.0, 0.0, 0.0,n_W*8 * 2.82e-13,n_W*5.803e-13,                          n_W*(a*30-2*5.15),   0.0,   'A'} ,    
 [UNKNOWN]    = { 0.0, 0.0, 0.0,    0 * 2.82e-13,    0.000e-13,                                       1.00,   0.0,   'A'}    
 
-
 ## Note on Dmax
 The Dmax is the true Dmax, i.e. the furhest distance betweeen any two atoms (or water beads) in the protein.  
 However, this value is not detectable, since only very few atom pairs have this distance. Therefore, Dmax  
@@ -215,7 +214,7 @@ Data are fitted with chi2-minimization, using the error bars from data (3rd colu
 No resolution effects are included for SAXS, nor SANS data.  
 The density of the water layer cannot (yet) be fitted.  
 
-## Publications using capp
+## Publications using Capp
 * Larsen et al 2018: https://doi.org/10.1107/S2052252518012186    
 * Martin et al 2019: https://doi.org/10.1016/j.bpj.2019.04.002    
 * Larsen, Pedersen and Arleth 2020: https://doi.org/10.1107/S1600576720006500   
