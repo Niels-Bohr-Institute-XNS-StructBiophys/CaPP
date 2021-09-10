@@ -215,6 +215,13 @@ Data are fitted with chi2-minimization, using the error bars from data (3rd colu
 No resolution effects are included for SAXS, nor SANS data.  
 The density of the water layer cannot (yet) be fitted.  
 
+## Publications using capp
+* Larsen et al 2018: https://doi.org/10.1107/S2052252518012186    
+* Martin et al 2019: https://doi.org/10.1016/j.bpj.2019.04.002    
+* Larsen, Pedersen and Arleth 2020: https://doi.org/10.1107/S1600576720006500   
+* Ding et al 2021: https://doi.org/10.3389/fmolb.2021.621128    
+* Mauney et al 2021: https://doi.org/10.1093/nar/gkab290
+
 ## Versions  
 #### CaPP 1  
 - Release June 2017  
